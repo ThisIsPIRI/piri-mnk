@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="symbolDefault" translatable="false">xsAndOs</string>
+	<string name="lineDefault" translatable="false">linesEnclosingSymbols</string>
+	<string name="tagInBundle" translatable="false">tagInBundle</string>
+	<string name="isServer" translatable="false">isServer</string>
+</resources>
