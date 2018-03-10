@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	<RadioGroup
+		android:id="@+id/dialogRadioMethod"
+		android:orientation="horizontal"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent">
+		<RadioButton
+			android:id="@+id/dialogRadioServer"
+			android:text="@string/asTheServer"
+			android:checked="true"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+		<RadioButton
+			android:id="@+id/dialogRadioClient"
+			android:text="@string/asAClient"
+			android:checked="false"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+	</RadioGroup>
+	<EditText
+		android:id="@+id/uuidEditText"
+		android:hint="@string/serverIdentifierHint"
+		android:inputType="text"
+		android:textSize="18sp"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+	<Button
+		android:id="@+id/connectButton"
+		android:text="@string/connect"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+</LinearLayout>
