@@ -181,11 +181,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 						Toast.makeText(MainActivity.this, R.string.sgfLimit, Toast.LENGTH_SHORT).show();
 						return;
 					}
-					if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale)) //if writing permission has been granted
+					if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
 						saveGame(null);
 					break;
 				case R.id.load:
-					if(android.os.Build.VERSION.SDK_INT < 19 && getPermission(Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale)) //if reading permission hasn't been granted
+					if(android.os.Build.VERSION.SDK_INT < 19 || getPermission(Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale)) //Reading permission is not enforced under API 19
 						loadGame(null);
 					break;
 			}
