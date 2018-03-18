@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private final static String DECISION_TAG = "decision", FILE_TAG = "file", BLUETOOTH_TAG = "bluetooth";
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 
-	//UI and Android API
+	//SECTION: UI and Android API
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
 	private void readData() {
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		displayDialog = 0;
 	}
 
-	//game handling
+	//SECTION: game handling
 	/**Returns the current {@link MnkGame}.*/
 	@Override public MnkGame getGame() {return game;}
 	/**Stops every {@code Thread} and initializes the game.*/
@@ -413,7 +413,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 			} //TODO: add some way to inform the user that a Dialog didn't "return" correctly
 		}
 	}
-	//communication
+
+	//SECTION: communication
 	/**Listens for changes in the playing mode(local or Bluetooth)*/
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
@@ -528,7 +529,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	@Override public void informRejection() {
 		runOnUiThread(new Runnable() {public void run() {Toast.makeText(MainActivity.this, R.string.requestRejected, Toast.LENGTH_SHORT).show(); }});
 	}
-	//file and communication
+
+	//SECTION: file and communication
 	@Override public void onRequestPermissionsResult(final int requestCode, @NonNull final String permissions[], @NonNull final int[] grantResults) {
 		if(grantResults.length > 0) {
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -591,7 +593,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		}
 	}
 
-	//miscellaneous
+	//SECTION: miscellaneous
 	private static class FillHandler extends Handler{
 		final WeakReference<MainActivity> activity;
 		FillHandler(MainActivity a) {activity = new WeakReference<>(a);}
