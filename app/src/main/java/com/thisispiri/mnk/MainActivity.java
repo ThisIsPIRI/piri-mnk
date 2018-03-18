@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 						saveGame(null);
 					break;
 				case R.id.load:
-					if(android.os.Build.VERSION.SDK_INT < 19 && getPermission(Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale)) //if reading permission hasn't been granted
+					if(android.os.Build.VERSION.SDK_INT < 19 || getPermission(Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale)) //if reading permission hasn't been granted
 						loadGame(null);
 					break;
 			}
