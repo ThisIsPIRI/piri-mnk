@@ -50,19 +50,27 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private View parentView;
 	private Checkable radioLocal; //onCheckedChanged() may be called more than once if we use RadioGroup.check(). Do not replace this with radioPlayers.
 	private final ButtonListener bLis = new ButtonListener();
+	/**The {@code Thread} used to asynchronously fill all cells when the "fill all" button is pressed.*/
 	private FillThread fillThread;
+	/**The {@code Thread} used to communicate with another client via Bluetooth.*/
 	private IoThread bluetoothThread;
 	/**The {@code Handler} used to handle invalidation requests from {@link MainActivity#fillThread}.*/
 	private Handler fillHandler = new FillHandler(this);
-	/**Used to implement time limit.*/
+	/**The {@code CountDownTimer} for implementing the time limit.*/
 	private MnkTimer limitTimer = new MnkTimer(-1, -1); //The first instance is replaced in setTimeLimit()
 	private final MnkSaveLoader saveLoader = new MnkSaveLoader();
 	private final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 	private BluetoothSocket socket;
 	private boolean gameEnd = false, onBluetooth = false, isServer = false, preventPlaying = false, enableHighlight, enableTimeLimit;
-	/**Used to tie myTurn to a specific Shape in Bluetooth mode.*/private int myIndex = 0;
-	private int screenX, timeLimit, previousTimeLimit = -1;
-	/**Indicates what {@code Dialog} to show on next {@link MainActivity#onResumeFragments}. Needed because {@code IllegalStateException} is thrown when {@code DialogFragment.show()} is called inside some functions.
+	/**Used to tie myTurn to a specific Shape in Bluetooth mode.*/
+	private int myIndex = 0;
+	/**The width of the screen, for updating custom {@code View}s.*/
+	private int screenX;
+	/**The time limit in milliseconds.*/
+	private int timeLimit;
+	/**The previous time limit, used to tell if we should stop the timer because of a change in the time limit.*/
+	private int previousTimeLimit = -1;
+	/**Indicates what {@code Dialog} to show on next {@link MainActivity#onResumeFragments}. Needed because {@code IllegalStateException} is thrown when {@code DialogFragment.show()} is called inside some methods.
 	 * Values for this field can be {@link MainActivity#SAVE_REQUEST_CODE}, {@link MainActivity#LOAD_REQUEST_CODE}, {@link MainActivity#LOCATION_REQUEST_CODE} or {@link MainActivity#BLUETOOTH_ENABLE_CODE}. Any other value does nothing.*/
 	private int displayDialog = 0;
 	/**The update rate of the timer in milliseconds.*/
@@ -277,8 +285,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		}
 		return null;
 	}
-	/**Places a stone on the designated position and highlights the position.*/@Override public boolean endTurn(final int x, final int y) {return endTurn(x, y, true);}
-	/**@see MainActivity#endTurn(int, int, boolean)*/private boolean endTurn(final Point p, final boolean highlight) {return endTurn(p.x, p.y, highlight);}
+	/**Places a stone on the designated position and highlights the position.*/
+	@Override public boolean endTurn(final int x, final int y) {return endTurn(x, y, true);}
+	/**@see MainActivity#endTurn(int, int, boolean)*/
+	private boolean endTurn(final Point p, final boolean highlight) {return endTurn(p.x, p.y, highlight);}
 	/**Places a stone on the designated position and updates the graphics.
 	 * @param highlight Whether to highlight the position.*/
 	private boolean endTurn(final int x, final int y, final boolean highlight) {

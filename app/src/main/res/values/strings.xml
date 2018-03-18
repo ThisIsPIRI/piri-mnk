@@ -24,14 +24,14 @@
 	<string name="goStones">Go stones</string>
 	<string name="winAnnouncement">th player won</string>
 	<string name="ioError">An IO error occurred.</string>
-	<string name="asTheServer">As the server</string>
-	<string name="asAClient">As a client</string>
+	<string name="asTheServer">Play first</string>
+	<string name="asAClient">Play second</string>
 	<string name="local">Local</string>
 	<string name="bluetooth">Bluetooth</string>
 	<string name="connect">Connect</string>
 	<string name="multiplayerOnBluetooth">Multiplayer over Bluetooth</string>
-	<string name="clientIdentifierHint">Enter the ID from the server</string>
-	<string name="serverIdentifierHint">Enter a random ID</string>
+	<string name="clientIdentifierHint">Enter what the opponent entered</string>
+	<string name="serverIdentifierHint">Enter anything</string>
 	<string name="locationRationale">The permission is needed to search for Bluetooth devices.</string>
 	<string name="ruleChangeWhileBluetooth">The rules will be applied after the connection ends.</string>
 	<string name="reject">Reject</string>
@@ -63,4 +63,5 @@
 	<string name="playFirst">As the server, you play first.</string>
 	<string name="connectionTerminated">The opponent terminated the connection.</string>
 	<string name="waitDelay">Wait a moment&#8230;</string>
+	<string name="credits">Credits</string>
 </resources>
