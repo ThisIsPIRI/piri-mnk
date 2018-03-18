@@ -82,7 +82,7 @@
 	<PreferenceCategory
 		android:title="Others">
 		<com.thisispiri.preferences.CreditsPreference
-			android:title="Credits"
+			android:title="@string/credits"
 			custom:text="The AOSP for Android and the Support Library"/>
 	</PreferenceCategory>
 </PreferenceScreen>
