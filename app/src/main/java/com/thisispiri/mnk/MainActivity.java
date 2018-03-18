@@ -181,25 +181,27 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 						Toast.makeText(MainActivity.this, R.string.sgfLimit, Toast.LENGTH_SHORT).show();
 						return;
 					}
-					if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) { //if reading permission hasn't been granted
-						if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-							Toast.makeText(MainActivity.this, R.string.saveRationale, Toast.LENGTH_SHORT).show();
-						}
-						ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, SAVE_REQUEST_CODE);
-					}
-					else saveGame(null);
+					if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale)) //if writing permission has been granted
+						saveGame(null);
 					break;
 				case R.id.load:
-					if(android.os.Build.VERSION.SDK_INT > 16 && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) { //if writing permission hasn't been granted
-						if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-							Toast.makeText(MainActivity.this, R.string.loadRationale, Toast.LENGTH_SHORT).show();
-						}
-						ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, LOAD_REQUEST_CODE);
-					}
-					else loadGame(null);
+					if(android.os.Build.VERSION.SDK_INT < 19 && getPermission(Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale)) //if reading permission hasn't been granted
+						loadGame(null);
 					break;
 			}
 		}
+	}
+	/**Sees if the {@code permission} is granted to the {@code Context} and, if it isn't, requests that it be.
+	 * @return if the permission was already granted at the time of call.*/
+	private boolean getPermission(String permission, int requestCode, int rationaleId) {
+		if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) { //if writing permission hasn't been granted
+			if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+				Toast.makeText(this, rationaleId, Toast.LENGTH_SHORT).show();
+			}
+			ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+			return false;
+		}
+		else return true;
 	}
 	/**Shows the {@code Dialog} {@link MainActivity#displayDialog} points to and initializes it.*/
 	@Override public void onResumeFragments() {
@@ -425,11 +427,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 						radioLocal.setChecked(true);
 						Toast.makeText(MainActivity.this, R.string.noBluetoothSupport, Toast.LENGTH_SHORT).show();
 					}
-					else if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) { //if location permission hasn't been granted
-						if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-							Toast.makeText(MainActivity.this, R.string.locationRationale, Toast.LENGTH_SHORT).show();
-						}
-						ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
+					else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
+						break;
 					}
 					else if (!adapter.isEnabled()) {
 						startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
