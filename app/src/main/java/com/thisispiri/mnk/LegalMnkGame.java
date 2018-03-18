@@ -10,11 +10,20 @@ public class LegalMnkGame extends MnkGame {
 		winStreak = original.winStreak;
 		array = original.array;
 	}
-	/**Places a {@link Shape} on the position if and only if the tile is empty.*/
+	/**Places a {@link Shape} on the position if and only if the tile is empty.
+	 * Changes the result of {@link MnkGame#getNextIndex()}.
+	 * @return if it succeeded in placing a stone.*/
 	@Override public boolean place(int x, int y) {
-		return isEmpty(x, y) && super.place(x, y);
+		//Never call super.place(int, int) here; it calls place(int, int, Shape), which is overridden here to call this method(place(int, int)), causing infinite recursion and stack overflow.
+		if(isEmpty(x, y) && super.place(x, y, shapes[getNextIndex()])) {
+			changeShape(1);
+			return true;
+		}
+		return false;
 	}
-	/**Places a {@link Shape} on the position if and only if the tile is empty and {@code toPlace} is the {@link Shape} planned to be placed next.*/
+	/**Places a {@link Shape} on the position if and only if the tile is empty and {@code toPlace} is the {@link Shape} planned to be placed next(i.e. {@link MnkGame#shapes}[{@link MnkGame#getNextIndex()}]).
+	 * Changes the result of {@link MnkGame#getNextIndex()}.
+	 * @return if it succeeded in placing the {@link Shape}.*/
 	@Override public boolean place(int x, int y, Shape toPlace) {
 		return toPlace == shapes[getNextIndex()] && place(x, y);
 	}

@@ -16,6 +16,8 @@ public class MnkGame {
 	public int getVerSize() {return verSize;}
 	/**The number of shapes in a line it takes to win.*/public int winStreak = 5;
 	/**The index of the {@link Shape} to be placed next in {@link MnkGame#shapes}.*/private int nextIndex = 0;
+	/**Returns the index of the next {@link Shape} to be placed in {@link MnkGame#shapes}.
+	 * @return The index of the next {@link Shape} to be placed.*/
 	public int getNextIndex() {return nextIndex;}
 	/**Initializes the game with the default size of 15 * 15 and winning length of 5.*/
 	MnkGame() {
@@ -23,7 +25,8 @@ public class MnkGame {
 		initialize();
 	}
 	/**Places a {@link Shape} at the supplied coordinate. Does not check if the move is illegal(the Shape may be placed on another, already placed, one).
-	 * @return {@code true} if a {@link Shape} was successfully placed. {@code false} if it failed to place it(probably because the coordinate was out of the boundaries.*/
+	 * Changes the result of {@link MnkGame#getNextIndex()}.
+	 * @return {@code true} if a {@link Shape} was successfully placed. {@code false} if it failed to place it(because the coordinate was out of the boundaries).*/
 	public boolean place(final int x, final int y) {
 		if(place(x, y, shapes[nextIndex])) {
 			changeShape(1);
@@ -32,6 +35,7 @@ public class MnkGame {
 		else return false;
 	}
 	/**Places the shape at the location. This method does not change the next {@link Shape} to be placed.
+	 * Does not change the result of {@link MnkGame#getNextIndex()}.
 	 * @param toPlace The shape to place at the location.
 	 * @return {@code true} if a {@link Shape} was successfully placed. {@code false} if it failed to place it.*/
 	public boolean place(final int x, final int y, final Shape toPlace) {
@@ -133,5 +137,5 @@ public class MnkGame {
 	}
 	public boolean isEmpty(final int x, final int y) {return array[y][x] == empty;}
 	public boolean inBoundary(final int y, final int x) {return y >= 0 && y < verSize && x >= 0 && x < horSize;}
-	//TODO: make a training data dump function
+	//TODO: make a method to dump training data
 }
