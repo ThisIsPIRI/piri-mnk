@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	//SECTION: game handling
 	/**Returns the current {@link MnkGame}.*/
 	@Override public MnkGame getGame() {return game;}
-	/**Stops every {@code Thread} and initializes the game.*/
+	/**Stops every {@code Thread} started by this {@code Activity} and initializes the game.*/
 	@Override public void initialize() {
 		gameEnd = true; //to prevent AI from filling.
 		if(limitTimer != null) limitTimer.cancel();
@@ -563,7 +563,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		if(Looper.myLooper() != Looper.getMainLooper()) runOnUiThread(new Runnable() {public void run() {informUser(that);}});
 		else Toast.makeText(this, that, Toast.LENGTH_SHORT).show();
 	}
-	//file saving and loading
+	//SECTION: files
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
 	private void showEditTextDialog(String tag, String message, String hint) {
 		EditTextDialogFragment fragment = new EditTextDialogFragment();

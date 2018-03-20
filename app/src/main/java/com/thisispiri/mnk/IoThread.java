@@ -11,7 +11,7 @@ import java.util.Arrays;
  * When sending moves, the format is {MOVE_HEADER, (x int), (y int)}. <br>
  * When sending requests, the format is {REQUEST_HEADER, (action constant)}. <br>
  * When sending responses(to requests), the format is {RESPONSE_HEADER, RESPONSE_REJECT/PERMIT, (action constant)}. <br>
- * When sending orders, the format is {ORDER_HEADER, (order constant), in case of initialization : (board size int), (winning streak int)}.*/
+ * When sending orders, the format is {ORDER_HEADER, (order constant), in case of initialization : (board size ints), (winning streak int)}.*/
 public class IoThread extends Thread {
 	public final static byte MOVE_HEADER = 0, REQUEST_HEADER = 1, RESPONSE_HEADER = 2, ORDER_HEADER = 3; //headers
 	public final static byte REQUEST_RESTART = 4, REQUEST_REVERT = 5; //requests
@@ -33,7 +33,7 @@ public class IoThread extends Thread {
 				switch(buffer[0]) {
 					case MOVE_HEADER:
 						if(!manager.endTurn(ByteBuffer.wrap(Arrays.copyOfRange(buffer, 1, 5)).getInt(), ByteBuffer.wrap(Arrays.copyOfRange(buffer, 5, 9)).getInt()))
-							manager.informUser("The opponent's move was invalid. He might be using a modified version of the game.");
+							manager.informUser("The opponent's move was invalid. He might be using a modified or outdated version of the game.");
 						break;
 					case REQUEST_HEADER:
 						manager.requestToUser(buffer[1]);

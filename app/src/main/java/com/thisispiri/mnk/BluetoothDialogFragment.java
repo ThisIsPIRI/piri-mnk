@@ -1,4 +1,5 @@
 package com.thisispiri.mnk;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
@@ -21,6 +22,7 @@ import android.widget.RadioGroup;
 import com.thisispiri.dialogs.ListenerDialogFragment;
 import java.io.IOException;
 import java.util.UUID;
+
 /**A {@code DialogFragment} for finding and connecting to another Android device via Bluetooth.
  * The calling {@code Context} must implement {@code DialogListener} to receive the results and call {@code setArguments()} on this. If either isn't fulfilled, it will throw an {@code Exception}.*/
 public class BluetoothDialogFragment extends ListenerDialogFragment {
@@ -114,8 +116,8 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
                     serverSocket.close();
                 }
                 catch (IOException e) {
-                    //Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() fail");
-                    //Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
+                	//Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() fail");
+					//Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -142,16 +144,16 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
                                 dismiss();
                             }
                             catch (IOException e) {
-                                //Log.e("PIRIMNK", "socket.connect() fail");
-                                //Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
+                            	//Log.e("PIRIMNK", "socket.connect() fail");
+								//Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
                             }
                         }
                     };
                     runningThread.start();
                 }
                 catch (IOException e) {
-                    //Log.e("PIRIMNK", "device.createRfcommSocketToServiceRecord() fail");
-                    //Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
+                	//Log.e("PIRIMNK", "device.createRfcommSocketToServiceRecord() fail");
+					//Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
                 }
             }
         }

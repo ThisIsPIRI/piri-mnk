@@ -7,15 +7,21 @@ import java.util.Stack;
 /**A representation of an MNK game.*/
 public class MnkGame {
 	Shape[][] array; //TODO: make this private and add legality check to place()
-	/**The array of shapes to be placed rotationally in a normal game.*/public final Shape[] shapes = {Shape.X, Shape.O};
-	/**The list of shapes for searching*/private final List<Shape> shapesList = Arrays.asList(shapes);
-	/**The {@link Shape} representing an empty cell.*/public final Shape empty = Shape.N;
-	/**The list of all {@link Move}s made in the game. Earlier moves are stored first.*/final Stack<Move> history = new Stack<>();
+	/**The array of shapes to be placed rotationally in a normal game.*/
+	public final Shape[] shapes = {Shape.X, Shape.O};
+	/**The list of shapes for searching*/
+	private final List<Shape> shapesList = Arrays.asList(shapes);
+	/**The {@link Shape} representing an empty cell.*/
+	public final Shape empty = Shape.N;
+	/**The list of all {@link Move}s made in the game. Earlier moves are stored first.*/
+	final Stack<Move> history = new Stack<>();
 	private int horSize = 15, verSize = 15;
 	public int getHorSize() {return horSize;}
 	public int getVerSize() {return verSize;}
-	/**The number of shapes in a line it takes to win.*/public int winStreak = 5;
-	/**The index of the {@link Shape} to be placed next in {@link MnkGame#shapes}.*/private int nextIndex = 0;
+	/**The number of shapes in a line it takes to win.*/
+	public int winStreak = 5;
+	/**The index of the {@link Shape} to be placed next in {@link MnkGame#shapes}.*/
+	private int nextIndex = 0;
 	/**Returns the index of the next {@link Shape} to be placed in {@link MnkGame#shapes}.
 	 * @return The index of the next {@link Shape} to be placed.*/
 	public int getNextIndex() {return nextIndex;}
