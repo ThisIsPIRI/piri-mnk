@@ -19,8 +19,9 @@ public class ExampleInstrumentedTest {
         assertEquals("com.thisispiri.mnk", appContext.getPackageName());
         MnkGame game;
         game = new MnkGame();
-        game.setValues(11, 19, 4);
-        assertFalse(game.checkWin(5, 14));
+        game.setSize(11, 19);
+        game.winStreak = 4;
+        assertTrue(game.checkWin(5, 14) == null);
         game.place(3, 3);
         assertEquals(Shape.X, game.array[3][3]);
         game.place(3, 3);
@@ -29,12 +30,12 @@ public class ExampleInstrumentedTest {
         assertEquals(Shape.X, game.array[3][3]);
         game.place(3, 4, Shape.X);
         game.place(3, 5, Shape.X);
-        assertFalse(game.checkWin(3, 5));
+        assertTrue(game.checkWin(3, 5) == null);
         game.place(3, 6, Shape.X);
-        assertTrue(game.checkWin(3, 6));
-        game.toNextShape();
-        assertEquals(Shape.X, game.shapes[game.nextShape]);
+        assertFalse(game.checkWin(3, 6) == null);
+        game.changeShape(1);
+        assertEquals(Shape.X, game.shapes[game.getNextIndex()]);
         game.place(3, 5, Shape.N);
-        assertFalse(game.checkWin(3, 6));
+        assertTrue(game.checkWin(3, 6) == null);
     }
 }
