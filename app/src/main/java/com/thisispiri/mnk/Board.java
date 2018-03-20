@@ -1,9 +1,11 @@
 package com.thisispiri.mnk;
+
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.View;
-/**Draws a rectangular board of {@link Shape}s on its area. */
+
+/**Draws a rectangular board of {@link Shape}s on its area.*/
 public class Board extends View {
 	enum Symbol {
 		XS_AND_OS, GO_STONES

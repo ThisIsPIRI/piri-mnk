@@ -1,4 +1,5 @@
 package com.thisispiri.mnk;
+
 import android.os.Environment;
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+
 /**Writes on and reads from .sgf and .pirimnk files an {@link MnkGame}.*/
 public class MnkSaveLoader {
 	/**The maximum horizontal/vertical size of the board SGF supports.*/final static int SGF_MAX = 52;
@@ -33,7 +35,8 @@ public class MnkSaveLoader {
 		outputWriter.close();
 	}
 	private void piriSave(final MnkGame game, final String directoryName, final String fileName) throws IOException {
-		throw new IOException("not completed method called");
+		//TODO: implement
+		throw new IOException("incomplete method called");
 	}
 	MnkGame load(final String directoryName, final String fileName, final int winStreak) throws IOException {
 		MnkGame game = new MnkGame();
@@ -78,11 +81,13 @@ public class MnkSaveLoader {
 			}
 		}
 		else { //PIRIMNK format
+			//TODO: implement
 			throw new IOException();
 		}
 		inputReader.close();
 		return game;
 	}
+	//TODO: move this to somewhere else
 	private File getFile(final String directoryName, final String fileName, final boolean allowCreation) throws IOException {
 		if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 			throw new IOException();

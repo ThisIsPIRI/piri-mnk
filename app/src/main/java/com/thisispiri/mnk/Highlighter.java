@@ -1,16 +1,20 @@
 package com.thisispiri.mnk;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.View;
+
 /**Highlights rectangular cells within a grid by overlaying a color over them. It is assumed that the {@code Highlighter} itself is a square.*/
 public class Highlighter extends View {
 	private int horUnit, verUnit, depth = 0, duration, howManyTimes;
 	private Point[] toHighlight;
-	/**{@code Paint} object used for highlighting.*/private Paint paint = new Paint();
-	/**The only constructor.*/public Highlighter(final Context context, final AttributeSet attrs) { super(context, attrs); }
+	/**{@code Paint} object used for highlighting.*/
+	private Paint paint = new Paint();
+	/**The only constructor.*/
+	public Highlighter(final Context context, final AttributeSet attrs) { super(context, attrs); }
 	/**Works recursively to make an overlay flick over cells for some time, thus highlighting them.*/
 	@Override public void onDraw(final Canvas canvas) {
 		if(toHighlight == null) return;
