@@ -1,7 +1,12 @@
 package com.thisispiri.mnk;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+
 import static org.junit.Assert.*;
 
+@RunWith(RobolectricTestRunner.class)
 public class MnkGameTest {
 	private MnkGame game;
 	@Test public void test1() throws Exception {
@@ -20,7 +25,7 @@ public class MnkGameTest {
 		game.place(3, 5, Shape.X);
 		assertNull(game.checkWin(3, 5));
 		game.place(3, 6, Shape.X);
-		assertNull(game.checkWin(3, 6));
+		assertNotNull(game.checkWin(3, 6));
 		game.changeShape(1);
 		assertEquals(Shape.X, game.shapes[game.getNextIndex()]);
 		game.place(3, 5, Shape.N);

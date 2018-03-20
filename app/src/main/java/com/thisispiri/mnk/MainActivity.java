@@ -398,7 +398,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 							this.socket = (BluetoothSocket) result;
 							runOnUiThread(new Runnable() {@Override public void run() {
 								configureUI(true);
-								if (isServer) Toast.makeText(MainActivity.this, R.string.playFirst, Toast.LENGTH_SHORT).show();}}); //TODO: This line might not be executed even if the device is the server. Guarantee that it will
+								if (isServer) Toast.makeText(MainActivity.this, R.string.playFirst, Toast.LENGTH_SHORT).show();}}); //TODO: This line might not be executed even if the device is the server. Guarantee execution
 							try {
 								bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
 								bluetoothThread.start();
