@@ -581,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 				saveLoader.save(game, DIRECTORY_NAME, fileName + FILE_EXTENSION);
 			}
 			catch (IOException e) {
-				informIoError();
+				informIoError(); //TODO: put a better explanation than this
 			}
 		}
 	}
