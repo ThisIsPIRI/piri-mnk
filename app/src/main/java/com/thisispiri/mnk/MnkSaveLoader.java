@@ -1,12 +1,12 @@
 package com.thisispiri.mnk;
 
-import android.os.Environment;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+
+import com.thisispiri.util.FileUtilsKt;
 
 /**Writes on and reads from .sgf and .pirimnk files an {@link MnkGame}.*/
 public class MnkSaveLoader {
@@ -17,7 +17,7 @@ public class MnkSaveLoader {
 		else sgfSave(game, directoryName, fileName);
 	}
 	private void sgfSave(final MnkGame game, final String directoryName, final String fileName) throws IOException {
-		OutputStreamWriter outputWriter = new OutputStreamWriter(new FileOutputStream(getFile(directoryName, fileName, true)));
+		OutputStreamWriter outputWriter = new OutputStreamWriter(new FileOutputStream(FileUtilsKt.getFile(directoryName, fileName, true)));
 		outputWriter.write("(;FF[4]GM[4]SZ["); //FF[4] : use SGF version 4. GM[4] : game type is gomoku+renju(although PIRI MNK doesn't support renju yet). SZ[game.boardSize] : use board of horSize:verSize(rectangle) or horSize(square)
 		if(game.getHorSize() == game.getVerSize()) outputWriter.write(String.valueOf(game.getHorSize())); //writing square boards' size with two numbers is illegal
 		else outputWriter.write(game.getHorSize() + ":" + game.getVerSize());
@@ -40,7 +40,7 @@ public class MnkSaveLoader {
 	}
 	MnkGame load(final String directoryName, final String fileName, final int winStreak) throws IOException {
 		MnkGame game = new MnkGame();
-		InputStreamReader inputReader = new InputStreamReader(new FileInputStream(getFile(directoryName, fileName, false)));
+		InputStreamReader inputReader = new InputStreamReader(new FileInputStream(FileUtilsKt.getFile(directoryName, fileName, false)));
 		int skipper;
 		do {skipper = inputReader.read();}
 		while(skipper != '(' && skipper != -1);
@@ -86,19 +86,5 @@ public class MnkSaveLoader {
 		}
 		inputReader.close();
 		return game;
-	}
-	//TODO: move this to somewhere else
-	private File getFile(final String directoryName, final String fileName, final boolean allowCreation) throws IOException {
-		if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-			throw new IOException();
-		}
-		File directory = Environment.getExternalStoragePublicDirectory(directoryName), file = new File(directory, fileName);
-		if(!directory.exists() && !directory.mkdir()) {
-			throw new IOException();
-		}
-		if(!file.exists()) {
-			if(!allowCreation || !file.createNewFile()) throw new IOException();
-		}
-		return file;
 	}
 }
