@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		fillThread = new FillThread();
 		//find views and assign listeners
 		board = findViewById(R.id.illustrator);
+		board.setOnTouchListener(new BoardListener());
 		highlighter = findViewById(R.id.highlighter);
 		winText = findViewById(R.id.winText);
 		useAI = findViewById(R.id.useAI);
@@ -150,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		findViewById(R.id.save).setOnClickListener(bLis);
 		buttonLoad = findViewById(R.id.load);
 		buttonLoad.setOnClickListener(bLis);
-		board.setOnTouchListener(new BoardListener());
+		//TODO: add a "reload settings and restart" button for multiplayer
 		((RadioGroup) findViewById(R.id.radioPlayers)).setOnCheckedChangeListener(new RadioListener());
 		//save screen resolution
 		Point screenSize = new Point();
@@ -293,10 +294,12 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	 * @param highlight Whether to highlight the position.*/
 	private boolean endTurn(final int x, final int y, final boolean highlight) {
 		//Check the legality of the move
-		if(!game.place(x, y)) return false; //Does nothing if the move was invalid
+		if(!game.place(x, y)) return false; //Do nothing if the move was invalid.
 		if(onBluetooth) {
 			if(Looper.myLooper() == Looper.getMainLooper()) bluetoothThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
-			else if(game.getNextIndex() == myIndex) { //If it's the user's turn, refuse to end the turn for the opponent.
+			//If it's the user's turn, refuse to end the turn for the opponent.
+			//Compare myIndex to nextIndexAt(-1) since the game.place() call above has changed nextIndex by 1.
+			else if(game.getNextIndexAt(-1) == myIndex) {
 				game.revertLast(); //Also revert the last move since we already placed the stone above. MainActivity.revertLast() is not needed; we haven't updated the graphics yet.
 				return false;
 			}

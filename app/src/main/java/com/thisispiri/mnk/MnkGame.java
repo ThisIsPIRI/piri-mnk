@@ -76,6 +76,12 @@ public class MnkGame {
 	public void changeShape(final int steps) {
 		nextIndex = Math.abs((nextIndex + steps) % shapes.length);
 	}
+	/**Returns {@link MnkGame#nextIndex} at ((current turn) + steps))th turn, without actually changing the result of {@link MnkGame#getNextIndex()}.
+	 * @param steps The number to add to the turn.
+	 * @return The next shape at the turn.*/
+	public int getNextIndexAt(final int steps) {
+		return Math.abs((nextIndex + steps) % shapes.length);
+	}
 	/**Sets the size of the board.
 	 * @param hor The horizontal length of the board in the number of tiles.
 	 * @param ver The vertical length of the board in the number of tiles.

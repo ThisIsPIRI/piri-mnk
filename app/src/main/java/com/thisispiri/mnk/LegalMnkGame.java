@@ -1,11 +1,11 @@
 package com.thisispiri.mnk;
 /**An {@link MnkGame} in which you can only play valid moves.*/
 public class LegalMnkGame extends MnkGame {
-	LegalMnkGame() {
+	public LegalMnkGame() {
 		super();
 	}
 	/**Shallow copies the supplied {@link MnkGame}.*/
-	LegalMnkGame(final MnkGame original) {
+	public LegalMnkGame(final MnkGame original) {
 		setSize(original.getHorSize(), original.getVerSize());
 		winStreak = original.winStreak;
 		array = original.array;
@@ -14,7 +14,7 @@ public class LegalMnkGame extends MnkGame {
 	 * Changes the result of {@link MnkGame#getNextIndex()}.
 	 * @return if it succeeded in placing a stone.*/
 	@Override public boolean place(int x, int y) {
-		//Never call super.place(int, int) here; it calls place(int, int, Shape), which is overridden here to call this method(place(int, int)), causing infinite recursion and stack overflow.
+		//Never call super.place(int, int) here; it calls place(int, int, Shape), which is overridden here to call this method(place(int, int)), causing infinite recursion.
 		if(isEmpty(x, y) && super.place(x, y, shapes[getNextIndex()])) {
 			changeShape(1);
 			return true;
