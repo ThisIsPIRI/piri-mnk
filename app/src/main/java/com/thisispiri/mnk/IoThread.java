@@ -1,5 +1,4 @@
 package com.thisispiri.mnk;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +6,9 @@ import java.io.OutputStream;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+
+import com.thisispiri.mnk.MnkManager.Info;
+
 /**Reads and writes data from and to {@code InputStream}s and {@code OutputStream}s for playing {@link MnkGame} with another person. <br>
  * When sending moves, the format is {MOVE_HEADER, (x int), (y int)}. <br>
  * When sending requests, the format is {REQUEST_HEADER, (action constant)}. <br>
@@ -33,7 +35,7 @@ public class IoThread extends Thread {
 				switch(buffer[0]) {
 					case MOVE_HEADER:
 						if(!manager.endTurn(ByteBuffer.wrap(Arrays.copyOfRange(buffer, 1, 5)).getInt(), ByteBuffer.wrap(Arrays.copyOfRange(buffer, 5, 9)).getInt()))
-							manager.informUser("The opponent's move was invalid. He might be using a modified or outdated version of the game.");
+							manager.informUser(Info.INVALID_MOVE);
 						break;
 					case REQUEST_HEADER:
 						manager.requestToUser(buffer[1]);
@@ -45,7 +47,7 @@ public class IoThread extends Thread {
 								case REQUEST_REVERT: manager.revertLast(); break;
 							}
 						}
-						else if(buffer[1] == RESPONSE_REJECT) manager.informRejection();
+						else if(buffer[1] == RESPONSE_REJECT) manager.informUser(Info.REJECTION);
 						break;
 					case ORDER_HEADER:
 						if(buffer[1] == ORDER_INITIALIZE) {
@@ -68,7 +70,7 @@ public class IoThread extends Thread {
 			/*If the Thread is interrupted, we don't have to inform the user of the Exception; its purpose will have expired.
 			In this specific case, the only case an IOException can be caught here AND the Thread remain interrupted is when the Exception was thrown in the blocking read() call due to the socket having been closed.
 			If the cause of the Exception is something else, the Thread won't stay interrupted in this catch block.*/
-			if(!interrupted()) manager.informIoError();
+			if(!interrupted()) manager.informUser(Info.READ_FAIL);
 		}
 	}
 	/**Writes the data to the {@code OutputStream}.*/
@@ -77,7 +79,7 @@ public class IoThread extends Thread {
 			outputStream.write(data);
 		}
 		catch(IOException e) {
-			manager.informIoError();
+			manager.informUser(Info.WRITE_FAIL);
 		}
 	}
 	/**Writes Bytes, Integers, Longs, Shorts, Floats or Doubles in data varargs to the {@code OutputStream}.

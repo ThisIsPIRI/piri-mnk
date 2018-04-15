@@ -12,12 +12,14 @@ public interface MnkManager {
 	void setTimeLimit(int limit);
 	/**Asks the user if he approves the {@code action}.*/
 	void requestToUser(byte action);
-	/**Informs the user that his request to another player was rejected.*/
-	void informRejection();
-	void informIoError();
-	void informUser(String that);
+	/**Informs the user of the {@link Info}*/
+	void informUser(Info of);
+	//void informUser(String that);
 	/**Cancels the connection with another player, whatever that might be.*/
 	void cancelConnection();
 	/**@return The current {@link MnkGame}.*/
 	MnkGame getGame();
+	public enum Info {
+		REJECTION, INVALID_MOVE, READ_FAIL, WRITE_FAIL;
+	}
 }

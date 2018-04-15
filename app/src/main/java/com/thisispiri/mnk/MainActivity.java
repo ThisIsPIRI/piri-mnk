@@ -29,7 +29,9 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.thisispiri.dialogs.DecisionDialogFragment;
@@ -73,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	/**Indicates what {@code Dialog} to show on next {@link MainActivity#onResumeFragments}. Needed because {@code IllegalStateException} is thrown when {@code DialogFragment.show()} is called inside some methods.
 	 * Values for this field can be {@link MainActivity#SAVE_REQUEST_CODE}, {@link MainActivity#LOAD_REQUEST_CODE}, {@link MainActivity#LOCATION_REQUEST_CODE} or {@link MainActivity#BLUETOOTH_ENABLE_CODE}. Any other value does nothing.*/
 	private int displayDialog = 0;
+	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
+	private Map<Info, Integer> ioMessages = new HashMap<>();
 	/**The update rate of the timer in milliseconds.*/
 	private final static int UPDATE_RATE = 60;
 	/**The amount of time to add to the time limit in milliseconds. The timer continues after the original time limit until LATENCY_OFFSET milliseconds passes. During that time, the user can't play.*/
@@ -133,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		game = new LegalMnkGame();
 		ai = new PiriMnkAi();
 		fillThread = new FillThread();
-		//find views and assign listeners
+		//Find views and assign listeners.
 		board = findViewById(R.id.illustrator);
 		board.setOnTouchListener(new BoardListener());
 		highlighter = findViewById(R.id.highlighter);
@@ -153,10 +157,15 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		buttonLoad.setOnClickListener(bLis);
 		//TODO: add a "reload settings and restart" button for multiplayer
 		((RadioGroup) findViewById(R.id.radioPlayers)).setOnCheckedChangeListener(new RadioListener());
-		//save screen resolution
+		//Save the screen resolution.
 		Point screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
 		screenX = screenSize.x;
+		//Map the Infos to String IDs.
+		ioMessages.put(Info.REJECTION, R.string.requestRejected);
+		ioMessages.put(Info.INVALID_MOVE, R.string.moveWasInvalid);
+		ioMessages.put(Info.READ_FAIL, R.string.failedToReceive);
+		ioMessages.put(Info.WRITE_FAIL, R.string.failedToSend);
 	}
 	/**Listens for clicks on various buttons.*/
 	private class ButtonListener implements View.OnClickListener {
@@ -402,14 +411,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 						else {
 							this.socket = (BluetoothSocket) result;
 							runOnUiThread(new Runnable() {@Override public void run() {
-								configureUI(true);
-								if (isServer) AndroidUtilsKt.showToast(MainActivity.this, R.string.playFirst);}}); //TODO: This line might not be executed even if the device is the server. Guarantee execution
+								configureUI(true);}});
 							try {
 								bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
 								bluetoothThread.start();
 							}
 							catch (IOException e) {
-								informIoError();
+								AndroidUtilsKt.showToast(this, R.string.couldntGetStream);
 								radioLocal.setChecked(true);
 							}
 							initialize();
@@ -520,7 +528,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 			if(socket != null) socket.close();
 		}
 		catch(IOException e) {
-			informIoError();
+			AndroidUtilsKt.showToast(this, R.string.problemWhileClosing);
 		}
 	}
 	/**Informs that the opponent requested the {@code action} and lets the user choose whether to allow it or not.
@@ -540,10 +548,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		decisionDialog.setArguments(bundle);
 		decisionDialog.show(getFragmentManager(), "request", String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID)));
 	}
-	/**Informs the user that his request was rejected by the opponent.*/
-	@Override public void informRejection() {
-		AndroidUtilsKt.showToast(this, R.string.requestRejected);
-	}
 
 	//SECTION: file and communication
 	@Override public void onRequestPermissionsResult(final int requestCode, @NonNull final String permissions[], @NonNull final int[] grantResults) {
@@ -560,11 +564,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 				radioLocal.setChecked(true);
 		}
 	}
-	@Override public void informIoError() {
-		AndroidUtilsKt.showToast(this, R.string.ioError);
-	}
-	@Override public void informUser(final String that) {
-		AndroidUtilsKt.showToast(this, that);
+	@Override public void informUser(final Info of) {
+		AndroidUtilsKt.showToast(this, ioMessages.get(of));
 	}
 	//SECTION: files
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
@@ -584,7 +585,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 				saveLoader.save(game, DIRECTORY_NAME, fileName + FILE_EXTENSION);
 			}
 			catch (IOException e) {
-				informIoError(); //TODO: put a better explanation than this
+				AndroidUtilsKt.showToast(this, R.string.couldntCreateFile);
 			}
 		}
 	}
@@ -593,16 +594,17 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private void loadGame(final String fileName) {
 		if(fileName == null) showEditTextDialog(FILE_TAG, getString(R.string.load), getString(R.string.fileNameHint));
 		else {
-			initialize();
 			try {
-				game = new LegalMnkGame(saveLoader.load(DIRECTORY_NAME, fileName + FILE_EXTENSION, game.winStreak));
+				MnkGame loaded = saveLoader.load(DIRECTORY_NAME, fileName + FILE_EXTENSION, game.winStreak);
+				initialize(); //Initialize after loading the game so that if loading fails, the previous game doesn't get initialized
+				game = new LegalMnkGame(loaded);
+				board.setGame(game);
+				board.invalidate();
+				highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);
 			}
 			catch (IOException e) {
-				informIoError();
+				AndroidUtilsKt.showToast(this, R.string.couldntFindFile);
 			}
-			board.setGame(game);
-			board.invalidate();
-			highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);
 		}
 	}
 

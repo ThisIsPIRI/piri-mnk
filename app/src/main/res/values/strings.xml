@@ -60,8 +60,14 @@
 	<string name="timerStopped">The timer has been stopped because the time limit has been changed.</string>
 	<string name="diagonalsEnclosingSymbols">Diagonals enclosing symbols</string>
 	<string name="lineType">Line type</string>
-	<string name="playFirst">As the server, you play first.</string>
 	<string name="connectionTerminated">The opponent terminated the connection.</string>
 	<string name="waitDelay">Wait a moment&#8230;</string>
 	<string name="credits">Credits</string>
+	<string name="couldntFindFile">Couldn\'t find the file.</string>
+	<string name="couldntCreateFile">Couldn\'t create/overwrite the file.</string>
+	<string name="moveWasInvalid">The opponent\'s move was invalid. He might be using an outdated or modified version of the game.</string>
+	<string name="couldntGetStream">Couldn\'t get streams from the socket.</string>
+	<string name="problemWhileClosing">A problem occurred while closing the socket.</string>
+	<string name="failedToReceive">Failed to receive data from the opponent.</string>
+	<string name="failedToSend">Failed to send data to the opponent.</string>
 </resources>
