@@ -27,18 +27,18 @@ public fun getFile(directoryName: String, fileName: String, allowCreation: Boole
 }
 
 /**Shows a short `Toast` `saying` something.
- * @param activity the `Activity` to display the `Toast` in.
+ * @param inActivity the `Activity` to display the `Toast` in.
  * @param saying The `String` to display.
  * @param length The length of the `Toast`. Must either be `Toast.LENGTH_SHORT` or `Toast.LENGTH_LONG`. Defaults to `LENGTH_SHORT`.*/
-fun showToast(activity: Activity, saying: String) {
+public fun showToast(inActivity: Activity, saying: String) {
 	if (Looper.myLooper() != Looper.getMainLooper())
-		activity.runOnUiThread({showToast(activity, saying)})
+		inActivity.runOnUiThread({showToast(inActivity, saying)})
 	else
-		Toast.makeText(activity, saying, Toast.LENGTH_SHORT).show()
+		Toast.makeText(inActivity, saying, Toast.LENGTH_SHORT).show()
 }
 
 /**@see showToast(Activity, String, Int)
  * @param saying The resource ID of the string to show.*/
-fun showToast(activity: Activity, @StringRes saying: Int) {
-	showToast(activity, activity.getString(saying))
+public fun showToast(inActivity: Activity, @StringRes saying: Int) {
+	showToast(inActivity, inActivity.getString(saying))
 }
