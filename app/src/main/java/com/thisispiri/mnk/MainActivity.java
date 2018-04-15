@@ -13,6 +13,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -186,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 					break;
 				case R.id.save:
 					if(game.getHorSize() > MnkSaveLoader.SGF_MAX || game.getVerSize() > MnkSaveLoader.SGF_MAX) {
-						Toast.makeText(MainActivity.this, R.string.sgfLimit, Toast.LENGTH_SHORT).show();
+						showToast(R.string.sgfLimit);
 						return;
 					}
 					if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
@@ -204,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private boolean getPermission(String permission, int requestCode, int rationaleId) {
 		if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) { //if writing permission hasn't been granted
 			if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-				Toast.makeText(this, rationaleId, Toast.LENGTH_SHORT).show();
+				showToast(rationaleId);
 			}
 			ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
 			return false;
@@ -223,6 +224,17 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 				connectBluetooth(); break;
 		}
 		displayDialog = 0;
+	}
+	/**Shows a short {@code Toast} {@code saying} something.
+	 * @param saying The {@code String} to display.*/
+	public void showToast(final String saying) {
+		if(Looper.myLooper() != Looper.getMainLooper()) runOnUiThread(new Runnable() {public void run() {showToast(saying);}});
+		else Toast.makeText(this, saying, Toast.LENGTH_SHORT).show();
+	}
+	/**Shows a short {@code Toast} {@code saying} something.
+	 * @param saying The resource ID of the string to show.*/
+	public void showToast(final @StringRes int saying) {
+		showToast(getString(saying));
 	}
 
 	//SECTION: game handling
@@ -398,7 +410,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 							this.socket = (BluetoothSocket) result;
 							runOnUiThread(new Runnable() {@Override public void run() {
 								configureUI(true);
-								if (isServer) Toast.makeText(MainActivity.this, R.string.playFirst, Toast.LENGTH_SHORT).show();}}); //TODO: This line might not be executed even if the device is the server. Guarantee execution
+								if (isServer) showToast(R.string.playFirst);}}); //TODO: This line might not be executed even if the device is the server. Guarantee execution
 							try {
 								bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
 								bluetoothThread.start();
@@ -436,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 				case R.id.radioBluetooth:
 					if (adapter == null) {
 						radioLocal.setChecked(true);
-						Toast.makeText(MainActivity.this, R.string.noBluetoothSupport, Toast.LENGTH_SHORT).show();
+						showToast(R.string.noBluetoothSupport);
 					}
 					else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
 						break;
@@ -455,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 			if(resultCode == RESULT_OK) displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling connectBluetooth()
 			else {
 				radioLocal.setChecked(true);
-				Toast.makeText(this, R.string.enableBluetooth, Toast.LENGTH_SHORT).show();
+				showToast(R.string.enableBluetooth);
 			}
 		}
 		else super.onActivityResult(requestCode, resultCode, data); //to have BluetoothDialogFragment.onActivityResult() called
@@ -500,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		stopBluetooth(false);
 		runOnUiThread(new Runnable() {@Override public void run() {
 			radioLocal.setChecked(true);
-			Toast.makeText(MainActivity.this, R.string.connectionTerminated, Toast.LENGTH_SHORT).show();
+			showToast(R.string.connectionTerminated);
 		}});
 	}
 	/**Stops Bluetooth communications but doesn't set radioLocal to true.
@@ -537,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	}
 	/**Informs the user that his request was rejected by the opponent.*/
 	@Override public void informRejection() {
-		runOnUiThread(new Runnable() {public void run() {Toast.makeText(MainActivity.this, R.string.requestRejected, Toast.LENGTH_SHORT).show(); }});
+		showToast(R.string.requestRejected);
 	}
 
 	//SECTION: file and communication
@@ -556,12 +568,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		}
 	}
 	@Override public void informIoError() {
-		if(Looper.myLooper() != Looper.getMainLooper()) runOnUiThread(new Runnable() {public void run() {informIoError();}});
-		else Toast.makeText(this, R.string.ioError, Toast.LENGTH_SHORT).show();
+		showToast(R.string.ioError);
 	}
 	@Override public void informUser(final String that) {
-		if(Looper.myLooper() != Looper.getMainLooper()) runOnUiThread(new Runnable() {public void run() {informUser(that);}});
-		else Toast.makeText(this, that, Toast.LENGTH_SHORT).show();
+		showToast(that);
 	}
 	//SECTION: files
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
