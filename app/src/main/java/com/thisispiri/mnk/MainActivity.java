@@ -13,7 +13,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -27,7 +26,6 @@ import android.widget.Checkable;
 import android.widget.FrameLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -37,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import com.thisispiri.dialogs.DecisionDialogFragment;
 import com.thisispiri.dialogs.DialogListener;
 import com.thisispiri.dialogs.EditTextDialogFragment;
+import com.thisispiri.util.AndroidUtilsKt;
 import static com.thisispiri.mnk.IoThread.*;
 
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
@@ -187,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 					break;
 				case R.id.save:
 					if(game.getHorSize() > MnkSaveLoader.SGF_MAX || game.getVerSize() > MnkSaveLoader.SGF_MAX) {
-						showToast(R.string.sgfLimit);
+						AndroidUtilsKt.showToast(MainActivity.this, R.string.sgfLimit);
 						return;
 					}
 					if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
@@ -205,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private boolean getPermission(String permission, int requestCode, int rationaleId) {
 		if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) { //if writing permission hasn't been granted
 			if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-				showToast(rationaleId);
+				AndroidUtilsKt.showToast(this, rationaleId);
 			}
 			ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
 			return false;
@@ -224,17 +223,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 				connectBluetooth(); break;
 		}
 		displayDialog = 0;
-	}
-	/**Shows a short {@code Toast} {@code saying} something.
-	 * @param saying The {@code String} to display.*/
-	public void showToast(final String saying) {
-		if(Looper.myLooper() != Looper.getMainLooper()) runOnUiThread(new Runnable() {public void run() {showToast(saying);}});
-		else Toast.makeText(this, saying, Toast.LENGTH_SHORT).show();
-	}
-	/**Shows a short {@code Toast} {@code saying} something.
-	 * @param saying The resource ID of the string to show.*/
-	public void showToast(final @StringRes int saying) {
-		showToast(getString(saying));
 	}
 
 	//SECTION: game handling
@@ -304,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	/**Places a stone on the designated position and updates the graphics.
 	 * @param highlight Whether to highlight the position.*/
 	private boolean endTurn(final int x, final int y, final boolean highlight) {
+		//Check the legality of the move
 		if(!game.place(x, y)) return false; //Does nothing if the move was invalid
 		if(onBluetooth) {
 			if(Looper.myLooper() == Looper.getMainLooper()) bluetoothThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
@@ -410,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 							this.socket = (BluetoothSocket) result;
 							runOnUiThread(new Runnable() {@Override public void run() {
 								configureUI(true);
-								if (isServer) showToast(R.string.playFirst);}}); //TODO: This line might not be executed even if the device is the server. Guarantee execution
+								if (isServer) AndroidUtilsKt.showToast(MainActivity.this, R.string.playFirst);}}); //TODO: This line might not be executed even if the device is the server. Guarantee execution
 							try {
 								bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
 								bluetoothThread.start();
@@ -448,7 +437,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 				case R.id.radioBluetooth:
 					if (adapter == null) {
 						radioLocal.setChecked(true);
-						showToast(R.string.noBluetoothSupport);
+						AndroidUtilsKt.showToast(MainActivity.this, R.string.noBluetoothSupport);
 					}
 					else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
 						break;
@@ -467,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 			if(resultCode == RESULT_OK) displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling connectBluetooth()
 			else {
 				radioLocal.setChecked(true);
-				showToast(R.string.enableBluetooth);
+				AndroidUtilsKt.showToast(this, R.string.enableBluetooth);
 			}
 		}
 		else super.onActivityResult(requestCode, resultCode, data); //to have BluetoothDialogFragment.onActivityResult() called
@@ -512,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		stopBluetooth(false);
 		runOnUiThread(new Runnable() {@Override public void run() {
 			radioLocal.setChecked(true);
-			showToast(R.string.connectionTerminated);
+			AndroidUtilsKt.showToast(MainActivity.this, R.string.connectionTerminated);
 		}});
 	}
 	/**Stops Bluetooth communications but doesn't set radioLocal to true.
@@ -549,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	}
 	/**Informs the user that his request was rejected by the opponent.*/
 	@Override public void informRejection() {
-		showToast(R.string.requestRejected);
+		AndroidUtilsKt.showToast(this, R.string.requestRejected);
 	}
 
 	//SECTION: file and communication
@@ -568,10 +557,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		}
 	}
 	@Override public void informIoError() {
-		showToast(R.string.ioError);
+		AndroidUtilsKt.showToast(this, R.string.ioError);
 	}
 	@Override public void informUser(final String that) {
-		showToast(that);
+		AndroidUtilsKt.showToast(this, that);
 	}
 	//SECTION: files
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
