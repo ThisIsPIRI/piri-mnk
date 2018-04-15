@@ -362,8 +362,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		public boolean onTouch(final View v, final MotionEvent e) {
 			if(e.getActionMasked() == MotionEvent.ACTION_UP && !gameEnd && ((game.getNextIndex() == myIndex && !preventPlaying) || !onBluetooth)) {
 				int x = (int)(e.getX() / screenX * game.getHorSize()), y = (int)(e.getY() / screenX * game.getVerSize()); //determine which cell the user touched
-				endTurn(x, y, false);
-				if(!gameEnd && useAI.isChecked()) endTurn(ai.playTurn(game), true);
+				//Let the AI play only if the user's move was valid and placed correctly, the game isn't end yet and AI is enabled
+				if(endTurn(x, y, false) && !gameEnd && useAI.isChecked())
+					endTurn(ai.playTurn(game), true);
 				return false;
 			}
 			return true;
