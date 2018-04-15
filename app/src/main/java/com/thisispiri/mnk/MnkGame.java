@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Stack;
 /**A representation of an MNK game.*/
 public class MnkGame {
-	Shape[][] array; //TODO: make this private and add legality check to place()
+	Shape[][] array; //TODO: make this private
 	/**The array of shapes to be placed rotationally in a normal game.*/
 	public final Shape[] shapes = {Shape.X, Shape.O};
 	/**The list of shapes for searching*/
