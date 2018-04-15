@@ -30,5 +30,6 @@ public class MnkGameTest {
 		assertEquals(Shape.X, game.shapes[game.getNextIndex()]);
 		game.place(3, 5, Shape.N);
 		assertNull(game.checkWin(3, 6));
+		assertFalse(game.place(5, 19));
 	}
 }

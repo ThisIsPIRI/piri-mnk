@@ -147,7 +147,7 @@ public class MnkGame {
 		}
 		return arr;
 	}
-	public boolean isEmpty(final int x, final int y) {return array[y][x] == empty;}
+	public boolean isEmpty(final int x, final int y) {return inBoundary(y, x) && array[y][x] == empty;}
 	public boolean inBoundary(final int y, final int x) {return y >= 0 && y < verSize && x >= 0 && x < horSize;}
 	//TODO: make a method to dump training data
 }
