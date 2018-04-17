@@ -43,6 +43,7 @@ public class MnkSaveLoader {
 		MnkGame game = new MnkGame();
 		InputStreamReader inputReader = new InputStreamReader(new FileInputStream(AndroidUtilsKt.getFile(directoryName, fileName, false)));
 		int skipper;
+		Shape last = Shape.O;
 		do {skipper = inputReader.read();}
 		while(skipper != '(' && skipper != -1);
 		if(inputReader.read() == ';') { //SGF format
@@ -67,25 +68,30 @@ public class MnkSaveLoader {
 						game.setSize(size, verSize);
 					}
 					else game.setSize(size, size);
-					game.winStreak = winStreak;
 				}
 				else if(previous == ';' && (now == 'B' || now == 'W')) { //moves
 					if(inputReader.skip(1) != 1) throw new IOException(); //process a [
-					int x = inputReader.read() - 'a', y = inputReader.read() - 'a'; //recover indexes from lowercase alphabets
-					//recover uppercase alphabets to indexes
+					int x = inputReader.read() - 'a', y = inputReader.read() - 'a'; //recover indices from lowercase characters.
+					//Recover indices from uppercase characters.
 					if(x < 0) x -= 'A' - 'z' - 1; //equals adding 58.
 					if(y < 0) y -= 'A' - 'z' - 1;
-					if(now == 'B') game.place(x, y, Shape.X);
-					else game.place(x, y, Shape.O);
+					last = now == 'B' ? Shape.X : Shape.O;
+					game.place(x, y, last);
 				}
 				previous = now;
 			}
+			//Change the game's next Shape to the one next to the last Shape.
+			//Of course, saving it in the file would be more efficient, but SGF probably doesn't support it.
+			int i;
+			for(i = 0;i < game.shapes.length;i++) if(game.shapes[i] == last) break;
+			game.changeShape(i + 1); //nextIndex is initialized to 0, so after adding ((index of last) + 1), it will be pointing to the Shape next of last.
 		}
 		else { //PIRIMNK format
 			//TODO: implement
 			throw new IOException();
 		}
 		inputReader.close();
+		game.winStreak = winStreak;
 		return game;
 	}
 }
