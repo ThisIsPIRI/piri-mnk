@@ -38,10 +38,13 @@ import com.thisispiri.dialogs.DecisionDialogFragment;
 import com.thisispiri.dialogs.DialogListener;
 import com.thisispiri.dialogs.EditTextDialogFragment;
 import com.thisispiri.util.AndroidUtilsKt;
+import com.thisispiri.util.GameTimer;
+import com.thisispiri.util.TimedGameManager;
+
 import static com.thisispiri.mnk.IoThread.*;
 
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
-public class MainActivity extends AppCompatActivity implements MnkManager, DialogListener {
+public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
 	private Board board;
 	private Highlighter highlighter;
 	private LegalMnkGame game;
@@ -59,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	/**The {@code Handler} used to handle invalidation requests from {@link MainActivity#fillThread}.*/
 	private Handler fillHandler = new FillHandler(this);
 	/**The {@code CountDownTimer} for implementing the time limit.*/
-	private MnkTimer limitTimer = new MnkTimer(-1, -1); //The first instance is replaced in setTimeLimit()
+	private GameTimer limitTimer = new GameTimer(this, -1); //The first instance is replaced in setTimeLimit()
 	private final MnkSaveLoader saveLoader = new MnkSaveLoader();
 	private final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 	private BluetoothSocket socket;
@@ -338,38 +341,21 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		}
 		return true;
 	}
-	/**The class for implementing the time limit.*/
-	private class MnkTimer extends CountDownTimer {
-		/**The amount of time to add to the time limit in milliseconds. The timer continues after the original time limit until LATENCY_OFFSET milliseconds passes. During that time, the user can't play.*/
-		private final static int LATENCY_OFFSET = 1000;
-		MnkTimer(final long millisInFuture, final long countDownInterval) {super(millisInFuture + LATENCY_OFFSET, countDownInterval);}
-		/**Updates {@link MainActivity#winText} with the remaining time.*/
-		@Override public void onTick(long millisUntilFinished) {
-			if(enableTimeLimit) {
-				if(millisUntilFinished < LATENCY_OFFSET) { //TODO: Find something to do during the offset in local mode, like pre-calculating the next move of the AI.
-					preventPlaying = true;
-					winText.setText(R.string.waitDelay);
-				}
-				else {
-					long original = millisUntilFinished - LATENCY_OFFSET;
-					winText.setText(String.format(Locale.getDefault(), "%02d : %02d : %03d", TimeUnit.MILLISECONDS.toMinutes(original), TimeUnit.MILLISECONDS.toSeconds(original) % 60, original % 1000));
-				}
-			}
-			else {
-				winText.setText("");
-				cancel();
-			}
-		}
-		/**Lets the opponent play.*/
-		@Override public void onFinish() {
-			if(!enableTimeLimit) return;
-			preventPlaying = false;
-			game.changeShape(1);
-			if(useAI.isChecked()) { //Single player with AI. Let the AI play.
-				endTurn(ai.playTurn(game), true);
-			}
-			else start();
-		}
+	@Override public void updateRemaining(long time) {
+		winText.setText(String.format(Locale.getDefault(), "%02d : %02d : %03d", TimeUnit.MILLISECONDS.toMinutes(time), TimeUnit.MILLISECONDS.toSeconds(time) % 60, time % 1000));
+	}
+	@Override public void timerFinished() {
+		if (!enableTimeLimit) return;
+		preventPlaying = false;
+		game.changeShape(1);
+		if (useAI.isChecked()) //Single player with AI. Let the AI play.
+			endTurn(ai.playTurn(game), true);
+		else
+			limitTimer.start();
+	}
+	@Override public void togglePlaying(boolean allow) {
+		preventPlaying = !allow;
+		if(preventPlaying) winText.setText(R.string.waitDelay);
 	}
 	/**Listens for touches on the {@link MainActivity#board}.*/
 	private class BoardListener implements View.OnTouchListener {
@@ -503,8 +489,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		if(timeLimit != previousTimeLimit) {
 			previousTimeLimit = timeLimit;
 			limitTimer.cancel();
-			if(enableTimeLimit) runOnUiThread(new Runnable() {@Override public void run() {
-				limitTimer = new MnkTimer(timeLimit, UPDATE_RATE);}});
+			if(enableTimeLimit)
+				runOnUiThread(new Runnable() {@Override public void run() {
+					limitTimer = new GameTimer(MainActivity.this, timeLimit);}});
 		}
 	}
 	@Override public void onDestroy() {
