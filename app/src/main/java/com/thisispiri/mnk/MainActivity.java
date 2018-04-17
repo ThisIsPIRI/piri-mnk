@@ -63,7 +63,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private final MnkSaveLoader saveLoader = new MnkSaveLoader();
 	private final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 	private BluetoothSocket socket;
-	private boolean gameEnd = false, onBluetooth = false, isServer = false, preventPlaying = false, enableHighlight, enableTimeLimit;
+	private boolean gameEnd = false;
+	private boolean onBluetooth = false;
+	private boolean preventPlaying = false;
+	private boolean enableHighlight;
+	private boolean enableTimeLimit;
 	/**Used to tie myTurn to a specific Shape in Bluetooth mode.*/
 	private int myIndex = 0;
 	/**The width of the screen, for updating custom {@code View}s.*/
@@ -79,8 +83,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private Map<Info, Integer> ioMessages = new HashMap<>();
 	/**The update rate of the timer in milliseconds.*/
 	private final static int UPDATE_RATE = 60;
-	/**The amount of time to add to the time limit in milliseconds. The timer continues after the original time limit until LATENCY_OFFSET milliseconds passes. During that time, the user can't play.*/
-	private final static int LATENCY_OFFSET = 1000;
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
 	private final static String DECISION_TAG = "decision", FILE_TAG = "file", BLUETOOTH_TAG = "bluetooth";
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
@@ -284,8 +286,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		Point[] result = game.checkWin(x, y);
 		if (result != null) { //if someone won the game
 			gameEnd = true;
-			if(Looper.myLooper() != Looper.getMainLooper()) highlighter.postHighlight(result);
-			else highlighter.highlight(result);
+			if(enableHighlight) {
+				if (Looper.myLooper() != Looper.getMainLooper()) highlighter.postHighlight(result);
+				else highlighter.highlight(result);
+			}
 			if(game.getNextIndex() == 0) return (game.shapes.length) + getResources().getString(R.string.winAnnouncement); //since MnkGame.shapes starts at 0
 			else return game.getNextIndex() + getResources().getString(R.string.winAnnouncement);
 		}
@@ -336,6 +340,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	}
 	/**The class for implementing the time limit.*/
 	private class MnkTimer extends CountDownTimer {
+		/**The amount of time to add to the time limit in milliseconds. The timer continues after the original time limit until LATENCY_OFFSET milliseconds passes. During that time, the user can't play.*/
+		private final static int LATENCY_OFFSET = 1000;
 		MnkTimer(final long millisInFuture, final long countDownInterval) {super(millisInFuture + LATENCY_OFFSET, countDownInterval);}
 		/**Updates {@link MainActivity#winText} with the remaining time.*/
 		@Override public void onTick(long millisUntilFinished) {
@@ -422,12 +428,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 							}
 							initialize();
 							if (arguments.getBoolean(getString(R.string.isServer))) {
-								isServer = true;
 								bluetoothThread.write(18, ORDER_HEADER, ORDER_INITIALIZE, game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1);
 								myIndex = 0;
 							}
 							else {
-								isServer = false;
 								myIndex = 1;
 							}
 						}

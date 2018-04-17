@@ -39,6 +39,6 @@ public fun showToast(inActivity: Activity, saying: String) {
 
 /**@see showToast(Activity, String, Int)
  * @param saying The resource ID of the string to show.*/
-public fun showToast(inActivity: Activity, @StringRes saying: Int) {
+public fun showToast(inActivity: Activity, @StringRes saying: Int) { //TODO: add jvmoverloads and test
 	showToast(inActivity, inActivity.getString(saying))
 }

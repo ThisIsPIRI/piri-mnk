@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Stack;
 /**A representation of an MNK game.*/
 public class MnkGame {
-	Shape[][] array; //TODO: make this private
+	public Shape[][] array; //TODO: make this private
 	/**The array of shapes to be placed rotationally in a normal game.*/
 	public final Shape[] shapes = {Shape.X, Shape.O};
 	/**The list of shapes for searching*/
@@ -14,7 +14,7 @@ public class MnkGame {
 	/**The {@link Shape} representing an empty cell.*/
 	public final Shape empty = Shape.N;
 	/**The list of all {@link Move}s made in the game. Earlier moves are stored first.*/
-	final Stack<Move> history = new Stack<>();
+	public final Stack<Move> history = new Stack<>();
 	private int horSize = 15, verSize = 15;
 	public int getHorSize() {return horSize;}
 	public int getVerSize() {return verSize;}
