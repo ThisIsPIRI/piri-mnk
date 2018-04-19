@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private BluetoothSocket socket;
 	private boolean gameEnd = false;
 	private boolean onBluetooth = false;
+	/**Indicates if the game's in a latency offset. See the doc of GameTimer for details about it.*/
 	private boolean preventPlaying = false;
 	private boolean enableHighlight;
 	private boolean enableTimeLimit;
@@ -306,8 +307,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Places a stone on the designated position and updates the graphics.
 	 * @param highlight Whether to highlight the position.*/
 	private boolean endTurn(final int x, final int y, final boolean highlight) {
-		//Check the legality of the move
-		if(preventPlaying || !game.place(x, y)) return false; //Do nothing if the move was invalid or we're inside a latency offset.
+		//Check the legality of the move. Don't check for preventPlaying here; see GameTimer and BoardListener for details.
+		if(!game.place(x, y)) return false; //Do nothing if the move was invalid.
 		if(onBluetooth) {
 			if(Looper.myLooper() == Looper.getMainLooper()) bluetoothThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
 			//If it's the user's turn, refuse to end the turn for the opponent.
@@ -358,9 +359,12 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private class BoardListener implements View.OnTouchListener {
 		@SuppressLint("ClickableViewAccessibility")
 		public boolean onTouch(final View v, final MotionEvent e) {
-			if(e.getActionMasked() == MotionEvent.ACTION_UP && !gameEnd && (game.getNextIndex() == myIndex || !onBluetooth)) {
+			/*This user(using this device) shouldn't be allowed to play while in latency offset, in both single and multiplayer; it would be cheating.
+			* However, if a user plays with little time remaining, and the move gets to the other, receiving device AFTER the offset started in it,
+			* it must accept the move, since the move was valid in the sending device. That's why we only check for preventPlaying in here and not in endTurn().*/
+			if(e.getActionMasked() == MotionEvent.ACTION_UP && !gameEnd && (game.getNextIndex() == myIndex || !onBluetooth) && !preventPlaying) {
 				int x = (int)(e.getX() / screenX * game.getHorSize()), y = (int)(e.getY() / screenX * game.getVerSize()); //determine which cell the user touched
-				//Let the AI play only if the user's move was valid and placed correctly, the game isn't end yet and AI is enabled
+				//Let the AI play only if the user's move was valid and placed correctly, the game hasn't ended after the move and AI is enabled
 				if(endTurn(x, y, false) && !gameEnd && useAI.isChecked())
 					endTurn(ai.playTurn(game), true);
 				return false;

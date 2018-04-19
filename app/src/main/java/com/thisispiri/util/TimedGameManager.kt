@@ -1,7 +1,7 @@
 package com.thisispiri.util
 
 interface TimedGameManager {
-	/**Shows the remaining time to the user if he set the manager to do so.
+	/**Shows the remaining time to the user if he set the manager to do so. Will not be called inside the latency offset.
 	 * @param time The remaining time in milliseconds.*/
 	fun updateRemaining(time: Long)
 	/**Notifies the manager that a timer has finished.*/

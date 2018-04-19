@@ -6,7 +6,12 @@ import android.os.CountDownTimer
  * @property manager The [TimedGameManager] for the timer to notify.
  * @param millisInFuture The amount of time given to the user.
  * @param countDownInterval The interval between timer updates in milliseconds. Defaults to 60.
- * @property latencyOffset The length of time after `millisInFuture` runs out in which the user is disallowed to play to ensure two or more communicating devices have the same side playing, in milliseconds.
+ * @property latencyOffset The length of time, in milliseconds, after `millisInFuture` runs out in which the user(but not the other users communicating with him)
+ * should be disallowed to play to ensure two or more communicating devices have the same side playing.
+ * For example, if player A plays just before his time runs out, and player B's device receives it after B's timer finishes,
+ * B's device could reject it or interpret is as a move made by B, creating a discrepancy between the two games.
+ * With the latency offset, the manager could disallow the user using its device - and that user only - to play, while accepting moves from the others,
+ * thus eliminating the problem. Note that the currently-playing side's timer will typically be ahead of the others, making the problem even likelier.
  * Set this to a negative value to disable it. Defaults to 600.*/
 class GameTimer @JvmOverloads constructor(private var manager: TimedGameManager, millisInFuture: Long, countDownInterval: Long = 60, var latencyOffset: Long = 600)
 		: CountDownTimer(millisInFuture + latencyOffset, countDownInterval) {
