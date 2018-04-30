@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -38,10 +37,13 @@ import com.thisispiri.dialogs.DecisionDialogFragment;
 import com.thisispiri.dialogs.DialogListener;
 import com.thisispiri.dialogs.EditTextDialogFragment;
 import com.thisispiri.util.AndroidUtilsKt;
+import com.thisispiri.util.GameTimer;
+import com.thisispiri.util.TimedGameManager;
+
 import static com.thisispiri.mnk.IoThread.*;
 
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
-public class MainActivity extends AppCompatActivity implements MnkManager, DialogListener {
+public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
 	private Board board;
 	private Highlighter highlighter;
 	private LegalMnkGame game;
@@ -59,12 +61,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	/**The {@code Handler} used to handle invalidation requests from {@link MainActivity#fillThread}.*/
 	private Handler fillHandler = new FillHandler(this);
 	/**The {@code CountDownTimer} for implementing the time limit.*/
-	private MnkTimer limitTimer = new MnkTimer(-1, -1); //The first instance is replaced in setTimeLimit()
+	private GameTimer limitTimer = new GameTimer(this, -1); //The first instance is replaced in setTimeLimit()
 	private final MnkSaveLoader saveLoader = new MnkSaveLoader();
 	private final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 	private BluetoothSocket socket;
 	private boolean gameEnd = false;
 	private boolean onBluetooth = false;
+	/**Indicates if the game's in a latency offset. See the doc of GameTimer for details about it.*/
 	private boolean preventPlaying = false;
 	private boolean enableHighlight;
 	private boolean enableTimeLimit;
@@ -81,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private int displayDialog = 0;
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private Map<Info, Integer> ioMessages = new HashMap<>();
-	/**The update rate of the timer in milliseconds.*/
-	private final static int UPDATE_RATE = 60;
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
 	private final static String DECISION_TAG = "decision", FILE_TAG = "file", BLUETOOTH_TAG = "bluetooth";
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
@@ -103,15 +104,15 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		Board.Line lineType;
 		backColor = pref.getInt("backgroundColor", 0xFFFFFFFF);
 		switch(pref.getString("symbols", "xsAndOs")) {
-			case "xsAndOs": symbolType = Board.Symbol.XS_AND_OS; break;
-			case "goStones": symbolType = Board.Symbol.GO_STONES; break;
-			default: symbolType = Board.Symbol.XS_AND_OS;
+		case "xsAndOs": symbolType = Board.Symbol.XS_AND_OS; break;
+		case "goStones": symbolType = Board.Symbol.GO_STONES; break;
+		default: symbolType = Board.Symbol.XS_AND_OS;
 		}
 		switch(pref.getString("lineType", "linesEnclosingSymbols")) {
-			case "linesEnclosingSymbols": lineType = Board.Line.LINES_ENCLOSING_SYMBOLS; break;
-			case "linesUnderSymbols": lineType = Board.Line.LINES_UNDER_SYMBOLS; break;
-			case "diagonalsEnclosingSymbols" : lineType = Board.Line.DIAGONAL_ENCLOSING_SYMBOLS; break;
-			default: lineType = Board.Line.LINES_ENCLOSING_SYMBOLS;
+		case "linesEnclosingSymbols": lineType = Board.Line.LINES_ENCLOSING_SYMBOLS; break;
+		case "linesUnderSymbols": lineType = Board.Line.LINES_UNDER_SYMBOLS; break;
+		case "diagonalsEnclosingSymbols" : lineType = Board.Line.DIAGONAL_ENCLOSING_SYMBOLS; break;
+		default: lineType = Board.Line.LINES_ENCLOSING_SYMBOLS;
 		}
 		parentView.setBackgroundColor(backColor);
 		board.setGame(game);
@@ -173,41 +174,41 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private class ButtonListener implements View.OnClickListener {
 		public void onClick(final View v) {
 			switch(v.getId()) {
-				case R.id.restart:
-					if(onBluetooth) bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
-					else initialize();
-					break;
-				case R.id.buttonAI:
-					if(!gameEnd) {
-						if(useAI.isChecked()) endTurn(ai.playTurn(game), true);
-						else game.changeShape(1);
-					}
-					break;
-				case R.id.buttonSettings:
-					fillThread.interrupt();
-					startActivity(new Intent(MainActivity.this, SettingActivity.class));
-					break;
-				case R.id.fill:
-					fillThread.interrupt();
-					fillThread = new FillThread();
-					fillThread.start();
-					break;
-				case R.id.revert:
-					if(onBluetooth) bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_REVERT});
-					else revertLast();
-					break;
-				case R.id.save:
-					if(game.getHorSize() > MnkSaveLoader.SGF_MAX || game.getVerSize() > MnkSaveLoader.SGF_MAX) {
-						AndroidUtilsKt.showToast(MainActivity.this, R.string.sgfLimit);
-						return;
-					}
-					if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
-						saveGame(null);
-					break;
-				case R.id.load:
-					if(android.os.Build.VERSION.SDK_INT < 19 || getPermission(Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale)) //Reading permission is not enforced under API 19
-						loadGame(null);
-					break;
+			case R.id.restart:
+				if(onBluetooth) bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+				else initialize();
+				break;
+			case R.id.buttonAI:
+				if(!gameEnd) {
+					if(useAI.isChecked()) endTurn(ai.playTurn(game), true);
+					else game.changeShape(1);
+				}
+				break;
+			case R.id.buttonSettings:
+				fillThread.interrupt();
+				startActivity(new Intent(MainActivity.this, SettingActivity.class));
+				break;
+			case R.id.fill:
+				fillThread.interrupt();
+				fillThread = new FillThread();
+				fillThread.start();
+				break;
+			case R.id.revert:
+				if(onBluetooth) bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_REVERT});
+				else revertLast();
+				break;
+			case R.id.save:
+				if(game.getHorSize() > MnkSaveLoader.SGF_MAX || game.getVerSize() > MnkSaveLoader.SGF_MAX) {
+					AndroidUtilsKt.showToast(MainActivity.this, R.string.sgfLimit);
+					return;
+				}
+				if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
+					saveGame(null);
+				break;
+			case R.id.load:
+				if(android.os.Build.VERSION.SDK_INT < 19 || getPermission(Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale)) //Reading permission is not enforced under API 19
+					loadGame(null);
+				break;
 			}
 		}
 	}
@@ -227,12 +228,12 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	@Override public void onResumeFragments() {
 		super.onResumeFragments();
 		switch(displayDialog) {
-			case SAVE_REQUEST_CODE:
-				saveGame(null); break;
-			case LOAD_REQUEST_CODE:
-				loadGame(null); break;
-			case BLUETOOTH_ENABLE_CODE:case LOCATION_REQUEST_CODE:
-				connectBluetooth(); break;
+		case SAVE_REQUEST_CODE:
+			saveGame(null); break;
+		case LOAD_REQUEST_CODE:
+			loadGame(null); break;
+		case BLUETOOTH_ENABLE_CODE:case LOCATION_REQUEST_CODE:
+			connectBluetooth(); break;
 		}
 		displayDialog = 0;
 	}
@@ -306,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	/**Places a stone on the designated position and updates the graphics.
 	 * @param highlight Whether to highlight the position.*/
 	private boolean endTurn(final int x, final int y, final boolean highlight) {
-		//Check the legality of the move
+		//Check the legality of the move. Don't check for preventPlaying here; see GameTimer and BoardListener for details.
 		if(!game.place(x, y)) return false; //Do nothing if the move was invalid.
 		if(onBluetooth) {
 			if(Looper.myLooper() == Looper.getMainLooper()) bluetoothThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
@@ -338,46 +339,32 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		}
 		return true;
 	}
-	/**The class for implementing the time limit.*/
-	private class MnkTimer extends CountDownTimer {
-		/**The amount of time to add to the time limit in milliseconds. The timer continues after the original time limit until LATENCY_OFFSET milliseconds passes. During that time, the user can't play.*/
-		private final static int LATENCY_OFFSET = 1000;
-		MnkTimer(final long millisInFuture, final long countDownInterval) {super(millisInFuture + LATENCY_OFFSET, countDownInterval);}
-		/**Updates {@link MainActivity#winText} with the remaining time.*/
-		@Override public void onTick(long millisUntilFinished) {
-			if(enableTimeLimit) {
-				if(millisUntilFinished < LATENCY_OFFSET) { //TODO: Find something to do during the offset in local mode, like pre-calculating the next move of the AI.
-					preventPlaying = true;
-					winText.setText(R.string.waitDelay);
-				}
-				else {
-					long original = millisUntilFinished - LATENCY_OFFSET;
-					winText.setText(String.format(Locale.getDefault(), "%02d : %02d : %03d", TimeUnit.MILLISECONDS.toMinutes(original), TimeUnit.MILLISECONDS.toSeconds(original) % 60, original % 1000));
-				}
-			}
-			else {
-				winText.setText("");
-				cancel();
-			}
-		}
-		/**Lets the opponent play.*/
-		@Override public void onFinish() {
-			if(!enableTimeLimit) return;
-			preventPlaying = false;
-			game.changeShape(1);
-			if(useAI.isChecked()) { //Single player with AI. Let the AI play.
-				endTurn(ai.playTurn(game), true);
-			}
-			else start();
-		}
+	@Override public void updateRemaining(long time) {
+		winText.setText(String.format(Locale.getDefault(), "%02d : %02d : %03d", TimeUnit.MILLISECONDS.toMinutes(time), TimeUnit.MILLISECONDS.toSeconds(time) % 60, time % 1000));
+	}
+	@Override public void timerFinished() {
+		if (!enableTimeLimit) return;
+		preventPlaying = false;
+		game.changeShape(1);
+		if (useAI.isChecked()) //Single player with AI. Let the AI play.
+			endTurn(ai.playTurn(game), true);
+		else
+			limitTimer.start();
+	}
+	@Override public void togglePlaying(boolean allow) {
+		preventPlaying = !allow;
+		if(preventPlaying) winText.setText(R.string.waitDelay);
 	}
 	/**Listens for touches on the {@link MainActivity#board}.*/
 	private class BoardListener implements View.OnTouchListener {
 		@SuppressLint("ClickableViewAccessibility")
 		public boolean onTouch(final View v, final MotionEvent e) {
-			if(e.getActionMasked() == MotionEvent.ACTION_UP && !gameEnd && ((game.getNextIndex() == myIndex && !preventPlaying) || !onBluetooth)) {
+			/*This user(using this device) shouldn't be allowed to play while in latency offset, in both single and multiplayer; it would be cheating.
+			* However, if a user plays with little time remaining, and the move gets to the other, receiving device AFTER the offset started in it,
+			* it must accept the move, since the move was valid in the sending device. That's why we only check for preventPlaying in here and not in endTurn().*/
+			if(e.getActionMasked() == MotionEvent.ACTION_UP && !gameEnd && (game.getNextIndex() == myIndex || !onBluetooth) && !preventPlaying) {
 				int x = (int)(e.getX() / screenX * game.getHorSize()), y = (int)(e.getY() / screenX * game.getVerSize()); //determine which cell the user touched
-				//Let the AI play only if the user's move was valid and placed correctly, the game isn't end yet and AI is enabled
+				//Let the AI play only if the user's move was valid and placed correctly, the game hasn't ended after the move and AI is enabled
 				if(endTurn(x, y, false) && !gameEnd && useAI.isChecked())
 					endTurn(ai.playTurn(game), true);
 				return false;
@@ -391,51 +378,51 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 			String tag = arguments.getString(getString(R.string.tagInBundle));
 			if(tag != null) {
 				switch (tag) {
-					case DECISION_TAG:
-						if(onBluetooth) { //The opponent might cancel connection after sending a request
-							byte request = arguments.getByte("action");
-							if ((Boolean) result) {
-								switch (request) {
-									case REQUEST_RESTART: initialize(); break;
-									case REQUEST_REVERT: revertLast(); break;
-								}
-								bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
+				case DECISION_TAG:
+					if(onBluetooth) { //The opponent might cancel connection after sending a request
+						byte request = arguments.getByte("action");
+						if ((Boolean) result) {
+							switch (request) {
+							case REQUEST_RESTART: initialize(); break;
+							case REQUEST_REVERT: revertLast(); break;
 							}
-							else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
+							bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 						}
-						break;
-					case FILE_TAG:
-						String message = arguments.getString(getString(R.string.piri_dialogs_messageArgument));
-						if (result != null && message != null) {
-							if (message.equals(getString(R.string.save))) saveGame((String) result);
-							else if (message.equals(getString(R.string.load))) loadGame((String) result);
+						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
+					}
+					break;
+				case FILE_TAG:
+					String message = arguments.getString(getString(R.string.piri_dialogs_messageArgument));
+					if (result != null && message != null) {
+						if (message.equals(getString(R.string.save))) saveGame((String) result);
+						else if (message.equals(getString(R.string.load))) loadGame((String) result);
+					}
+					break;
+				case BLUETOOTH_TAG:
+					if (result == null)
+						radioLocal.setChecked(true); //connection failed or canceled
+					else {
+						this.socket = (BluetoothSocket) result;
+						runOnUiThread(new Runnable() {@Override public void run() {
+							configureUI(true);}});
+						try {
+							bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
+							bluetoothThread.start();
 						}
-						break;
-					case BLUETOOTH_TAG:
-						if (result == null)
-							radioLocal.setChecked(true); //connection failed or canceled
+						catch (IOException e) {
+							AndroidUtilsKt.showToast(this, R.string.couldntGetStream);
+							radioLocal.setChecked(true);
+						}
+						initialize();
+						if (arguments.getBoolean(getString(R.string.isServer))) {
+							bluetoothThread.write(18, ORDER_HEADER, ORDER_INITIALIZE, game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1);
+							myIndex = 0;
+						}
 						else {
-							this.socket = (BluetoothSocket) result;
-							runOnUiThread(new Runnable() {@Override public void run() {
-								configureUI(true);}});
-							try {
-								bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
-								bluetoothThread.start();
-							}
-							catch (IOException e) {
-								AndroidUtilsKt.showToast(this, R.string.couldntGetStream);
-								radioLocal.setChecked(true);
-							}
-							initialize();
-							if (arguments.getBoolean(getString(R.string.isServer))) {
-								bluetoothThread.write(18, ORDER_HEADER, ORDER_INITIALIZE, game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1);
-								myIndex = 0;
-							}
-							else {
-								myIndex = 1;
-							}
+							myIndex = 1;
 						}
-						break;
+					}
+					break;
 				}
 			} //TODO: add some way to inform the user that a Dialog didn't "return" correctly
 		}
@@ -446,23 +433,23 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
 			switch(id) {
-				case R.id.radioLocal: //TODO: request confirmation of the user when he clicks the local button in Bluetooth mode
-					stopBluetooth(true);
-					configureUI(false);
+			case R.id.radioLocal: //TODO: request confirmation of the user when he clicks the local button in Bluetooth mode
+				stopBluetooth(true);
+				configureUI(false);
+				break;
+			case R.id.radioBluetooth:
+				if (adapter == null) {
+					radioLocal.setChecked(true);
+					AndroidUtilsKt.showToast(MainActivity.this, R.string.noBluetoothSupport);
+				}
+				else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
 					break;
-				case R.id.radioBluetooth:
-					if (adapter == null) {
-						radioLocal.setChecked(true);
-						AndroidUtilsKt.showToast(MainActivity.this, R.string.noBluetoothSupport);
-					}
-					else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
-						break;
-					}
-					else if (!adapter.isEnabled()) {
-						startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
-					}
-					else connectBluetooth();
-					break;
+				}
+				else if (!adapter.isEnabled()) {
+					startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
+				}
+				else connectBluetooth();
+				break;
 			}
 		}
 	}
@@ -503,8 +490,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 		if(timeLimit != previousTimeLimit) {
 			previousTimeLimit = timeLimit;
 			limitTimer.cancel();
-			if(enableTimeLimit) runOnUiThread(new Runnable() {@Override public void run() {
-				limitTimer = new MnkTimer(timeLimit, UPDATE_RATE);}});
+			if(enableTimeLimit)
+				runOnUiThread(new Runnable() {@Override public void run() {
+					limitTimer = new GameTimer(MainActivity.this, timeLimit);}});
 		}
 	}
 	@Override public void onDestroy() {
@@ -540,9 +528,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Dialo
 	@Override public void requestToUser(byte action) {
 		int actionStringID;
 		switch(action) {
-			case REQUEST_RESTART: actionStringID = R.string.restart; break;
-			case REQUEST_REVERT: actionStringID = R.string.revert; break;
-			default: actionStringID = R.string.ioError; break;
+		case REQUEST_RESTART: actionStringID = R.string.restart; break;
+		case REQUEST_REVERT: actionStringID = R.string.revert; break;
+		default: actionStringID = R.string.ioError; break;
 		}
 		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
 		Bundle bundle = new Bundle();
