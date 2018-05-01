@@ -83,6 +83,6 @@
 		android:title="Others">
 		<com.thisispiri.preferences.CreditsPreference
 			android:title="@string/credits"
-			custom:text="The AOSP for Android and the Support Library"/>
+			custom:text="The AOSP, for Android and the Support Library in Apache License 2.0\nYou can obtain a copy of Apache License 2.0 at https://www.apache.org/licenses/LICENSE-2.0"/>
 	</PreferenceCategory>
 </PreferenceScreen>
