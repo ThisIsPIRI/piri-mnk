@@ -266,8 +266,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**{@inheritDoc}*/
 	@Override public void revertLast() {
 		if(game.revertLast()) {
-			if (enableTimeLimit)
+			if (enableTimeLimit) {
+				limitTimer.cancel();
 				limitTimer.start();
+			}
 			if (Looper.myLooper() != Looper.getMainLooper()) {
 				runOnUiThread(new Runnable() {@Override public void run() {
 					board.invalidate();
