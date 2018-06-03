@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		displayDialog = 0;
 	}
 
-	//SECTION: game handling
+	//SECTION: Game handling
 	/**Returns the current {@link MnkGame}.*/
 	@Override public MnkGame getGame() {return game;}
 	/**Stops every {@code Thread} started by this {@code Activity} and initializes the game.*/
@@ -425,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 	}
 
-	//SECTION: communication
+	//SECTION: Communication
 	/**Listens for changes in the playing mode(local or Bluetooth)*/
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		decisionDialog.show(getFragmentManager(), "request", String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID)));
 	}
 
-	//SECTION: file and communication
+	//SECTION: File and communication
 	@Override public void onRequestPermissionsResult(final int requestCode, @NonNull final String permissions[], @NonNull final int[] grantResults) {
 		if(grantResults.length > 0) {
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -556,7 +556,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	@Override public void informUser(final Info of) {
 		AndroidUtilsKt.showToast(this, ioMessages.get(of));
 	}
-	//SECTION: files
+
+	//SECTION: Files
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
 	private void showEditTextDialog(String tag, String message, String hint) {
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
@@ -597,7 +598,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 	}
 
-	//SECTION: miscellaneous
+	//SECTION: Miscellaneous
 	private static class FillHandler extends Handler{
 		final WeakReference<MainActivity> activity;
 		FillHandler(MainActivity a) {activity = new WeakReference<>(a);}
