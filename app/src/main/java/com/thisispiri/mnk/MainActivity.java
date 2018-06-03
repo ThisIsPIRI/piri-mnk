@@ -289,10 +289,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		Point[] result = game.checkWin(x, y);
 		if (result != null) { //if someone won the game
 			gameEnd = true;
-			if(enableHighlight) {
-				if (Looper.myLooper() != Looper.getMainLooper()) highlighter.postHighlight(result);
-				else highlighter.highlight(result);
-			}
+			if(enableHighlight) highlighter.highlight(result);
 			if(game.getNextIndex() == 0) return (game.shapes.length) + getResources().getString(R.string.winAnnouncement); //since MnkGame.shapes starts at 0
 			else return game.getNextIndex() + getResources().getString(R.string.winAnnouncement);
 		}
@@ -312,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		//Check the legality of the move. Don't check for preventPlaying here; see GameTimer and BoardListener for details.
 		if(!game.place(x, y)) return false; //Do nothing if the move was invalid.
 		if(onBluetooth) {
+			//TODO: don't rely on the Looper to determine if it's the user or the opponent playing
 			if(Looper.myLooper() == Looper.getMainLooper()) bluetoothThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
 			//If it's the user's turn, refuse to end the turn for the opponent.
 			//Compare myIndex to nextIndexAt(-1) since the game.place() call above has changed nextIndex by 1.
@@ -321,10 +319,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			}
 		}
 		if(limitTimer != null) limitTimer.cancel();
-		if(highlight && enableHighlight) {
-			if(Looper.myLooper() != Looper.getMainLooper()) highlighter.postHighlight(x, y);
-			else highlighter.highlight(x, y);
-		}
+		if(highlight && enableHighlight) highlighter.highlight(x, y);
 		//update graphics and set gameEnd
 		String result = checkEnd(x, y);
 		if(Looper.myLooper() != Looper.getMainLooper()) {
