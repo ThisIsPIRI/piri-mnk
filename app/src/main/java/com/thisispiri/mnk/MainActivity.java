@@ -531,7 +531,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
 		Bundle bundle = new Bundle();
-		bundle.putInt("actionStringID", actionStringID);
 		bundle.putByte("action", action);
 		bundle.putString(getString(R.string.tagInBundle), DECISION_TAG);
 		decisionDialog.setArguments(bundle);
