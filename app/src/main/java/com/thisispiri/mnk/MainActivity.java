@@ -533,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	/**Informs that the opponent requested the {@code action} and lets the user choose whether to allow it or not.
 	 * @param action The action the opponent requested.*/
-	@Override public void requestToUser(byte action) {
+	@Override public void requestToUser(byte action, Object ) {
 		int actionStringID;
 		switch(action) {
 		case REQUEST_RESTART: actionStringID = R.string.restart; break;
@@ -545,7 +545,25 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		bundle.putByte("action", action);
 		bundle.putString(getString(R.string.tagInBundle), DECISION_TAG);
 		decisionDialog.setArguments(bundle);
-		decisionDialog.show(getFragmentManager(), "request", String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID)));
+		String shownString = String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID));
+		if(actionStringID = REQUEST_RESTART) {
+			shownString += stringifyRules(rules);
+		}
+		decisionDialog.show(getFragmentManager(), "request", shownString);
+	}
+	private String stringifyRules() {
+		StringBuffer buffer = new StringBuffer();
+		//TODO: Use reflection to iterate over needed Fields?
+		//TODO: Localize
+		buffer.append("Horizontal size: ");
+		buffer.append(game.getHorSize());
+		buffer.append("Vertical size: ");
+		buffer.append(game.getVerSize());
+		buffer.append("Winning streak: ");
+		buffer.append(game.winStreak);
+		buffer.append("Time limit: ");
+		buffer.append(timeLimit);
+		return buffer.toString();
 	}
 
 	//SECTION: File and communication

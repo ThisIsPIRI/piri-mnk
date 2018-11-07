@@ -1,5 +1,7 @@
 package com.thisispiri.mnk;
 
+import android.os.Bundle;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,6 +40,7 @@ public class IoThread extends Thread {
 							manager.informUser(Info.INVALID_MOVE);
 						break;
 					case REQUEST_HEADER:
+						//if(restart) put rules in Bundle and pass it
 						manager.requestToUser(buffer[1]);
 						break;
 					case RESPONSE_HEADER:
