@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Indicates what {@code Dialog} to show on next {@link MainActivity#onResumeFragments}. Needed because {@code IllegalStateException} is thrown when {@code DialogFragment.show()} is called inside some methods.
 	 * Values for this field can be {@link MainActivity#SAVE_REQUEST_CODE}, {@link MainActivity#LOAD_REQUEST_CODE}, {@link MainActivity#LOCATION_REQUEST_CODE} or {@link MainActivity#BLUETOOTH_ENABLE_CODE}. Any other value does nothing.*/
 	private int displayDialog = 0;
+	/**Whether the rules has changed since the last rule sync(in multiplayer)*/
+	private final boolean ruleChanged = true;
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private Map<Info, Integer> ioMessages = new HashMap<>();
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
@@ -89,16 +91,20 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 
 	//SECTION: UI and Android API
+	private void readRules() {
+		readRules(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+	}
+	private void readRules(final SharedPreferences pref) {
+		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
+		game.winStreak = pref.getInt("winStreak", 5);
+		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
+	}
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
 	private void readData() {
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		//rules
-		if(!onBluetooth) {
-			if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
-			game.winStreak = pref.getInt("winStreak", 5);
-			setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
-		}
-		//graphics
+		if(!onBluetooth) readRules(pref);
+		//graphics. TODO: pass Runnables as symbol type?
 		int backColor;
 		Board.Symbol symbolType;
 		Board.Line lineType;
@@ -175,7 +181,12 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		public void onClick(final View v) {
 			switch(v.getId()) {
 			case R.id.restart:
-				if(onBluetooth) bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+				if(onBluetooth) {
+					if(ruleChanged) //Request to restart AND change the rules.
+						bluetoothThread.write(18, REQUEST_HEADER, REQUEST_RESTART, game.getHorSize(), game.getVerSize(), game.winStreak, timeLimit);
+					else
+						bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+				}
 				else initialize();
 				break;
 			case R.id.buttonAI:
