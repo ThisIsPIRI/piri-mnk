@@ -370,22 +370,31 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 	}
 	/**Call to return the result of a {@code Dialog} to this {@code Activity}.*/
-	@Override public <T> void giveResult(T result, Bundle arguments) {
+	@Override public <T> void giveResult(T result, final Bundle arguments) {
 		if(arguments != null) {
 			String tag = arguments.getString(getString(R.string.tagInBundle));
 			if(tag != null) {
 				switch (tag) {
 				case DECISION_TAG:
-					if(onBluetooth) { //The opponent might cancel connection after sending a request
-						byte request = arguments.getByte("action");
+					boolean wasRequest = arguments.getBoolean(getString(R.string.wasRequest)); //TODO: replace with string resources
+					if(wasRequest) {
+						if(!onBluetooth) break; //The opponent might cancel connection after sending a request.
+						byte request = arguments.getByte(getString(R.string.action));
 						if ((Boolean) result) {
 							switch (request) {
-							case REQUEST_RESTART: initialize(); break;
-							case REQUEST_REVERT: revertLast(); break;
+							case REQUEST_RESTART:
+								initialize();
+								break;
+							case REQUEST_REVERT:
+								revertLast();
+								break;
 							}
 							bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 						}
 						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
+					}
+					else { //TODO: generalize to process different kinds of non-requests
+						radioLocal.setChecked(true);
 					}
 					break;
 				case FILE_TAG:
@@ -431,6 +440,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
 			switch(id) {
 			case R.id.radioLocal: //TODO: request confirmation of the user when he clicks the local button in Bluetooth mode
+				requestConfirm(new Bundle(), getString(R.string.termConnection));
 				stopBluetooth(true);
 				configureUI(false);
 				break;
@@ -520,6 +530,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			AndroidUtilsKt.showToast(this, R.string.problemWhileClosing);
 		}
 	}
+	public void requestConfirm(Bundle arguments, String message) {
+		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
+		decisionDialog.setArguments(arguments);
+		decisionDialog.show(getFragmentManager(), "request", message);
+	}
 	/**Informs that the opponent requested the {@code action} and lets the user choose whether to allow it or not.
 	 * @param action The action the opponent requested.*/
 	@Override public void requestToUser(byte action) {
@@ -529,12 +544,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		case REQUEST_REVERT: actionStringID = R.string.revert; break;
 		default: actionStringID = R.string.ioError; break;
 		}
-		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
 		Bundle bundle = new Bundle();
-		bundle.putByte("action", action);
+		bundle.putBoolean(getString(R.string.wasRequest), true);
+		bundle.putByte(getString(R.string.action), action);
 		bundle.putString(getString(R.string.tagInBundle), DECISION_TAG);
-		decisionDialog.setArguments(bundle);
-		decisionDialog.show(getFragmentManager(), "request", String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID)));
+		requestConfirm(bundle, String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID)));
 	}
 
 	//SECTION: File and communication
@@ -558,7 +572,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 
 	//SECTION: Files
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
-	private void showEditTextDialog(String tag, String message, String hint) {
+	private void showEditTextDialog(final String tag, final String message, final String hint) {
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
 		Bundle arguments = new Bundle();
 		arguments.putString(getString(R.string.tagInBundle), tag);

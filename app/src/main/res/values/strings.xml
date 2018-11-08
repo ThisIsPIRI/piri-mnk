@@ -70,4 +70,5 @@
 	<string name="problemWhileClosing">A problem occurred while closing the socket.</string>
 	<string name="failedToReceive">Failed to receive data from the opponent.</string>
 	<string name="failedToSend">Failed to send data to the opponent.</string>
+	<string name="termConnection">Terminate connection?</string>
 </resources>
