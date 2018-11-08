@@ -84,14 +84,21 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private int displayDialog = 0;
 	/**Whether the rules has changed since the last rule sync(in multiplayer)*/
 	private final boolean ruleChanged = true;
-	/**TODO: WIP. A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit}*/
+	/**A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit}*/
 	private int[] changedRules;
-	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
-	private Map<Info, Integer> ioMessages = new HashMap<>();
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
 	private final static String DECISION_TAG = "decision", FILE_TAG = "file", BLUETOOTH_TAG = "bluetooth";
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
+	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
+	private final static Map<Info, Integer> ioMessages = new HashMap<>();
 
+	static {
+		//Map the Infos to String IDs.
+		ioMessages.put(Info.REJECTION, R.string.requestRejected);
+		ioMessages.put(Info.INVALID_MOVE, R.string.moveWasInvalid);
+		ioMessages.put(Info.READ_FAIL, R.string.failedToReceive);
+		ioMessages.put(Info.WRITE_FAIL, R.string.failedToSend);
+	}
 	//SECTION: UI and Android API
 	private void readRules(final SharedPreferences pref) {
 		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
@@ -177,11 +184,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		Point screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
 		screenX = screenSize.x;
-		//Map the Infos to String IDs.
-		ioMessages.put(Info.REJECTION, R.string.requestRejected);
-		ioMessages.put(Info.INVALID_MOVE, R.string.moveWasInvalid);
-		ioMessages.put(Info.READ_FAIL, R.string.failedToReceive);
-		ioMessages.put(Info.WRITE_FAIL, R.string.failedToSend);
 	}
 	/**Listens for clicks on various buttons.*/
 	private class ButtonListener implements View.OnClickListener {
