@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		enableHighlight = pref.getBoolean("enableHighlight", true);
 	}
 	/**Calls {@link MainActivity#readData} and invalidates {@link MainActivity#board}.*/
+	@SuppressWarnings("SuspiciousNameCombination")
 	@Override protected void onStart() {
 		super.onStart();
 		readData();
@@ -268,10 +269,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		board.setGame(game);
 		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);
 		if(Looper.myLooper() != Looper.getMainLooper()) {
-			runOnUiThread(new Runnable() {@Override public void run() {
+			runOnUiThread(() -> {
 				board.invalidate();
 				winText.setText("");
-			}});
+			});
 		}
 		else {
 			board.invalidate();
@@ -288,9 +289,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				limitTimer.start();
 			}
 			if (Looper.myLooper() != Looper.getMainLooper()) {
-				runOnUiThread(new Runnable() {@Override public void run() {
+				runOnUiThread(() -> {
 					board.invalidate();
-					winText.setText("");}}); //gameEnd is usually set to false before this line is executed, so checking if it's true is a bad idea here.
+					winText.setText("");}); //gameEnd is usually set to false before this line is executed, so checking if it's true is a bad idea here.
 			}
 			else {
 				board.invalidate();
@@ -349,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			board.invalidate();
 		}
 		if(!gameEnd && enableTimeLimit) {
-			runOnUiThread(new Runnable() {@Override public void run() {limitTimer.start();}});
+			runOnUiThread(() -> limitTimer.start());
 		}
 		return true;
 	}
@@ -426,8 +427,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						radioLocal.setChecked(true); //connection failed or canceled
 					else {
 						this.socket = (BluetoothSocket) result;
-						runOnUiThread(new Runnable() {@Override public void run() {
-							configureUI(true);}});
+						runOnUiThread(() -> configureUI(true));
 						try {
 							bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
 							bluetoothThread.start();
@@ -517,8 +517,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			previousTimeLimit = timeLimit;
 			limitTimer.cancel();
 			if(enableTimeLimit)
-				runOnUiThread(new Runnable() {@Override public void run() {
-					limitTimer = new GameTimer(MainActivity.this, timeLimit);}});
+				runOnUiThread(() -> limitTimer = new GameTimer(MainActivity.this, timeLimit));
 		}
 	}
 	@Override public void onDestroy() {
@@ -529,10 +528,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**{@inheritDoc} Informs the user of the cancellation.*/
 	@Override public void cancelConnection() {
 		stopBluetooth(false);
-		runOnUiThread(new Runnable() {@Override public void run() {
+		runOnUiThread(() -> {
 			radioLocal.setChecked(true);
 			AndroidUtilsKt.showToast(MainActivity.this, R.string.connectionTerminated);
-		}});
+		});
 	}
 	/**Stops Bluetooth communications but doesn't set radioLocal to true.
 	 * @param informOpponent If true, informs the opponent that we terminated the connection.*/

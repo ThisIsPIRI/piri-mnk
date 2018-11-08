@@ -162,11 +162,11 @@ public class PiriMnkAi extends MnkAi {
 			}
 			int i, j;
 			for (i = y - yP * 2, j = x - xP * 2; inBoundary(i, j); i -= yP, j -= xP) { //follow the line until it hits the other symbol or blank space.
-					/*four cases:
-					* 1. first line is connected to second one and open : since isOpen is not initialized after first scan, the line receives open bonus.
-					* 2. first line is connected to second one but not open : second loop only sets isOpen to true if first line isn't connected to second one, so isOpen stays false.
-					* 3. first line is not connected to second one and open : second loop sets isOpen to false at the end if the second line isn't open.
-					* 4. first line is not connected to second one and not open : second loop behaves in the same way first loop does.*/
+				/*four cases:
+				* 1. first line is connected to second one and open : since isOpen is not initialized after first scan, the line receives open bonus.
+				* 2. first line is connected to second one but not open : second loop only sets isOpen to true if first line isn't connected to second one, so isOpen stays false.
+				* 3. first line is not connected to second one and open : second loop sets isOpen to false at the end if the second line isn't open.
+				* 4. first line is not connected to second one and not open : second loop behaves in the same way first loop does.*/
 				if (game.array[i][j] == EMPTY) {
 					if (!isConnected) isOpen = true;
 					break;
