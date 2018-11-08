@@ -4,4 +4,6 @@
 	<string name="lineDefault" translatable="false">linesEnclosingSymbols</string>
 	<string name="tagInBundle" translatable="false">tagInBundle</string>
 	<string name="isServer" translatable="false">isServer</string>
+	<string name="wasRequest" translatable="false">wasRequest</string>
+	<string name="action" translatable="false">action</string>
 </resources>
