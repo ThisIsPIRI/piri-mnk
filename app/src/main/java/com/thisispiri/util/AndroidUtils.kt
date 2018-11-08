@@ -32,7 +32,7 @@ fun getFile(directoryName: String, fileName: String, allowCreation: Boolean): Fi
  * @param length The length of the `Toast`. Must either be `Toast.LENGTH_SHORT` or `Toast.LENGTH_LONG`. Defaults to `LENGTH_SHORT`.*/
 fun showToast(inActivity: Activity, saying: String) {
 	if (Looper.myLooper() != Looper.getMainLooper())
-		inActivity.runOnUiThread({showToast(inActivity, saying)})
+		inActivity.runOnUiThread {showToast(inActivity, saying)}
 	else
 		Toast.makeText(inActivity, saying, Toast.LENGTH_SHORT).show()
 }
