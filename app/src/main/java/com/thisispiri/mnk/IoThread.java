@@ -38,7 +38,14 @@ public class IoThread extends Thread {
 							manager.informUser(Info.INVALID_MOVE);
 						break;
 					case REQUEST_HEADER:
-						manager.requestToUser(buffer[1]);
+						if(buffer[1] == REQUEST_RESTART && buffer[2] != 0) {
+							manager.requestToUser(buffer[1], new int[]{
+									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 2, 6)).getInt(),
+									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 6, 10)).getInt(),
+									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 10, 13)).getInt(),
+									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 13, 17)).getInt()});
+						}
+						else manager.requestToUser(buffer[1]);
 						break;
 					case RESPONSE_HEADER:
 						if(buffer[1] == RESPONSE_PERMIT) {
@@ -95,6 +102,9 @@ public class IoThread extends Thread {
 			else if (d instanceof Double) buffer.putDouble((Double) d);
 			else if (d instanceof Long) buffer.putLong((Long) d);
 			else if (d instanceof Short) buffer.putShort((Short) d);
+			else if(d instanceof int[])
+				for(int i : (int[])d)
+					buffer.putInt(i);
 		}
 		write(buffer.array());
 	}

@@ -82,6 +82,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Indicates what {@code Dialog} to show on next {@link MainActivity#onResumeFragments}. Needed because {@code IllegalStateException} is thrown when {@code DialogFragment.show()} is called inside some methods.
 	 * Values for this field can be {@link MainActivity#SAVE_REQUEST_CODE}, {@link MainActivity#LOAD_REQUEST_CODE}, {@link MainActivity#LOCATION_REQUEST_CODE} or {@link MainActivity#BLUETOOTH_ENABLE_CODE}. Any other value does nothing.*/
 	private int displayDialog = 0;
+	/**Whether the rules has changed since the last rule sync(in multiplayer)*/
+	private final boolean ruleChanged = true;
+	/**TODO: WIP. A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit}*/
+	private int[] changedRules;
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private Map<Info, Integer> ioMessages = new HashMap<>();
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
@@ -89,16 +93,24 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 
 	//SECTION: UI and Android API
+	private void readRules(final SharedPreferences pref) {
+		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
+		game.winStreak = pref.getInt("winStreak", 5);
+		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
+	}
+	private void saveRules(final SharedPreferences pref) {
+		changedRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
+				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1};
+	}
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
 	private void readData() {
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		//rules
-		if(!onBluetooth) {
-			if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
-			game.winStreak = pref.getInt("winStreak", 5);
-			setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
-		}
-		//graphics
+		if(onBluetooth)
+			saveRules(pref);
+		else
+			readRules(pref);
+		//graphics. TODO: pass functions as symbol type?
 		int backColor;
 		Board.Symbol symbolType;
 		Board.Line lineType;
@@ -175,7 +187,12 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		public void onClick(final View v) {
 			switch(v.getId()) {
 			case R.id.restart:
-				if(onBluetooth) bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+				if(onBluetooth) {
+					if(ruleChanged) //Request to restart AND change the rules.
+						bluetoothThread.write(18, REQUEST_HEADER, REQUEST_RESTART, changedRules);
+					else
+						bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+				}
 				else initialize();
 				break;
 			case R.id.buttonAI:
@@ -535,9 +552,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		decisionDialog.setArguments(arguments);
 		decisionDialog.show(getFragmentManager(), "request", message);
 	}
-	/**Informs that the opponent requested the {@code action} and lets the user choose whether to allow it or not.
-	 * @param action The action the opponent requested.*/
 	@Override public void requestToUser(byte action) {
+		requestToUser(action, null);
+	}
+	/**Informs that the opponent requested the {@code action} and lets the user choose whether to allow it or not.
+	 * If the requested {@code action} is {@link IoThread#REQUEST_RESTART}, displays the changed rules.
+	 * @param action The action the opponent requested.*/
+	@Override public <T> void requestToUser(byte action, T details) {
 		int actionStringID;
 		switch(action) {
 		case REQUEST_RESTART: actionStringID = R.string.restart; break;
@@ -548,7 +569,23 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		bundle.putBoolean(getString(R.string.wasRequest), true);
 		bundle.putByte(getString(R.string.action), action);
 		bundle.putString(getString(R.string.tagInBundle), DECISION_TAG);
-		requestConfirm(bundle, String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID)));
+		String shownString = String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID));
+		if(action == REQUEST_RESTART) {
+			shownString += stringifyRules((int[])details);
+		}
+		requestConfirm(bundle, shownString);
+	}
+	private String stringifyRules(int[] rules) {
+		//TODO: Find a better way to pass rules around
+		//TODO: Localize
+		StringBuilder builder = new StringBuilder();
+		final String[] names = {"Horizontal size: ", "Vertical size: ", "Winning streak: ", "Time limit: "};
+		for(int i = 0;i < 4;i++) {
+			builder.append(names);
+			builder.append(rules[i]);
+			builder.append('\n');
+		}
+		return builder.toString();
 	}
 
 	//SECTION: File and communication

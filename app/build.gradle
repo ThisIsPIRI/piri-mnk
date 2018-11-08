@@ -23,18 +23,22 @@ android {
 			includeAndroidResources = true
 		}
 	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
 }
 
 dependencies {
-    implementation project (':pirifragments-release')
-    implementation project(':piripreferences-release')
-    implementation project(':piridialogs-release')
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    testImplementation 'junit:junit:4.12'
+	implementation project(':pirifragments-release')
+	implementation project(':piripreferences-release')
+	implementation project(':piridialogs-release')
+	implementation 'com.android.support:appcompat-v7:28.0.0'
+	implementation fileTree(include: ['*.jar'], dir: 'libs')
+	androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+		exclude group: 'com.android.support', module: 'support-annotations'
+	})
+	testImplementation 'junit:junit:4.12'
 	testImplementation 'org.robolectric:robolectric:3.8'
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

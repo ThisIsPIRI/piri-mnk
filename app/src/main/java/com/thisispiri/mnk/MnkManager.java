@@ -12,6 +12,8 @@ public interface MnkManager {
 	void setTimeLimit(int limit);
 	/**Asks the user if he approves the {@code action}.*/
 	void requestToUser(byte action);
+	/**Asks the user if he approves the {@code action} with {@code details}.*/
+	<T> void requestToUser(byte action, T details);
 	/**Informs the user of the {@link Info}*/
 	void informUser(Info of);
 	//void informUser(String that);
