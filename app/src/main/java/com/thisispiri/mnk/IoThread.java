@@ -13,7 +13,9 @@ import com.thisispiri.mnk.MnkManager.Info;
  * When sending moves, the format is {MOVE_HEADER, (x int), (y int)}. <br>
  * When sending requests, the format is {REQUEST_HEADER, (action constant)}. <br>
  * When sending responses(to requests), the format is {RESPONSE_HEADER, RESPONSE_REJECT/PERMIT, (action constant)}. <br>
- * When sending orders, the format is {ORDER_HEADER, (order constant), in case of initialization : (board size ints), (winning streak int)}.*/
+ * When sending orders, the format is {ORDER_HEADER, (order constant), in case of initialization : (board size ints), (winning streak int)}.
+ * {@link IoThread#REQUEST_RESTART} can have the changed rules after it: in this case, the format is
+ * {REQUEST_HEADER, REQUEST_RESTART, 1, horSize, verSize, winStreak, timeLimit}*/
 public class IoThread extends Thread {
 	public final static byte MOVE_HEADER = 0, REQUEST_HEADER = 1, RESPONSE_HEADER = 2, ORDER_HEADER = 3; //headers
 	public final static byte REQUEST_RESTART = 4, REQUEST_REVERT = 5; //requests
@@ -40,10 +42,10 @@ public class IoThread extends Thread {
 					case REQUEST_HEADER:
 						if(buffer[1] == REQUEST_RESTART && buffer[2] != 0) {
 							manager.requestToUser(buffer[1], new int[]{
-									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 2, 6)).getInt(),
-									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 6, 10)).getInt(),
-									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 10, 13)).getInt(),
-									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 13, 17)).getInt()});
+									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 3, 7)).getInt(),
+									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 7, 11)).getInt(),
+									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 11, 15)).getInt(),
+									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 15, 19)).getInt()});
 						}
 						else manager.requestToUser(buffer[1]);
 						break;

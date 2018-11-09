@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Indicates what {@code Dialog} to show on next {@link MainActivity#onResumeFragments}. Needed because {@code IllegalStateException} is thrown when {@code DialogFragment.show()} is called inside some methods.
 	 * Values for this field can be {@link MainActivity#SAVE_REQUEST_CODE}, {@link MainActivity#LOAD_REQUEST_CODE}, {@link MainActivity#LOCATION_REQUEST_CODE} or {@link MainActivity#BLUETOOTH_ENABLE_CODE}. Any other value does nothing.*/
 	private int displayDialog = 0;
-	/**Whether the rules has changed since the last rule sync(in multiplayer)*/
+	/**TODO: WIP. Whether the rules has changed since the last rule sync(in multiplayer)*/
 	private final boolean ruleChanged = true;
 	/**A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit}*/
 	private int[] changedRules;
@@ -116,9 +116,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void readData() {
 		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		//rules
-		if(onBluetooth)
-			saveRules(pref);
-		else
+		saveRules(pref);
+		if(!onBluetooth)
 			readRules(pref);
 		//graphics. TODO: pass functions as symbol type?
 		int backColor;
@@ -195,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			case R.id.restart:
 				if(onBluetooth) {
 					if(ruleChanged) //Request to restart AND change the rules.
-						bluetoothThread.write(18, REQUEST_HEADER, REQUEST_RESTART, changedRules);
+						bluetoothThread.write(19, REQUEST_HEADER, REQUEST_RESTART, (byte)1, changedRules);
 					else
 						bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
 				}
@@ -578,8 +577,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		bundle.putByte(getString(R.string.action), action);
 		bundle.putString(getString(R.string.tagInBundle), DECISION_TAG);
 		String shownString = String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID));
-		if(action == REQUEST_RESTART) {
-			shownString += stringifyRules((int[])details);
+		if(action == REQUEST_RESTART && details != null) {
+			shownString += '\n' + stringifyRules((int[])details);
 		}
 		requestConfirm(bundle, shownString);
 	}
@@ -589,7 +588,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		StringBuilder builder = new StringBuilder();
 		final String[] names = {"Horizontal size: ", "Vertical size: ", "Winning streak: ", "Time limit: "};
 		for(int i = 0;i < 4;i++) {
-			builder.append(names);
+			builder.append(names[i]);
 			builder.append(rules[i]);
 			builder.append('\n');
 		}
