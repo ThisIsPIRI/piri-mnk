@@ -23,6 +23,7 @@ import android.graphics.Point;
 import android.widget.Button;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -53,7 +54,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private SwitchCompat useAI;
 	private View parentView;
 	private Checkable radioLocal; //onCheckedChanged() may be called more than once if we use RadioGroup.check(). Do not replace this with radioPlayers.
+	private RadioGroup rGroup;
 	private final ButtonListener bLis = new ButtonListener();
+	private final RadioListener rLis = new RadioListener();
 	/**The {@code Thread} used to asynchronously fill all cells when the "fill all" button is pressed.*/
 	private FillThread fillThread;
 	/**The {@code Thread} used to communicate with another client via Bluetooth.*/
@@ -178,8 +181,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		findViewById(R.id.save).setOnClickListener(bLis);
 		buttonLoad = findViewById(R.id.load);
 		buttonLoad.setOnClickListener(bLis);
-		//TODO: add a "reload settings and restart" button for multiplayer
-		((RadioGroup) findViewById(R.id.radioPlayers)).setOnCheckedChangeListener(new RadioListener());
+		rGroup = findViewById(R.id.radioPlayers);
+		rGroup.setOnCheckedChangeListener(rLis);
 		//Save the screen resolution.
 		Point screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
@@ -454,20 +457,21 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 
 	//SECTION: Communication
+	private void toLocalSecretly() {
+		AndroidUtilsKt.hiddenClick(rGroup, (RadioButton) radioLocal, rLis, true);
+	}
 	/**Listens for changes in the playing mode(local or Bluetooth)*/
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
 			switch(id) {
 			case R.id.radioLocal: //TODO: request confirmation of the user when he clicks the local button in Bluetooth mode
-				if(adapter != null) { //Don't request confirmation when radioLocal is automatically clicked due to the device not supporting Bluetooth
-					requestConfirm(new Bundle(), getString(R.string.termConnection));
-					stopBluetooth(true);
-					configureUI(false);
-				}
+				requestConfirm(new Bundle(), getString(R.string.termConnection));
+				stopBluetooth(true);
+				configureUI(false);
 				break;
 			case R.id.radioBluetooth:
 				if (adapter == null) {
-					radioLocal.setChecked(true);
+					toLocalSecretly();
 					AndroidUtilsKt.showToast(MainActivity.this, R.string.noBluetoothSupport);
 				}
 				else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
@@ -484,9 +488,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Calls {@link MainActivity#connectBluetooth} or checks radioLocal and tells the user he must enable Bluetooth to play wirelessly depending on the {@code resultCode}.*/
 	@Override public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 		if(requestCode == BLUETOOTH_ENABLE_CODE) {
-			if(resultCode == RESULT_OK) displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling connectBluetooth()
+			if(resultCode == RESULT_OK)
+				displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling connectBluetooth()
 			else {
-				radioLocal.setChecked(true);
+				toLocalSecretly();
 				AndroidUtilsKt.showToast(this, R.string.enableBluetooth);
 			}
 		}
@@ -603,7 +608,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				displayDialog = requestCode; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will indirectly call it by calling saveGame() or loadGame()
 			}
 			else if(requestCode == LOCATION_REQUEST_CODE)
-				radioLocal.setChecked(true);
+				toLocalSecretly();
 		}
 	}
 	@Override public void informUser(final Info of) {

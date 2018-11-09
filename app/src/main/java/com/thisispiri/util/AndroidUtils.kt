@@ -4,6 +4,8 @@ import android.app.Activity
 import android.os.Environment
 import android.os.Looper
 import android.support.annotation.StringRes
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.Toast
 import java.io.File
 import java.io.IOException
@@ -41,4 +43,10 @@ fun showToast(inActivity: Activity, saying: String) {
  * @param saying The resource ID of the string to show.*/
 fun showToast(inActivity: Activity, @StringRes saying: Int) { //TODO: add jvmoverloads and test
 	showToast(inActivity, inActivity.getString(saying))
+}
+
+fun hiddenClick(group: RadioGroup, button: RadioButton, listener: RadioGroup.OnCheckedChangeListener, to: Boolean) {
+	group.setOnCheckedChangeListener(null)
+	button.isChecked = to
+	group.setOnCheckedChangeListener(listener)
 }
