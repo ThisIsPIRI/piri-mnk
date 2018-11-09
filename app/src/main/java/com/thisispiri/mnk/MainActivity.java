@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private TextView winText;
 	private SwitchCompat useAI;
 	private View parentView;
-	private Checkable radioLocal; //onCheckedChanged() may be called more than once if we use RadioGroup.check(). Do not replace this with radioPlayers.
+	private Checkable radioLocal, radioBluetooth; //onCheckedChanged() may be called more than once if we use RadioGroup.check(). Do not replace this with radioPlayers.
 	private RadioGroup rGroup;
 	private final ButtonListener bLis = new ButtonListener();
 	private final RadioListener rLis = new RadioListener();
@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		winText = findViewById(R.id.winText);
 		useAI = findViewById(R.id.useAI);
 		radioLocal = findViewById(R.id.radioLocal);
+		radioBluetooth = findViewById(R.id.radioBluetooth);
 		parentView = findViewById(R.id.mainLayout);
 		findViewById(R.id.restart).setOnClickListener(bLis);
 		buttonAI = findViewById(R.id.buttonAI);
@@ -415,8 +416,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						}
 						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
 					}
-					else if((Boolean) result) { //TODO: generalize to process different kinds of non-requests
-						radioLocal.setChecked(true);
+					else { //TODO: generalize to process different kinds of non-requests
+						if((Boolean) result) {
+							stopBluetooth(true);
+							configureUI(false);
+						}
+						else
+							toBluetoothSecretly();
 					}
 					break;
 				case FILE_TAG:
@@ -428,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					break;
 				case BLUETOOTH_TAG:
 					if (result == null)
-						radioLocal.setChecked(true); //connection failed or canceled
+						toLocalSecretly(); //connection failed or canceled
 					else {
 						this.socket = (BluetoothSocket) result;
 						runOnUiThread(() -> configureUI(true));
@@ -459,14 +465,15 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void toLocalSecretly() {
 		AndroidUtilsKt.hiddenClick(rGroup, (RadioButton) radioLocal, rLis, true);
 	}
+	private void toBluetoothSecretly() {
+		AndroidUtilsKt.hiddenClick(rGroup, (RadioButton) radioBluetooth, rLis, true);
+	}
 	/**Listens for changes in the playing mode(local or Bluetooth)*/
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
 			switch(id) {
 			case R.id.radioLocal: //TODO: request confirmation of the user when he clicks the local button in Bluetooth mode
 				requestConfirm(new Bundle(), getString(R.string.termConnection));
-				stopBluetooth(true);
-				configureUI(false);
 				break;
 			case R.id.radioBluetooth:
 				if (adapter == null) {
@@ -534,8 +541,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**{@inheritDoc} Informs the user of the cancellation.*/
 	@Override public void cancelConnection() {
 		stopBluetooth(false);
+		configureUI(false);
 		runOnUiThread(() -> {
-			radioLocal.setChecked(true);
+			toLocalSecretly();
 			AndroidUtilsKt.showToast(MainActivity.this, R.string.connectionTerminated);
 		});
 	}
@@ -554,7 +562,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			AndroidUtilsKt.showToast(this, R.string.problemWhileClosing);
 		}
 	}
+	/**Shows a {@code DecisionDialogFragment} asking the user to confirm something.
+	 * Adds {@link MainActivity#DECISION_TAG} to the arguments as tagInBundle.*/
 	public void requestConfirm(Bundle arguments, String message) {
+		arguments.putString(getString(R.string.tagInBundle), DECISION_TAG);
 		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
 		decisionDialog.setArguments(arguments);
 		decisionDialog.show(getFragmentManager(), "request", message);
@@ -575,7 +586,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		Bundle bundle = new Bundle();
 		bundle.putBoolean(getString(R.string.wasRequest), true);
 		bundle.putByte(getString(R.string.action), action);
-		bundle.putString(getString(R.string.tagInBundle), DECISION_TAG);
 		String shownString = String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID));
 		if(action == REQUEST_RESTART && details != null) {
 			shownString += '\n' + stringifyRules((int[])details);
