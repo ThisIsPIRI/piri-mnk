@@ -581,6 +581,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
 		decisionDialog.setArguments(arguments);
 		decisionDialog.show(getFragmentManager(), "request", message);
+		decisionDialog.setCancelable(false);
+		runOnUiThread(() -> {
+				getFragmentManager().executePendingTransactions();
+				decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
+
 	}
 	@Override public void requestToUser(byte action) {
 		requestToUser(action, null);
