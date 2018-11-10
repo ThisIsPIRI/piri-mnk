@@ -102,7 +102,15 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		ioMessages.put(Info.READ_FAIL, R.string.failedToReceive);
 		ioMessages.put(Info.WRITE_FAIL, R.string.failedToSend);
 	}
-	//SECTION: UI and Android API
+	//SECTION: Rules, UI and Android API
+	@Override public int[] getRules() {
+		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1};
+	}
+	@Override public void setRulesFrom(int[] array) {
+		game.setSize(array[0], array[1]);
+		game.winStreak = array[2];
+		setTimeLimit(array[3]);
+	}
 	private void readRules(final SharedPreferences pref) {
 		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
 		game.winStreak = pref.getInt("winStreak", 5);
@@ -262,8 +270,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 
 	//SECTION: Game handling
-	/**Returns the current {@link MnkGame}.*/
-	@Override public MnkGame getGame() {return game;}
 	/**Stops every {@code Thread} started by this {@code Activity} and initializes the game.*/
 	@Override public void initialize() {
 		gameEnd = true; //to prevent AI from filling.
@@ -395,24 +401,29 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Call to return the result of a {@code Dialog} to this {@code Activity}.*/
 	@Override public <T> void giveResult(T result, final Bundle arguments) {
 		if(arguments != null) {
-			String tag = arguments.getString(getString(R.string.tagInBundle));
+			String tag = arguments.getString(getString(R.string.i_tagInBundle));
 			if(tag != null) {
 				switch (tag) {
 				case DECISION_TAG:
-					boolean wasRequest = arguments.getBoolean(getString(R.string.wasRequest)); //TODO: replace with string resources
+					boolean wasRequest = arguments.getBoolean(getString(R.string.i_wasRequest)); //TODO: replace with string resources
 					if(wasRequest) {
 						if(!onBluetooth) break; //The opponent might cancel connection after sending a request.
-						byte request = arguments.getByte(getString(R.string.action));
+						byte request = arguments.getByte(getString(R.string.i_action));
 						if ((Boolean) result) {
 							switch (request) {
 							case REQUEST_RESTART:
+								if (arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
+									setRulesFrom(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)));
 								initialize();
 								break;
 							case REQUEST_REVERT:
 								revertLast();
 								break;
 							}
-							bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
+							if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
+								bluetoothThread.write(20, RESPONSE_HEADER, RESPONSE_PERMIT, request, (byte)1, getRules());
+							else
+								bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 						}
 						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
 					}
@@ -447,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 							radioLocal.setChecked(true);
 						}
 						initialize();
-						if (arguments.getBoolean(getString(R.string.isServer))) {
+						if (arguments.getBoolean(getString(R.string.i_isServer))) {
 							bluetoothThread.write(18, ORDER_HEADER, ORDER_INITIALIZE, game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1);
 							myIndex = 0;
 						}
@@ -507,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void connectBluetooth() {
 		BluetoothDialogFragment fragment = new BluetoothDialogFragment();
 		Bundle arguments = new Bundle();
-		arguments.putString(getString(R.string.tagInBundle), BLUETOOTH_TAG);
+		arguments.putString(getString(R.string.i_tagInBundle), BLUETOOTH_TAG);
 		fragment.setArguments(arguments);
 		fragment.show(getFragmentManager(), "bluetooth");
 	}
@@ -541,8 +552,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**{@inheritDoc} Informs the user of the cancellation.*/
 	@Override public void cancelConnection() {
 		stopBluetooth(false);
-		configureUI(false);
 		runOnUiThread(() -> {
+			configureUI(false);
 			toLocalSecretly();
 			AndroidUtilsKt.showToast(MainActivity.this, R.string.connectionTerminated);
 		});
@@ -559,13 +570,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			if(socket != null) socket.close();
 		}
 		catch(IOException e) {
-			AndroidUtilsKt.showToast(this, R.string.problemWhileClosing);
+			runOnUiThread(() -> AndroidUtilsKt.showToast(this, R.string.problemWhileClosing));
 		}
 	}
 	/**Shows a {@code DecisionDialogFragment} asking the user to confirm something.
 	 * Adds {@link MainActivity#DECISION_TAG} to the arguments as tagInBundle.*/
-	public void requestConfirm(Bundle arguments, String message) {
-		arguments.putString(getString(R.string.tagInBundle), DECISION_TAG);
+	private void requestConfirm(Bundle arguments, String message) {
+		arguments.putString(getString(R.string.i_tagInBundle), DECISION_TAG);
 		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
 		decisionDialog.setArguments(arguments);
 		decisionDialog.show(getFragmentManager(), "request", message);
@@ -584,21 +595,22 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		default: actionStringID = R.string.ioError; break;
 		}
 		Bundle bundle = new Bundle();
-		bundle.putBoolean(getString(R.string.wasRequest), true);
-		bundle.putByte(getString(R.string.action), action);
+		bundle.putBoolean(getString(R.string.i_wasRequest), true);
+		bundle.putByte(getString(R.string.i_action), action);
 		String shownString = String.format(Locale.getDefault(), getString(R.string.requested), getString(actionStringID));
 		if(action == REQUEST_RESTART && details != null) {
+			bundle.putIntArray(getString(R.string.i_rulesRequestToResultKey), (int[])details);
 			shownString += '\n' + stringifyRules((int[])details);
 		}
 		requestConfirm(bundle, shownString);
 	}
 	private String stringifyRules(int[] rules) {
-		//TODO: Find a better way to pass rules around
 		//TODO: Localize
 		StringBuilder builder = new StringBuilder();
-		final String[] names = {"Horizontal size: ", "Vertical size: ", "Winning streak: ", "Time limit: "};
+		final String[] names = {getString(R.string.horSize), getString(R.string.verSize), getString(R.string.winCondition), getString(R.string.timeLimit)};
 		for(int i = 0;i < 4;i++) {
 			builder.append(names[i]);
+			builder.append(": ");
 			builder.append(rules[i]);
 			builder.append('\n');
 		}
@@ -629,7 +641,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void showEditTextDialog(final String tag, final String message, final String hint) {
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
 		Bundle arguments = new Bundle();
-		arguments.putString(getString(R.string.tagInBundle), tag);
+		arguments.putString(getString(R.string.i_tagInBundle), tag);
 		fragment.setArguments(arguments);
 		fragment.show(getFragmentManager(), tag, message, hint);
 	}

@@ -15,7 +15,7 @@ import com.thisispiri.mnk.MnkManager.Info;
  * When sending responses(to requests), the format is {RESPONSE_HEADER, RESPONSE_REJECT/PERMIT, (action constant)}. <br>
  * When sending orders, the format is {ORDER_HEADER, (order constant), in case of initialization : (board size ints), (winning streak int)}.
  * {@link IoThread#REQUEST_RESTART} can have the changed rules after it: in this case, the format is
- * {REQUEST_HEADER, REQUEST_RESTART, 1, horSize, verSize, winStreak, timeLimit}*/
+ * {REQUEST/RESPONSE_HEADER, (RESPONSE_PERMIT if response), REQUEST_RESTART, 1, horSize, verSize, winStreak, timeLimit}, with the 1 indicating the rules have changed.*/
 public class IoThread extends Thread {
 	public final static byte MOVE_HEADER = 0, REQUEST_HEADER = 1, RESPONSE_HEADER = 2, ORDER_HEADER = 3; //headers
 	public final static byte REQUEST_RESTART = 4, REQUEST_REVERT = 5; //requests
@@ -27,6 +27,12 @@ public class IoThread extends Thread {
 	/**All three arguments must not be null.*/
 	public IoThread(MnkManager manager, InputStream input, OutputStream output) {
 		this.manager = manager;inputStream = input; outputStream = output;
+	}
+	private int[] getRulesFrom(byte[] array, int startingFrom) {
+		int[] result = new int[4];
+		for(int i = 0;i < 4;i++)
+			result[i] = ByteBuffer.wrap(Arrays.copyOfRange(array, i * 4 + startingFrom, i * 4 + startingFrom + 4)).getInt();
+		return result;
 	}
 	/**Constantly reads data from the {@code InputStream}.*/
 	@Override public void run() { //main loop is dedicated to reading
@@ -41,18 +47,18 @@ public class IoThread extends Thread {
 						break;
 					case REQUEST_HEADER:
 						if(buffer[1] == REQUEST_RESTART && buffer[2] != 0) {
-							manager.requestToUser(buffer[1], new int[]{
-									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 3, 7)).getInt(),
-									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 7, 11)).getInt(),
-									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 11, 15)).getInt(),
-									ByteBuffer.wrap(Arrays.copyOfRange(buffer, 15, 19)).getInt()});
+							manager.requestToUser(buffer[1], getRulesFrom(buffer, 3));
 						}
 						else manager.requestToUser(buffer[1]);
 						break;
 					case RESPONSE_HEADER:
 						if(buffer[1] == RESPONSE_PERMIT) {
 							switch(buffer[2]) {
-								case REQUEST_RESTART: manager.initialize(); break;
+								case REQUEST_RESTART:
+									if(buffer[3] != 0)
+										manager.setRulesFrom(getRulesFrom(buffer, 4));
+									manager.initialize();
+									break;
 								case REQUEST_REVERT: manager.revertLast(); break;
 							}
 						}
@@ -60,10 +66,8 @@ public class IoThread extends Thread {
 						break;
 					case ORDER_HEADER:
 						if(buffer[1] == ORDER_INITIALIZE) {
-							manager.getGame().setSize(ByteBuffer.wrap(Arrays.copyOfRange(buffer, 2, 6)).getInt(), ByteBuffer.wrap(Arrays.copyOfRange(buffer, 6, 10)).getInt());
-							manager.getGame().winStreak = ByteBuffer.wrap(Arrays.copyOfRange(buffer, 10, 14)).getInt();
+							manager.setRulesFrom(getRulesFrom(buffer, 2));
 							manager.initialize();
-							manager.setTimeLimit(ByteBuffer.wrap(Arrays.copyOfRange(buffer, 14, 18)).getInt());
 						}
 						else if(buffer[1] == ORDER_CANCEL_CONNECTION) {
 							manager.cancelConnection();

@@ -19,8 +19,10 @@ public interface MnkManager {
 	//void informUser(String that);
 	/**Cancels the connection with another player, whatever that might be.*/
 	void cancelConnection();
-	/**@return The current {@link MnkGame}.*/
-	MnkGame getGame();
+	/**Returns the current rules.*/
+	int[] getRules(); //TODO: Find a better way to pass rules around
+	/**Sets the rules as described in the array. May also {@link MnkManager#initialize} the game.*/
+	void setRulesFrom(int[] array);
 	public enum Info {
 		REJECTION, INVALID_MOVE, READ_FAIL, WRITE_FAIL;
 	}

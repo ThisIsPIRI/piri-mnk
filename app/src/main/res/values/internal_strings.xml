@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="symbolDefault" translatable="false">xsAndOs</string>
-	<string name="lineDefault" translatable="false">linesEnclosingSymbols</string>
-	<string name="tagInBundle" translatable="false">tagInBundle</string>
-	<string name="isServer" translatable="false">isServer</string>
-	<string name="wasRequest" translatable="false">wasRequest</string>
-	<string name="action" translatable="false">action</string>
+	<string name="i_symbolDefault" translatable="false">xsAndOs</string>
+	<string name="i_lineDefault" translatable="false">linesEnclosingSymbols</string>
+	<string name="i_tagInBundle" translatable="false">tagInBundle</string>
+	<string name="i_isServer" translatable="false">isServer</string>
+	<string name="i_wasRequest" translatable="false">wasRequest</string>
+	<string name="i_action" translatable="false">action</string>
+	<string name="i_rulesRequestToResultKey" translatable="false">rules</string>
 </resources>

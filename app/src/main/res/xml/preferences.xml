@@ -38,7 +38,7 @@
 			android:title="@string/symbols"
 			android:entries="@array/symbolsIds"
 			android:entryValues="@array/symbolsValues"
-			android:defaultValue="@string/symbolDefault"/>
+			android:defaultValue="@string/i_symbolDefault"/>
 		<CheckBoxPreference
 			android:key="enableHighlight"
 			android:title="@string/enableHighlighting"
@@ -57,7 +57,7 @@
 			android:title="@string/lineType"
 			android:entries="@array/linesIds"
 			android:entryValues="@array/linesValues"
-			android:defaultValue="@string/lineDefault"/>
+			android:defaultValue="@string/i_lineDefault"/>
 		<com.thisispiri.preferences.ArgbPreference
 			android:key="highlightColor"
 			android:title="@string/highlightColor"

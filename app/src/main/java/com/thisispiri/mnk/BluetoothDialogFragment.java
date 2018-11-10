@@ -163,7 +163,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 
 	//SECTION: Connection established/canceled
 	private void giveSocket(final BluetoothSocket socket, final boolean isServer) {
-		getArguments().putBoolean(getString(R.string.isServer), isServer);
+		getArguments().putBoolean(getString(R.string.i_isServer), isServer);
 		getListener().giveResult(socket, getArguments());
 	}
 	@Override public void onDestroy() {
