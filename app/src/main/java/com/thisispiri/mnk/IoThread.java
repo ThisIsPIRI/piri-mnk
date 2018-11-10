@@ -95,9 +95,9 @@ public class IoThread extends Thread {
 			manager.informUser(Info.WRITE_FAIL);
 		}
 	}
-	/**Writes Bytes, Integers, Longs, Shorts, Floats or Doubles in {@code data} varargs to the {@code OutputStream}.
+	/**Writes Bytes, Integers, Longs, Shorts, Floats, Doubles or int[]s in {@code data} varargs to the {@code OutputStream}.
 	 * @param size The total size of data in bytes.
-	 * @param data The primitive data to write to the {@code OutputStream}.
+	 * @param data The data to write to the {@code OutputStream}.
 	 * @throws BufferOverflowException If the {@code size} is smaller than the sum of the size of {@code data} in bytes.*/
 	public void write(final int size, final Object... data) throws BufferOverflowException {
 		ByteBuffer buffer = ByteBuffer.allocate(size);

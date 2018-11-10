@@ -19,9 +19,11 @@ public interface MnkManager {
 	//void informUser(String that);
 	/**Cancels the connection with another player, whatever that might be.*/
 	void cancelConnection();
-	/**Returns the current rules.*/
-	int[] getRules(); //TODO: Find a better way to pass rules around
-	/**Sets the rules as described in the array. May also {@link MnkManager#initialize} the game.*/
+	/**Returns the current rules.
+	 * @see MnkManager#setRulesFrom for the format of the returned array.*/
+	int[] getRules();
+	/**Sets the rules as described in the array. May also {@link MnkManager#initialize} the game.
+	 * The array must contain {horSize, verSize, winStreak, timeLimit} in order.*/
 	void setRulesFrom(int[] array);
 	public enum Info {
 		REJECTION, INVALID_MOVE, READ_FAIL, WRITE_FAIL;

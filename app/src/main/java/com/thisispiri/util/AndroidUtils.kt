@@ -44,7 +44,12 @@ fun showToast(inActivity: Activity, saying: String) {
 fun showToast(inActivity: Activity, @StringRes saying: Int) { //TODO: add jvmoverloads and test
 	showToast(inActivity, inActivity.getString(saying))
 }
-
+/**Changes the status of the `RadioButton` without alerting its `group`'s `OnCheckedChangeListener`.
+ * Note that this function doesn't touch any listener attached to the `button` itself.
+ * @param group The `RadioGroup` `button` is in.
+ * @param button The `RadioButton` to click.
+ * @param listener The `OnCheckedChangeListener` to attach to the `group` after clicking.
+ * @param to If `true`, `button` will be checked. If `false`, the opposite.*/
 fun hiddenClick(group: RadioGroup, button: RadioButton, listener: RadioGroup.OnCheckedChangeListener, to: Boolean) {
 	group.setOnCheckedChangeListener(null)
 	button.isChecked = to

@@ -71,4 +71,5 @@
 	<string name="failedToReceive">상대에게서 정보를 받지 못했습니다.</string>
 	<string name="failedToSend">상대에게 정보를 보내지 못했습니다.</string>
 	<string name="termConnection">연결을 중지할까요?</string>
+	<string name="none">없음</string>
 </resources>

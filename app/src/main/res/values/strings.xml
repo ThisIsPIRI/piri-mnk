@@ -71,4 +71,5 @@
 	<string name="failedToReceive">Failed to receive data from the opponent.</string>
 	<string name="failedToSend">Failed to send data to the opponent.</string>
 	<string name="termConnection">Terminate connection?</string>
+	<string name="none">none</string>
 </resources>

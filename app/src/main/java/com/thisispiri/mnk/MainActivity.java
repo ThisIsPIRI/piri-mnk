@@ -21,7 +21,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.graphics.Point;
 import android.widget.Button;
-import android.widget.Checkable;
 import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -53,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private TextView winText;
 	private SwitchCompat useAI;
 	private View parentView;
-	private Checkable radioLocal, radioBluetooth; //onCheckedChanged() may be called more than once if we use RadioGroup.check(). Do not replace this with radioPlayers.
+	private RadioButton radioLocal, radioBluetooth; //onCheckedChanged() may be called more than once if we use RadioGroup.check(). Do not replace this with radioPlayers.
 	private RadioGroup rGroup;
 	private final ButtonListener bLis = new ButtonListener();
 	private final RadioListener rLis = new RadioListener();
@@ -103,20 +102,24 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		ioMessages.put(Info.WRITE_FAIL, R.string.failedToSend);
 	}
 	//SECTION: Rules, UI and Android API
+	/**{@inheritDoc}*/
 	@Override public int[] getRules() {
 		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1};
 	}
+	/**{@inheritDoc}*/
 	@Override public void setRulesFrom(int[] array) {
 		game.setSize(array[0], array[1]);
 		game.winStreak = array[2];
 		setTimeLimit(array[3]);
 	}
+	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/ //TODO: Move initialization to readData?
 	private void readRules(final SharedPreferences pref) {
 		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
 		game.winStreak = pref.getInt("winStreak", 5);
 		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
 	}
-	private void saveRules(final SharedPreferences pref) {
+	/**Saves the rules from {@code pref} to {@link MainActivity#changedRules}.*/
+	private void cacheRules(final SharedPreferences pref) {
 		changedRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
 				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1};
 	}
@@ -124,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void readData() {
 		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		//rules
-		saveRules(pref);
+		cacheRules(pref);
 		if(!onBluetooth)
 			readRules(pref);
 		//graphics. TODO: pass functions as symbol type?
@@ -433,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 							configureUI(false);
 						}
 						else
-							toBluetoothSecretly();
+							hiddenClick(radioBluetooth);
 					}
 					break;
 				case FILE_TAG:
@@ -445,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					break;
 				case BLUETOOTH_TAG:
 					if (result == null)
-						toLocalSecretly(); //connection failed or canceled
+						hiddenClick(radioLocal); //connection failed or canceled
 					else {
 						this.socket = (BluetoothSocket) result;
 						runOnUiThread(() -> configureUI(true));
@@ -473,11 +476,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 
 	//SECTION: Communication
-	private void toLocalSecretly() {
-		AndroidUtilsKt.hiddenClick(rGroup, (RadioButton) radioLocal, rLis, true);
-	}
-	private void toBluetoothSecretly() {
-		AndroidUtilsKt.hiddenClick(rGroup, (RadioButton) radioBluetooth, rLis, true);
+	/**Clicks the {@code RadioButton} without alerting {@code rLis}.*/
+	private void hiddenClick(RadioButton button) {
+		AndroidUtilsKt.hiddenClick(rGroup, button, rLis, true);
 	}
 	/**Listens for changes in the playing mode(local or Bluetooth)*/
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
@@ -488,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				break;
 			case R.id.radioBluetooth:
 				if (adapter == null) {
-					toLocalSecretly();
+					hiddenClick(radioLocal);
 					AndroidUtilsKt.showToast(MainActivity.this, R.string.noBluetoothSupport);
 				}
 				else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
@@ -508,7 +509,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			if(resultCode == RESULT_OK)
 				displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling connectBluetooth()
 			else {
-				toLocalSecretly();
+				hiddenClick(radioLocal);
 				AndroidUtilsKt.showToast(this, R.string.enableBluetooth);
 			}
 		}
@@ -554,7 +555,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		stopBluetooth(false);
 		runOnUiThread(() -> {
 			configureUI(false);
-			toLocalSecretly();
+			hiddenClick(radioLocal);
 			AndroidUtilsKt.showToast(MainActivity.this, R.string.connectionTerminated);
 		});
 	}
@@ -611,7 +612,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		for(int i = 0;i < 4;i++) {
 			builder.append(names[i]);
 			builder.append(": ");
-			builder.append(rules[i]);
+			builder.append(rules[i] != -1 ? rules[i] : getString(R.string.none)); //For timeLimit == -1
 			builder.append('\n');
 		}
 		return builder.toString();
@@ -629,7 +630,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				displayDialog = requestCode; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will indirectly call it by calling saveGame() or loadGame()
 			}
 			else if(requestCode == LOCATION_REQUEST_CODE)
-				toLocalSecretly();
+				hiddenClick(radioLocal);
 		}
 	}
 	@Override public void informUser(final Info of) {
