@@ -11,12 +11,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.SwitchCompat;
+import androidx.appcompat.widget.SwitchCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.graphics.Point;
@@ -521,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		Bundle arguments = new Bundle();
 		arguments.putString(getString(R.string.i_tagInBundle), BLUETOOTH_TAG);
 		fragment.setArguments(arguments);
-		fragment.show(getFragmentManager(), "bluetooth");
+		fragment.show(getSupportFragmentManager(), "bluetooth");
 	}
 	/**Configures the UI for Bluetooth or local play.*/
 	private void configureUI(final boolean toBluetooth) {
@@ -580,10 +580,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		arguments.putString(getString(R.string.i_tagInBundle), DECISION_TAG);
 		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
 		decisionDialog.setArguments(arguments);
-		decisionDialog.show(getFragmentManager(), "request", message);
+		decisionDialog.show(getSupportFragmentManager(), "request", message);
 		decisionDialog.setCancelable(false);
 		runOnUiThread(() -> {
-				getFragmentManager().executePendingTransactions();
+				getSupportFragmentManager().executePendingTransactions();
 				decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
 
 	}
@@ -649,7 +649,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		Bundle arguments = new Bundle();
 		arguments.putString(getString(R.string.i_tagInBundle), tag);
 		fragment.setArguments(arguments);
-		fragment.show(getFragmentManager(), tag, message, hint);
+		fragment.show(getSupportFragmentManager(), tag, message, hint);
 	}
 	/**Saves the game.
 	 * @param fileName If null, shows a {@code Dialog} prompting the user to input the file name. If not, saves the game.*/

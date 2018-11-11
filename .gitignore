@@ -11,7 +11,7 @@
 build/
 gradle/
 piridialogs-release/
-pirifragments-release/
+piricomponents-release/
 piripreferences-release/
 **.properties
 gradlew**

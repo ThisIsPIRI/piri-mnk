@@ -3,7 +3,7 @@ package com.thisispiri.util
 import android.app.Activity
 import android.os.Environment
 import android.os.Looper
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast

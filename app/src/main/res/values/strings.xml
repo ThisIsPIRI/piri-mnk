@@ -19,7 +19,7 @@
 	<string name="load">Load</string>
 	<string name="saveRationale">The permission is needed to save games on files.</string>
 	<string name="loadRationale">The permission is needed to load games from files.</string>
-	<string name="fileNameHint">Enter the file name</string>
+	<string name="fileNameHint">Enter the filename</string>
 	<string name="xsAndOs">Xs and Os</string>
 	<string name="goStones">Go stones</string>
 	<string name="winAnnouncement">th player won</string>
