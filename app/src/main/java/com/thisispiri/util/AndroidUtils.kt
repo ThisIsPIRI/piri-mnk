@@ -28,22 +28,23 @@ fun getFile(directoryName: String, fileName: String, allowCreation: Boolean): Fi
 	return file
 }
 
-/**Shows a short `Toast` `saying` something.
+/**Shows a short `Toast` `saying` something. Safe to call from any thread.
  * @param inActivity the `Activity` to display the `Toast` in.
  * @param saying The `String` to display.
  * @param length The length of the `Toast`. Must either be `Toast.LENGTH_SHORT` or `Toast.LENGTH_LONG`. Defaults to `LENGTH_SHORT`.*/
-fun showToast(inActivity: Activity, saying: String) {
+@JvmOverloads fun showToast(inActivity: Activity, saying: String, length: Int = Toast.LENGTH_SHORT) {
 	if (Looper.myLooper() != Looper.getMainLooper())
 		inActivity.runOnUiThread {showToast(inActivity, saying)}
 	else
-		Toast.makeText(inActivity, saying, Toast.LENGTH_SHORT).show()
+		Toast.makeText(inActivity, saying, length).show()
 }
 
 /**@see showToast(Activity, String, Int)
  * @param saying The resource ID of the string to show.*/
-fun showToast(inActivity: Activity, @StringRes saying: Int) { //TODO: add jvmoverloads and test
-	showToast(inActivity, inActivity.getString(saying))
+@JvmOverloads fun showToast(inActivity: Activity, @StringRes saying: Int, length: Int = Toast.LENGTH_SHORT) {
+	showToast(inActivity, inActivity.getString(saying), length)
 }
+
 /**Changes the status of the `RadioButton` without alerting its `group`'s `OnCheckedChangeListener`.
  * Note that this function doesn't touch any listener attached to the `button` itself.
  * @param group The `RadioGroup` `button` is in.

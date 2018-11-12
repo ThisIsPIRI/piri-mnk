@@ -571,7 +571,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			if(socket != null) socket.close();
 		}
 		catch(IOException e) {
-			runOnUiThread(() -> AndroidUtilsKt.showToast(this, R.string.problemWhileClosing));
+			AndroidUtilsKt.showToast(this, R.string.problemWhileClosing);
 		}
 	}
 	/**Shows a {@code DecisionDialogFragment} asking the user to confirm something.
