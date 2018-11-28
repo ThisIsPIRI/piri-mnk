@@ -1,4 +1,4 @@
 # PIRI MNK
 
 ## Credits
-The AOSP, for the AppCompat Library in Apache License 2.0
+The AOSP, for AndroidX in Apache License 2.0

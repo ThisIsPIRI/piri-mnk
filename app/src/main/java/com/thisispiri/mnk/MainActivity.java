@@ -205,10 +205,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			switch(v.getId()) {
 			case R.id.restart:
 				if(onBluetooth) {
-					if(ruleChanged) //Request to restart AND change the rules.
-						bluetoothThread.write(19, REQUEST_HEADER, REQUEST_RESTART, (byte)1, changedRules);
-					else
-						bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+					Bundle bundle = new Bundle();
+					bundle.putString(getString(R.string.i_nonrequestDecisionKey), getString(R.string.i_playOrder));
+					requestConfirm(bundle, "Would you like to play first?");
 				}
 				else initialize();
 				break;
@@ -430,13 +429,21 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						}
 						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
 					}
-					else { //TODO: generalize to process different kinds of non-requests
-						if((Boolean) result) {
-							stopBluetooth(true);
-							configureUI(false);
+					else {
+						if(arguments.getString(getString(R.string.i_nonrequestDecisionKey)).equals(getString(R.string.i_playOrder))) {
+							if(ruleChanged) //Request to restart AND change the rules.
+								bluetoothThread.write(19, REQUEST_HEADER, REQUEST_RESTART, (byte)1, changedRules);
+							else
+								bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
 						}
-						else
-							hiddenClick(radioBluetooth);
+						else {
+							if((Boolean) result) {
+								stopBluetooth(true);
+								configureUI(false);
+							}
+							else
+								hiddenClick(radioBluetooth);
+						}
 					}
 					break;
 				case FILE_TAG:

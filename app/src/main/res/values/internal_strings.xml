@@ -7,4 +7,6 @@
 	<string name="i_wasRequest" translatable="false">wasRequest</string>
 	<string name="i_action" translatable="false">action</string>
 	<string name="i_rulesRequestToResultKey" translatable="false">rules</string>
+	<string name="i_nonrequestDecisionKey" translatable="false">nonrequestDecisionKey</string>
+	<string name="i_playOrder" translatable="false">playOrder</string>
 </resources>
