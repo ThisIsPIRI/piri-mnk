@@ -41,6 +41,7 @@ import com.thisispiri.util.GameTimer;
 import com.thisispiri.util.TimedGameManager;
 
 import static com.thisispiri.mnk.IoThread.*;
+import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
 
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
 public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
@@ -205,9 +206,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			switch(v.getId()) {
 			case R.id.restart:
 				if(onBluetooth) {
-					Bundle bundle = new Bundle();
-					bundle.putString(getString(R.string.i_nonrequestDecisionKey), getString(R.string.i_playOrder));
-					requestConfirm(bundle, "Would you like to play first?");
+					requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_playOrder)), "Would you like to play first?");
 				}
 				else initialize();
 				break;
@@ -430,13 +429,15 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
 					}
 					else {
-						if(arguments.getString(getString(R.string.i_nonrequestDecisionKey)).equals(getString(R.string.i_playOrder))) {
+						String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
+						if(decisionKey == null) break;
+						if(decisionKey.equals(getString(R.string.i_playOrder))) {
 							if(ruleChanged) //Request to restart AND change the rules.
 								bluetoothThread.write(19, REQUEST_HEADER, REQUEST_RESTART, (byte)1, changedRules);
 							else
 								bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
 						}
-						else {
+						else if(decisionKey.equals(getString(R.string.i_localConfirm))) {
 							if((Boolean) result) {
 								stopBluetooth(true);
 								configureUI(false);
@@ -492,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
 			switch(id) {
 			case R.id.radioLocal: //TODO: request confirmation of the user when he clicks the local button in Bluetooth mode
-				requestConfirm(new Bundle(), getString(R.string.termConnection));
+				requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_localConfirm)), getString(R.string.termConnection));
 				break;
 			case R.id.radioBluetooth:
 				if (adapter == null) {
@@ -525,9 +526,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Opens a {@link BluetoothDialogFragment}.*/
 	private void connectBluetooth() {
 		BluetoothDialogFragment fragment = new BluetoothDialogFragment();
-		Bundle arguments = new Bundle();
-		arguments.putString(getString(R.string.i_tagInBundle), BLUETOOTH_TAG);
-		fragment.setArguments(arguments);
+		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), BLUETOOTH_TAG));
 		fragment.show(getSupportFragmentManager(), "bluetooth");
 	}
 	/**Configures the UI for Bluetooth or local play.*/
@@ -653,9 +652,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
 	private void showEditTextDialog(final String tag, final String message, final String hint) {
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		Bundle arguments = new Bundle();
-		arguments.putString(getString(R.string.i_tagInBundle), tag);
-		fragment.setArguments(arguments);
+		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), tag));
 		fragment.show(getSupportFragmentManager(), tag, message, hint);
 	}
 	/**Saves the game.
