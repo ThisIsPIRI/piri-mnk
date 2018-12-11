@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -92,14 +93,16 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static String DECISION_TAG = "decision", FILE_TAG = "file", BLUETOOTH_TAG = "bluetooth";
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
-	private final static Map<Info, Integer> ioMessages = new HashMap<>();
+	private final static Map<Info, Integer> ioMessages;
 
 	static {
 		//Map the Infos to String IDs.
-		ioMessages.put(Info.REJECTION, R.string.requestRejected);
-		ioMessages.put(Info.INVALID_MOVE, R.string.moveWasInvalid);
-		ioMessages.put(Info.READ_FAIL, R.string.failedToReceive);
-		ioMessages.put(Info.WRITE_FAIL, R.string.failedToSend);
+		Map<Info, Integer> tempMap = new HashMap<>();
+		tempMap.put(Info.REJECTION, R.string.requestRejected);
+		tempMap.put(Info.INVALID_MOVE, R.string.moveWasInvalid);
+		tempMap.put(Info.READ_FAIL, R.string.failedToReceive);
+		tempMap.put(Info.WRITE_FAIL, R.string.failedToSend);
+		ioMessages = Collections.unmodifiableMap(tempMap);
 	}
 	//SECTION: Rules, UI and Android API
 	/**{@inheritDoc}*/
@@ -638,7 +641,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				hiddenClick(radioLocal);
 		}
 	}
-	@Override public void informUser(final Info of) {
+	@Override @SuppressWarnings("ConstantConditions") public void informUser(final Info of) {
 		AndroidUtilsKt.showToast(this, ioMessages.get(of));
 	}
 

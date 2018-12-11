@@ -25,7 +25,7 @@ public interface MnkManager {
 	/**Sets the rules as described in the array. May also {@link MnkManager#initialize} the game.
 	 * The array must contain {horSize, verSize, winStreak, timeLimit} in order.*/
 	void setRulesFrom(int[] array);
-	public enum Info {
+	enum Info {
 		REJECTION, INVALID_MOVE, READ_FAIL, WRITE_FAIL;
 	}
 }
