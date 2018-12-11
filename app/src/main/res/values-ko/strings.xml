@@ -72,4 +72,6 @@
 	<string name="failedToSend">상대에게 정보를 보내지 못했습니다.</string>
 	<string name="termConnection">연결을 중지할까요?</string>
 	<string name="none">없음</string>
+	<string name="ordinalMarker">번째</string>
+	<string name="myIndex">우리는</string>
 </resources>

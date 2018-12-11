@@ -29,9 +29,10 @@ public class IoThread extends Thread {
 		this.manager = manager;inputStream = input; outputStream = output;
 	}
 	private int[] getRulesFrom(byte[] array, int startingFrom) {
-		int[] result = new int[4];
-		for(int i = 0;i < 4;i++)
+		int[] result = new int[5];
+		for(int i = 0;i < 5;i++)
 			result[i] = ByteBuffer.wrap(Arrays.copyOfRange(array, i * 4 + startingFrom, i * 4 + startingFrom + 4)).getInt();
+		result[4] ^= 1; //Flip myIndex.
 		return result;
 	}
 	/**Constantly reads data from the {@code InputStream}.*/
@@ -46,10 +47,10 @@ public class IoThread extends Thread {
 							manager.informUser(Info.INVALID_MOVE);
 						break;
 					case REQUEST_HEADER:
-						if(buffer[1] == REQUEST_RESTART && buffer[2] != 0) {
+						if(buffer[1] == REQUEST_RESTART && buffer[2] != 0)
 							manager.requestToUser(buffer[1], getRulesFrom(buffer, 3));
-						}
-						else manager.requestToUser(buffer[1]);
+						else
+							manager.requestToUser(buffer[1]);
 						break;
 					case RESPONSE_HEADER:
 						if(buffer[1] == RESPONSE_PERMIT) {
