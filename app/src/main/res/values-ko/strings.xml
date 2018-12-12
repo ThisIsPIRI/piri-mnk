@@ -74,4 +74,7 @@
 	<string name="none">없음</string>
 	<string name="ordinalMarker">번째</string>
 	<string name="myIndex">우리는</string>
+	<string name="playFirstQuestion">먼저 두시겠습니까?</string>
+	<string name="yes">예</string>
+	<string name="no">아니오</string>
 </resources>

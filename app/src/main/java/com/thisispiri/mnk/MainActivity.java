@@ -211,7 +211,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			switch(v.getId()) {
 			case R.id.restart:
 				if(onBluetooth) {
-					requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_playOrder)), "Would you like to play first?");
+					requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_playOrder)), getString(R.string.playFirstQuestion),
+							getString(R.string.yes), getString(R.string.no));
 				}
 				else initialize();
 				break;
@@ -288,8 +289,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		if(Looper.myLooper() != Looper.getMainLooper()) {
 			runOnUiThread(() -> {
 				board.invalidate();
-				winText.setText("");
-			});
+				winText.setText("");});
 		}
 		else {
 			board.invalidate();
@@ -568,8 +568,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		runOnUiThread(() -> {
 			configureUI(false);
 			hiddenClick(radioLocal);
-			AndroidUtilsKt.showToast(MainActivity.this, R.string.connectionTerminated);
-		});
+			AndroidUtilsKt.showToast(MainActivity.this, R.string.connectionTerminated);});
 	}
 	/**Stops Bluetooth communications but doesn't set radioLocal to true.
 	 * @param informOpponent If true, informs the opponent that we terminated the connection.*/
@@ -586,17 +585,23 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			AndroidUtilsKt.showToast(this, R.string.problemWhileClosing);
 		}
 	}
-	/**Shows a {@code DecisionDialogFragment} asking the user to confirm something.
-	 * Adds {@link MainActivity#DECISION_TAG} to the arguments as tagInBundle.*/
+	/**@see MainActivity#requestConfirm(Bundle, String, String, String).
+	 * The Dialog class's default text will be used for the buttons.*/
 	private void requestConfirm(Bundle arguments, String message) {
+		requestConfirm(arguments, message, null, null);
+	}
+	/**Shows a {@code DecisionDialogFragment} asking the user to confirm something.
+	 * Adds {@link MainActivity#DECISION_TAG} to the arguments as tagInBundle.
+	 * The positive and negative buttons will read {@code positive} and {@code negative}, respectively.*/
+	private void requestConfirm(Bundle arguments, String message, String positive, String negative) {
 		arguments.putString(getString(R.string.i_tagInBundle), DECISION_TAG);
 		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
 		decisionDialog.setArguments(arguments);
-		decisionDialog.show(getSupportFragmentManager(), "request", message);
+		decisionDialog.show(getSupportFragmentManager(), "request", message, positive, negative);
 		decisionDialog.setCancelable(false);
 		runOnUiThread(() -> {
-				getSupportFragmentManager().executePendingTransactions();
-				decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
+			getSupportFragmentManager().executePendingTransactions();
+			decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
 	}
 	@Override public void requestToUser(byte action) {
 		requestToUser(action, null);
