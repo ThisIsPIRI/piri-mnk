@@ -24,8 +24,7 @@ public class Board extends View {
 		super(context, attr);
 		background = new Paint(); line = new Paint(); o = new Paint(); x = new Paint();
 	}
-	@Override
-	protected void onDraw(Canvas canvas) {
+	@Override protected void onDraw(Canvas canvas) {
 		//draw background
 		canvas.drawRect(0, 0, sideLength, sideLength, background);
 		//draw lines

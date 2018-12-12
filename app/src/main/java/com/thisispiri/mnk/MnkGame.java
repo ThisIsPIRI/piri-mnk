@@ -1,9 +1,11 @@
 package com.thisispiri.mnk;
+
 import android.graphics.Point;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+
 /**A representation of an MNK game.*/
 public class MnkGame {
 	public Shape[][] array; //TODO: make this private

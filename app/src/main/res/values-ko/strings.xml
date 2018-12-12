@@ -35,14 +35,10 @@
 	<string name="local">로컬</string>
 	<string name="bluetooth">블루투스</string>
 	<string name="requestRejected">요청이 거부되었습니다.</string>
-	<string name="reject">거부</string>
 	<string name="requested">상대가 %s을(를) 요청했습니다.</string>
-	<string name="ruleChangeWhileBluetooth">연결이 끝나면 규칙이 적용됩니다.</string>
-	<string name="agree">동의</string>
+	<string name="ruleChangeWhileBluetooth">변경된 규칙을 적용하려면 재시작을 요청하세요.</string>
 	<string name="symbols">모양</string>
-	<string name="shorterThan">두 변과 이기는 길이는 %d보다 짧아야 합니다.</string>
 	<string name="sgfLimit">한 변이 52보다 큰 게임은 현재 저장할 수 없습니다.</string>
-	<string name="notANumber">값이 숫자가 아닙니다.</string>
 	<string name="noBluetoothSupport">이 장치는 블루투스를 지원하지 않습니다.</string>
 	<string name="enableBluetooth">블루투스를 활성화해야 무선 게임이 가능합니다.</string>
 	<string name="horSize">가로 크기</string>
@@ -56,8 +52,6 @@
 	<string name="timeLimit">시간제한(밀리초)</string>
 	<string name="linesEnclosingSymbols">둘러싸는 선</string>
 	<string name="linesUnderSymbols">돌 아래 선</string>
-	<string name="fasterFilling">빠른 채우기</string>
-	<string name="timerStopped">시간제한이 변경되어 타이머가 종료되었습니다.</string>
 	<string name="diagonalsEnclosingSymbols">둘러싸는 대각선</string>
 	<string name="lineType">선 형태</string>
 	<string name="connectionTerminated">상대가 연결을 종료했습니다.</string>

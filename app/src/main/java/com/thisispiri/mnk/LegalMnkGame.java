@@ -1,4 +1,5 @@
 package com.thisispiri.mnk;
+
 /**An {@link MnkGame} in which you can only play valid moves.*/
 public class LegalMnkGame extends MnkGame {
 	public LegalMnkGame() {

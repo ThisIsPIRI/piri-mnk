@@ -44,9 +44,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 		@SuppressLint("InflateParams") View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_bluetooth, null);
 		builder.setView(view);
 		builder.setMessage(R.string.multiplayerOnBluetooth);
-		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() { public void onClick(DialogInterface dialog, int id) {
-			giveSocket(null, false); //return to local if the user cancels connection
-		}});
+		builder.setNegativeButton(R.string.cancel, (dialog, id) -> giveSocket(null, false)); //return to local if the user cancels connection
 		radioClient = view.findViewById(R.id.dialogRadioClient);
 		uuidEditText = view.findViewById(R.id.uuidEditText);
 		view.findViewById(R.id.connectButton).setOnClickListener(new ConnectButtonListener());

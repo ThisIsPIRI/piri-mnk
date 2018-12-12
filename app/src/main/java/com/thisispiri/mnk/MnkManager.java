@@ -29,6 +29,6 @@ public interface MnkManager {
 	 * It is typically only useful when 2 or more devices are used.*/
 	void setRulesFrom(int[] array);
 	enum Info {
-		REJECTION, INVALID_MOVE, READ_FAIL, WRITE_FAIL;
+		REJECTION, INVALID_MOVE, READ_FAIL, WRITE_FAIL
 	}
 }

@@ -11,5 +11,4 @@
 	<integer name="defaultHighlightDuration">120</integer>
 	<integer name="defaultHighlightHowMany">3</integer>
 	<integer name="defaultTimeLimit">60000</integer>
-	<integer name="limitDividend">4</integer>
 </resources>

@@ -1,8 +1,10 @@
 package com.thisispiri.mnk;
+
 import android.graphics.Point;
 import java.util.LinkedList;
+
 /**An implementation of {@link MnkAi} that evaluates values of every cell on the board by rudimentary means.*/
-public class PiriMnkAi extends MnkAi {
+@SuppressWarnings("WeakerAccess") public class PiriMnkAi extends MnkAi {
 	private class CellValue {
 		final int[] enemyLines, ownLines; //enemyLines(that the cell can block with the cell) and ownLines(that can be extended to the cell)
 		CellValue(int length) {
@@ -22,8 +24,7 @@ public class PiriMnkAi extends MnkAi {
 	 * If two or more cells seem to have same importance, put a stone on the cell with most blank spaces(that it can use to create lines). Due to this, the first move in a large board costs some time.
 	 * @param game the game for the AI to play
 	 * @return the {@code Point} to play on*/
-	@Override
-	Point playTurn(final MnkGame game) {
+	@Override Point playTurn(final MnkGame game) {
 		this.game = game;
 		valueLength = (game.winStreak + 1) * STREAK_SCALE;
 		CellValue bestValue = new CellValue(valueLength); //the list of lines that a cell can block and has highest value
@@ -104,7 +105,7 @@ public class PiriMnkAi extends MnkAi {
 
 	private void evaluate(final int x, final int y) {
 		value = new CellValue(valueLength);
-		if (game.array[y][x] == Shape.O || game.array[y][x] == Shape.X) { //if the cell is already filled, it has no importance.
+		if (game.array[y][x] != Shape.N) { //if the cell is already filled, it has no importance.
 			value.ownLines[valueLength - 1] = -1;
 			return;
 		}
