@@ -44,6 +44,7 @@ import com.thisispiri.util.TimedGameManager;
 
 import static com.thisispiri.mnk.IoThread.*;
 import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
+import static com.thisispiri.util.AndroidUtilsKt.showToast;
 
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
 public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
@@ -218,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				break;
 			case R.id.buttonAI:
 				if(!gameEnd) {
-					if(useAI.isChecked()) endTurn(ai.playTurn(game), true);
+					if(useAI.isChecked()) aiTurn(true);
 					else game.changeShape(1);
 				}
 				break;
@@ -237,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				break;
 			case R.id.save:
 				if(game.getHorSize() > MnkSaveLoader.SGF_MAX || game.getVerSize() > MnkSaveLoader.SGF_MAX) {
-					AndroidUtilsKt.showToast(MainActivity.this, R.string.sgfLimit);
+					showToast(MainActivity.this, R.string.sgfLimit);
 					return;
 				}
 				if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
@@ -255,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private boolean getPermission(String permission, int requestCode, int rationaleId) {
 		if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) { //if writing permission hasn't been granted
 			if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-				AndroidUtilsKt.showToast(this, rationaleId);
+				showToast(this, rationaleId);
 			}
 			ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
 			return false;
@@ -334,6 +335,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 		return null;
 	}
+	private void aiTurn(boolean highlight) {
+		if(!endTurn(ai.playTurn(game), highlight))
+			showToast(this, "The AI's move was invalid.");
+	}
 	/**Places a stone on the designated position and highlights the position.*/
 	@Override public boolean endTurn(final int x, final int y) {return endTurn(x, y, true);}
 	/**@see MainActivity#endTurn(int, int, boolean)*/
@@ -379,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		preventPlaying = false;
 		game.changeShape(1);
 		if (useAI.isChecked()) //Single player with AI. Let the AI play.
-			endTurn(ai.playTurn(game), true);
+			aiTurn(true);
 		else
 			limitTimer.start();
 	}
@@ -398,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				int x = (int)(e.getX() / screenX * game.getHorSize()), y = (int)(e.getY() / screenX * game.getVerSize()); //determine which cell the user touched
 				//Let the AI play only if the user's move was valid and placed correctly, the game hasn't ended after the move and AI is enabled
 				if(endTurn(x, y, false) && !gameEnd && useAI.isChecked())
-					endTurn(ai.playTurn(game), true);
+					aiTurn(true);
 				return false;
 			}
 			return true;
@@ -474,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 							bluetoothThread.start();
 						}
 						catch (IOException e) {
-							AndroidUtilsKt.showToast(this, R.string.couldntGetStream);
+							showToast(this, R.string.couldntGetStream);
 							radioLocal.setChecked(true);
 						}
 						initialize();
@@ -504,7 +509,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			case R.id.radioBluetooth:
 				if (adapter == null) {
 					hiddenClick(radioLocal);
-					AndroidUtilsKt.showToast(MainActivity.this, R.string.noBluetoothSupport);
+					showToast(MainActivity.this, R.string.noBluetoothSupport);
 				}
 				else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
 					break;
@@ -524,7 +529,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling connectBluetooth()
 			else {
 				hiddenClick(radioLocal);
-				AndroidUtilsKt.showToast(this, R.string.enableBluetooth);
+				showToast(this, R.string.enableBluetooth);
 			}
 		}
 		else super.onActivityResult(requestCode, resultCode, data); //to have BluetoothDialogFragment.onActivityResult() called
@@ -568,7 +573,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		runOnUiThread(() -> {
 			configureUI(false);
 			hiddenClick(radioLocal);
-			AndroidUtilsKt.showToast(MainActivity.this, R.string.connectionTerminated);});
+			showToast(MainActivity.this, R.string.connectionTerminated);});
 	}
 	/**Stops Bluetooth communications but doesn't set radioLocal to true.
 	 * @param informOpponent If true, informs the opponent that we terminated the connection.*/
@@ -582,7 +587,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			if(socket != null) socket.close();
 		}
 		catch(IOException e) {
-			AndroidUtilsKt.showToast(this, R.string.problemWhileClosing);
+			showToast(this, R.string.problemWhileClosing);
 		}
 	}
 	/**@see MainActivity#requestConfirm(Bundle, String, String, String).
@@ -660,7 +665,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 	}
 	@Override @SuppressWarnings("ConstantConditions") public void informUser(final Info of) {
-		AndroidUtilsKt.showToast(this, ioMessages.get(of));
+		showToast(this, ioMessages.get(of));
 	}
 
 	//SECTION: Files
@@ -679,7 +684,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				saveLoader.save(game, DIRECTORY_NAME, fileName + FILE_EXTENSION);
 			}
 			catch (IOException e) {
-				AndroidUtilsKt.showToast(this, R.string.couldntCreateFile);
+				showToast(this, R.string.couldntCreateFile);
 			}
 		}
 	}
@@ -697,7 +702,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);
 			}
 			catch (IOException e) {
-				AndroidUtilsKt.showToast(this, R.string.couldntFindFile);
+				showToast(this, R.string.couldntFindFile);
 			}
 		}
 	}
@@ -715,7 +720,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private class FillThread extends Thread {
 		@Override synchronized public void run() {
 			while (!gameEnd) {
-				endTurn(ai.playTurn(game), false);
+				aiTurn(false);
 				//if it doesn't wait until the UI thread finishes and keep calling endTurn, most of board.invalidate() calls will be ignored and the result will be shown at once when the game's end, breaking animation.
 				try { wait(); }
 				catch(InterruptedException e) { break; }
