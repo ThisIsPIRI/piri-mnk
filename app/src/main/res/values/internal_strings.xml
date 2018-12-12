@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="i_symbolDefault" translatable="false">xsAndOs</string>
-	<string name="i_lineDefault" translatable="false">linesEnclosingSymbols</string>
 	<string name="i_tagInBundle" translatable="false">tagInBundle</string>
 	<string name="i_isServer" translatable="false">isServer</string>
 	<string name="i_wasRequest" translatable="false">wasRequest</string>

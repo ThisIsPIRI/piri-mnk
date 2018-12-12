@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
+	private final static Board.Symbol[] availableSymbols = {Board.Symbol.XS_AND_OS, Board.Symbol.GO_STONES};
+	private final static Board.Line[] availableLines = {Board.Line.LINES_ENCLOSING_SYMBOLS, Board.Line.LINES_UNDER_SYMBOLS, Board.Line.DIAGONAL_ENCLOSING_SYMBOLS};
 
 	static {
 		//Map the Infos to String IDs.
@@ -142,17 +144,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		Board.Symbol symbolType;
 		Board.Line lineType;
 		backColor = pref.getInt("backgroundColor", 0xFFFFFFFF);
-		switch(pref.getString("symbols", "xsAndOs")) {
-		case "xsAndOs": symbolType = Board.Symbol.XS_AND_OS; break;
-		case "goStones": symbolType = Board.Symbol.GO_STONES; break;
-		default: symbolType = Board.Symbol.XS_AND_OS;
-		}
-		switch(pref.getString("lineType", "linesEnclosingSymbols")) {
-		case "linesEnclosingSymbols": lineType = Board.Line.LINES_ENCLOSING_SYMBOLS; break;
-		case "linesUnderSymbols": lineType = Board.Line.LINES_UNDER_SYMBOLS; break;
-		case "diagonalsEnclosingSymbols" : lineType = Board.Line.DIAGONAL_ENCLOSING_SYMBOLS; break;
-		default: lineType = Board.Line.LINES_ENCLOSING_SYMBOLS;
-		}
+		symbolType = availableSymbols[Integer.parseInt(pref.getString("symbols", "0"))];
+		lineType = availableLines[Integer.parseInt(pref.getString("lineType", "0"))];
 		parentView.setBackgroundColor(backColor);
 		board.setGame(game);
 		board.setSideLength(screenX);

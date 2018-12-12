@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string-array translatable="false" name="symbolsIds"> <!--these string just point to string resources and thus is untranslatable-->
+	<string-array translatable="false" name="symbolsIds">
 		<item>@string/xsAndOs</item>
 		<item>@string/goStones</item>
 	</string-array>
-	<string-array translatable="false" name="symbolsValues"> <!--values to save in the shared preferences(not translated)-->
-		<item>xsAndOs</item>
-		<item>goStones</item>
-	</string-array>
-	<string-array translatable="false" name="linesIds"> <!--values to save in the shared preferences(not translated)-->
+	<string-array translatable="false" name="linesIds">
 		<item>@string/linesEnclosingSymbols</item>
 		<item>@string/linesUnderSymbols</item>
 		<item>@string/diagonalsEnclosingSymbols</item>
 	</string-array>
-	<string-array translatable="false" name="linesValues"> <!--values to save in the shared preferences(not translated)-->
-		<item>linesEnclosingSymbols</item>
-		<item>linesUnderSymbols</item>
-		<item>diagonalsEnclosingSymbols</item>
+	<string-array translatable="false" name="listValues">
+		<item>0</item>
+		<item>1</item>
+		<item>2</item>
 	</string-array>
 </resources>
