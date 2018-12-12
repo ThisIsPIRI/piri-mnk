@@ -39,8 +39,8 @@ dependencies {
 		exclude group: 'com.android.support', module: 'support-annotations'
 	})
 	testImplementation 'junit:junit:4.12'
-	testImplementation 'org.robolectric:robolectric:3.8'
-	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+	testImplementation 'org.robolectric:robolectric:4.0.2'
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 repositories {
     maven {

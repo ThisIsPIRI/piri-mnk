@@ -72,4 +72,6 @@
 	<string name="failedToSend">Failed to send data to the opponent.</string>
 	<string name="termConnection">Terminate connection?</string>
 	<string name="none">none</string>
+	<string name="myIndex">We play</string>
+	<string name="ordinalMarker">th</string>
 </resources>

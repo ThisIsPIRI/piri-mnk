@@ -1,6 +1,7 @@
 package com.thisispiri.util
 
 import android.app.Activity
+import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import androidx.annotation.StringRes
@@ -55,4 +56,17 @@ fun hiddenClick(group: RadioGroup, button: RadioButton, listener: RadioGroup.OnC
 	group.setOnCheckedChangeListener(null)
 	button.isChecked = to
 	group.setOnCheckedChangeListener(listener)
+}
+
+/**Puts `these` in a `Bundle` and returns it.
+ * @param these A vararg. The `String`s in even indices are the keys and the ones in odd indices the values.
+ * In other words, the `Bundle` will contain (these[0], these[1]), (these[2], these[3]), ... (these[size - 2] these[size - 1]).
+ * The number of arguments should be even; if it is odd, the last one will be ignored.
+ * @return The `Bundle`. An empty one if less than 2 arguments are supplied.*/
+fun bundleWith(vararg these: String): Bundle {
+	val result = Bundle()
+	for(i in 1 until these.size step 2) {
+		result.putString(these[i - 1], these[i])
+	}
+	return result
 }

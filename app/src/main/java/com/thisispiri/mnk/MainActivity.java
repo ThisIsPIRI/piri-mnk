@@ -29,6 +29,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -42,6 +43,7 @@ import com.thisispiri.util.GameTimer;
 import com.thisispiri.util.TimedGameManager;
 
 import static com.thisispiri.mnk.IoThread.*;
+import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
 
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
 public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
@@ -107,13 +109,14 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	//SECTION: Rules, UI and Android API
 	/**{@inheritDoc}*/
 	@Override public int[] getRules() {
-		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1};
+		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, myIndex};
 	}
 	/**{@inheritDoc}*/
 	@Override public void setRulesFrom(int[] array) {
 		game.setSize(array[0], array[1]);
 		game.winStreak = array[2];
 		setTimeLimit(array[3]);
+		myIndex = array[4];
 	}
 	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/ //TODO: Move initialization to readData?
 	private void readRules(final SharedPreferences pref) {
@@ -124,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Saves the rules from {@code pref} to {@link MainActivity#changedRules}.*/
 	private void cacheRules(final SharedPreferences pref) {
 		changedRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
-				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1};
+				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1, myIndex};
 	}
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
 	private void readData() {
@@ -208,10 +211,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			switch(v.getId()) {
 			case R.id.restart:
 				if(onBluetooth) {
-					if(ruleChanged) //Request to restart AND change the rules.
-						bluetoothThread.write(19, REQUEST_HEADER, REQUEST_RESTART, (byte)1, changedRules);
-					else
-						bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+					requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_playOrder)), "Would you like to play first?");
 				}
 				else initialize();
 				break;
@@ -404,6 +404,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			return true;
 		}
 	}
+	//Responses to requests, myIndex change(when requesting restart), disconnection confirmation, save/load and receiving Bluetooth sockets
 	/**Call to return the result of a {@code Dialog} to this {@code Activity}.*/
 	@Override public <T> void giveResult(T result, final Bundle arguments) {
 		if(arguments != null) {
@@ -427,19 +428,32 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 								break;
 							}
 							if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
-								bluetoothThread.write(20, RESPONSE_HEADER, RESPONSE_PERMIT, request, (byte)1, getRules());
+								bluetoothThread.write(24, RESPONSE_HEADER, RESPONSE_PERMIT, request, (byte)1, getRules());
 							else
 								bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 						}
 						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
 					}
-					else { //TODO: generalize to process different kinds of non-requests
-						if((Boolean) result) {
-							stopBluetooth(true);
-							configureUI(false);
+					else {
+						String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
+						if(decisionKey == null) break;
+						if(decisionKey.equals(getString(R.string.i_playOrder))) {
+							if(ruleChanged) {//Request to restart AND change the rules.
+								final int[] rulesWithOrder = Arrays.copyOf(changedRules, changedRules.length);
+								rulesWithOrder[4] = ((Boolean) result) ? 0 : 1; //Apply the myIndex change from the Dialog
+								bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, (byte) 1, rulesWithOrder);
+							}
+							else
+								bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
 						}
-						else
-							hiddenClick(radioBluetooth);
+						else if(decisionKey.equals(getString(R.string.i_localConfirm))) {
+							if((Boolean) result) {
+								stopBluetooth(true);
+								configureUI(false);
+							}
+							else
+								hiddenClick(radioBluetooth);
+						}
 					}
 					break;
 				case FILE_TAG:
@@ -465,11 +479,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						}
 						initialize();
 						if (arguments.getBoolean(getString(R.string.i_isServer))) {
-							bluetoothThread.write(18, ORDER_HEADER, ORDER_INITIALIZE, game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1);
 							myIndex = 0;
-						}
-						else {
-							myIndex = 1;
+							bluetoothThread.write(22, ORDER_HEADER, ORDER_INITIALIZE, getRules());
 						}
 					}
 					break;
@@ -488,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
 			switch(id) {
 			case R.id.radioLocal: //TODO: request confirmation of the user when he clicks the local button in Bluetooth mode
-				requestConfirm(new Bundle(), getString(R.string.termConnection));
+				requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_localConfirm)), getString(R.string.termConnection));
 				break;
 			case R.id.radioBluetooth:
 				if (adapter == null) {
@@ -521,9 +532,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Opens a {@link BluetoothDialogFragment}.*/
 	private void connectBluetooth() {
 		BluetoothDialogFragment fragment = new BluetoothDialogFragment();
-		Bundle arguments = new Bundle();
-		arguments.putString(getString(R.string.i_tagInBundle), BLUETOOTH_TAG);
-		fragment.setArguments(arguments);
+		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), BLUETOOTH_TAG));
 		fragment.show(getSupportFragmentManager(), "bluetooth");
 	}
 	/**Configures the UI for Bluetooth or local play.*/
@@ -588,7 +597,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		runOnUiThread(() -> {
 				getSupportFragmentManager().executePendingTransactions();
 				decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
-
 	}
 	@Override public void requestToUser(byte action) {
 		requestToUser(action, null);
@@ -614,13 +622,18 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		requestConfirm(bundle, shownString);
 	}
 	private String stringifyRules(int[] rules) {
-		//TODO: Localize
 		StringBuilder builder = new StringBuilder();
-		final String[] names = {getString(R.string.horSize), getString(R.string.verSize), getString(R.string.winCondition), getString(R.string.timeLimit)};
-		for(int i = 0;i < 4;i++) {
+		final String[] names = {getString(R.string.horSize), getString(R.string.verSize),
+				getString(R.string.winCondition), getString(R.string.timeLimit), getString(R.string.myIndex)};
+		for(int i = 0;i < 5;i++) {
 			builder.append(names[i]);
 			builder.append(": ");
-			builder.append(rules[i] != -1 ? rules[i] : getString(R.string.none)); //For timeLimit == -1
+			if(i == 4) { //For myIndex
+				builder.append(rules[i] + 1);
+				builder.append(getString(R.string.ordinalMarker));
+			}
+			else
+				builder.append(rules[i] != -1 ? rules[i] : getString(R.string.none)); //For timeLimit == -1
 			builder.append('\n');
 		}
 		return builder.toString();
@@ -649,9 +662,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
 	private void showEditTextDialog(final String tag, final String message, final String hint) {
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		Bundle arguments = new Bundle();
-		arguments.putString(getString(R.string.i_tagInBundle), tag);
-		fragment.setArguments(arguments);
+		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), tag));
 		fragment.show(getSupportFragmentManager(), tag, message, hint);
 	}
 	/**Saves the game.
