@@ -34,6 +34,12 @@
 	<PreferenceCategory
 		android:title="@string/graphics">
 		<ListPreference
+			android:key="graphicsPreset"
+			android:title="Preset"
+			android:entries="@array/presetsIds"
+			android:entryValues="@array/listValues"
+			android:defaultValue="0"/>
+		<ListPreference
 			android:key="symbols"
 			android:title="@string/symbols"
 			android:entries="@array/symbolsIds"

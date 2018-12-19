@@ -46,6 +46,7 @@ import static com.thisispiri.mnk.IoThread.*;
 import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
 import static com.thisispiri.util.AndroidUtilsKt.showToast;
 
+//TODO: Decouple more things from Android
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
 public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
 	private Board board;

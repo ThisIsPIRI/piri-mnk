@@ -71,4 +71,6 @@
 	<string name="playFirstQuestion">Would you like to play first?</string>
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
+	<string name="tictactoe">Tic Tac Toe</string>
+	<string name="go">Go</string>
 </resources>

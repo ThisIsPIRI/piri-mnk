@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string-array translatable="false" name="presetsIds">
+		<item>@string/none</item>
+		<item>@string/tictactoe</item>
+		<item>@string/go</item>
+	</string-array>
 	<string-array translatable="false" name="symbolsIds">
 		<item>@string/xsAndOs</item>
 		<item>@string/goStones</item>
