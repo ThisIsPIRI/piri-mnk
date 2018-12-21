@@ -32,6 +32,7 @@
 			custom:imposeScreenLimit="false"/>
 	</PreferenceCategory>
 	<PreferenceCategory
+		android:key="graphicsCategory"
 		android:title="@string/graphics">
 		<ListPreference
 			android:key="graphicsPreset"

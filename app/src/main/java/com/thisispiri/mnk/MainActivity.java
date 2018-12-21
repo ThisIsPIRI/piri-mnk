@@ -637,7 +637,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				builder.append(getString(R.string.ordinalMarker));
 			}
 			else
-				builder.append(rules[i] != -1 ? rules[i] : getString(R.string.none)); //For timeLimit == -1
+				builder.append(rules[i] != -1 ? rules[i] : getString(R.string.none_ruleSync)); //For timeLimit == -1
 			builder.append('\n');
 		}
 		return builder.toString();
