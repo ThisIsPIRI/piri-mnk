@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string-array translatable="false" name="aiTypesIds">
+		<item>@string/filler</item>
+		<item>@string/piriValue</item>
+	</string-array>
 	<string-array translatable="false" name="presetsIds">
 		<item>@string/none_preset</item>
 		<item>@string/tictactoe</item>

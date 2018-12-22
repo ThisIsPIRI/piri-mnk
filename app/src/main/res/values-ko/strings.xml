@@ -74,4 +74,6 @@
 	<string name="no">아니오</string>
 	<string name="tictactoe">틱택토</string>
 	<string name="go">바둑</string>
+	<string name="filler">Filler(너무 쉬움)</string>
+	<string name="piriValue">PIRI Value(중간)</string>
 </resources>

@@ -31,6 +31,12 @@
 			android:defaultValue="@integer/defaultTimeLimit"
 			custom:imposeScreenLimit="false"/>
 	</PreferenceCategory>
+	<ListPreference
+		android:key="aiType"
+		android:title="AI type"
+		android:entries="@array/aiTypesIds"
+		android:entryValues="@array/listValues"
+		android:defaultValue="1"/>
 	<PreferenceCategory
 		android:key="graphicsCategory"
 		android:title="@string/graphics">

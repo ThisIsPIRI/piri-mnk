@@ -74,4 +74,6 @@
 	<string name="no">No</string>
 	<string name="tictactoe">Tic Tac Toe</string>
 	<string name="go">Go</string>
+	<string name="filler">Filler(stupidly easy)</string>
+	<string name="piriValue">PIRI Value(medium)</string>
 </resources>

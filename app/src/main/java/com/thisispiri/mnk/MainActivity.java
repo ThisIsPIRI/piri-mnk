@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
+	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriMnkAi()};
 	private final static Board.Symbol[] availableSymbols = {Board.Symbol.XS_AND_OS, Board.Symbol.GO_STONES};
 	private final static Board.Line[] availableLines = {Board.Line.LINES_ENCLOSING_SYMBOLS, Board.Line.LINES_UNDER_SYMBOLS, Board.Line.DIAGONAL_ENCLOSING_SYMBOLS};
 
@@ -145,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		Board.Symbol symbolType;
 		Board.Line lineType;
 		backColor = pref.getInt("backgroundColor", 0xFFFFFFFF);
+		ai = availableAis[Integer.parseInt(pref.getString("aiType", "1"))];
 		symbolType = availableSymbols[Integer.parseInt(pref.getString("symbols", "0"))];
 		lineType = availableLines[Integer.parseInt(pref.getString("lineType", "0"))];
 		parentView.setBackgroundColor(backColor);
@@ -172,7 +174,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		game = new LegalMnkGame();
-		ai = new PiriMnkAi();
 		fillThread = new FillThread();
 		//Find views and assign listeners.
 		board = findViewById(R.id.illustrator);
