@@ -6,6 +6,9 @@ import android.preference.Preference;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceFragment;
+import android.widget.Toast;
+
+import com.thisispiri.util.AndroidUtilsKt;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,10 +26,11 @@ public class SettingFragment extends PreferenceFragment {
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 		//TODO: Avoid registering listeners every time SettingActivity is entered?
 		//TODO: Make the changes show up immediately without reentering SettingActivity
 		findPreference("graphicsPreset").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
-			final SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit();
+			final SharedPreferences.Editor edit = sharedPref.edit();
 			//TODO: Simplify, support user-defined presets?
 			switch(Integer.parseInt((String) newVal)) {
 			case 1:
@@ -48,7 +52,7 @@ public class SettingFragment extends PreferenceFragment {
 			return true;
 		});
 		Preference.OnPreferenceChangeListener listener = (Preference pref, Object newVal) -> {
-			PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit().putString("graphicsPreset", "0").apply();
+			sharedPref.edit().putString("graphicsPreset", "0").apply();
 			return true;
 		};
 		PreferenceGroup graphics = ((PreferenceGroup) getPreferenceScreen().findPreference("graphicsCategory"));
@@ -57,5 +61,19 @@ public class SettingFragment extends PreferenceFragment {
 			if(presetTargets.contains(p.getKey()))
 				p.setOnPreferenceChangeListener(listener);
 		}
+		findPreference("aiType").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
+			if(newVal.equals("2") && sharedPref.getInt("winStreak", 5) > 8) {
+				AndroidUtilsKt.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);
+				return false;
+			}
+			return true;
+		});
+		findPreference("winStreak").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
+			if(((Integer) newVal) > 8 && sharedPref.getString("aiType", "1").equals("2")) {
+				AndroidUtilsKt.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);
+				return false;
+			}
+			return true;
+		});
 	}
 }

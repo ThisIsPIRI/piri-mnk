@@ -79,4 +79,5 @@
 	<string name="aiType">AI 종류</string>
 	<string name="emacsGomoku">Emacs Gomoku(어려움)</string>
 	<string name="showAiInternals">AI 내부 정보 보이기</string>
+	<string name="emacsLengthWarning">이기는 길이가 8을 초과할 때 Emacs Gomoku를 사용하면 크래시가 발생합니다.</string>
 </resources>

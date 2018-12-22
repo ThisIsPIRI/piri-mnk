@@ -18,8 +18,8 @@ class EmacsGomokuAi: MnkAi {
 	}
 
 	companion object {
-		val ownValues = arrayOf(7, 35, 800, 15000, 800000, 4000000)
-		val enemValues = arrayOf(7, 15, 400, 1800, 100000, 600000)
+		val ownValues = arrayOf(7, 35, 800, 15000, 800000, 4000000, 20000000, 2100000000)
+		val enemValues = arrayOf(7, 15, 400, 1800, 100000, 600000, 1500000, 80000000)
 		val xP = arrayOf(1, 0, -1, 1); val yP = arrayOf(0, 1, 1, 1)
 	}
 	lateinit var game: MnkGame
@@ -55,7 +55,7 @@ class EmacsGomokuAi: MnkAi {
 					count[game.array[pi.y][pi.x].value]++
 				tuple.add(game.array[pi.y][pi.x])
 				if(bigEnough(po, pi, mode)) {
-					forBackward(pi, mode, 5) { x, y ->
+					forBackward(pi, mode, game.winStreak) { x, y ->
 						if (count[enemShape.value] == 0)
 							values[y][x] += ownValues[count[myShape.value]]
 						else if (count[myShape.value] == 0)
@@ -76,9 +76,9 @@ class EmacsGomokuAi: MnkAi {
 	}
 	private fun bigEnough(po: Point, pi: Point, mode: Mode): Boolean {
 		when(mode) {
-			Mode.HOR -> return pi.x >= 4
-			Mode.VER -> return pi.y >= 4
-			else -> return pi.y - po.y >= 4
+			Mode.HOR -> return pi.x >= game.winStreak - 1
+			Mode.VER -> return pi.y >= game.winStreak - 1
+			else -> return pi.y - po.y >= game.winStreak - 1
 		}
 	}
 	private fun forward(p: Point, mode: Mode) {

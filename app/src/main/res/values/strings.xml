@@ -79,4 +79,5 @@
 	<string name="aiType">AI type</string>
 	<string name="emacsGomoku">Emacs Gomoku(hard)</string>
 	<string name="showAiInternals">Show AI internals</string>
+	<string name="emacsLengthWarning">Using Emacs Gomoku with a winning length longer than 8 leads to crashes.</string>
 </resources>
