@@ -1,4 +1,4 @@
-package com.thisispiri.mnk;
+package com.thisispiri.mnk.andr;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;

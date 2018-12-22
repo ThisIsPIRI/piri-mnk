@@ -1,4 +1,4 @@
-package com.thisispiri.mnk;
+package com.thisispiri.mnk.andr;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -20,6 +20,8 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import com.thisispiri.dialogs.ListenerDialogFragment;
+import com.thisispiri.mnk.R;
+
 import java.io.IOException;
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.thisispiri.mnk;
+package com.thisispiri.mnk.andr;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

@@ -100,7 +100,7 @@
 			android:defaultValue="false"/>
 		<com.thisispiri.preferences.CreditsPreference
 			android:title="@string/credits"
-			custom:text="The AOSP, for AndroidX in Apache License 2.0\nYou can obtain a copy of Apache License 2.0 at https://www.apache.org/licenses/LICENSE-2.0
-						Philippe Schnoebelen, for Emacs Gomoku algorithm\nThis program contains no code from Emacs."/>
+			custom:text="The AOSP, for AndroidX in Apache License 2.0\nYou can obtain a copy of Apache License 2.0 at https://www.apache.org/licenses/LICENSE-2.0\n
+Philippe Schnoebelen, for Emacs Gomoku algorithm\nThe implementation here is in no way endorsed by or representative of the original.\nThis program contains no code from Emacs."/>
 	</PreferenceCategory>
 </PreferenceScreen>

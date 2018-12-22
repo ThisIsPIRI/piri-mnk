@@ -7,7 +7,7 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		tools:context="com.thisispiri.mnk.MainActivity"
+		tools:context="com.thisispiri.mnk.andr.MainActivity"
 		android:orientation="vertical"
 		android:gravity="center_horizontal"
 		tools:ignore="ButtonStyle">
@@ -56,11 +56,11 @@
 		<FrameLayout
 			android:layout_height="wrap_content"
 			android:layout_width="match_parent">
-			<com.thisispiri.mnk.DebugBoard
+			<com.thisispiri.mnk.andr.DebugBoard
 				android:id="@+id/illustrator"
 				android:layout_width="400dp"
 				android:layout_height="400dp" />
-			<com.thisispiri.mnk.Highlighter
+			<com.thisispiri.mnk.andr.Highlighter
 				android:id="@+id/highlighter"
 				android:layout_marginTop="-400dp"
 				android:layout_width="400dp"

@@ -13,7 +13,7 @@ import android.os.CountDownTimer
  * With the latency offset, the manager could disallow the user using its device - and that user only - to play, while accepting moves from the others,
  * thus eliminating the problem. Note that the currently-playing side's timer will typically be ahead of the others, making the problem even likelier.
  * Set this to a negative value to disable it. Defaults to 600.*/
-class GameTimer @JvmOverloads constructor(private var manager: TimedGameManager, millisInFuture: Long, countDownInterval: Long = 60, var latencyOffset: Long = 600)
+open class GameTimer @JvmOverloads constructor(private var manager: TimedGameManager, millisInFuture: Long, countDownInterval: Long = 60, var latencyOffset: Long = 600)
 		: CountDownTimer(millisInFuture + latencyOffset, countDownInterval) {
 	/**Updates the manager with the remaining time. */
 	override fun onTick(millisUntilFinished: Long) {

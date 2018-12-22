@@ -4,7 +4,7 @@ import android.graphics.Point
 import java.util.ArrayDeque
 import java.util.Queue
 
-class EmacsGomokuAi: MnkAi {
+open class EmacsGomokuAi: MnkAi {
 	enum class Mode(val value: Int) {
 		HOR(0), VER(1), SLASH(2), RESLASH(3);
 		fun opposite(): Mode {
@@ -22,8 +22,8 @@ class EmacsGomokuAi: MnkAi {
 		val enemValues = arrayOf(7, 15, 400, 1800, 100000, 600000, 1500000, 80000000)
 		val xP = arrayOf(1, 0, -1, 1); val yP = arrayOf(0, 1, 1, 1)
 	}
-	lateinit var game: MnkGame
-	lateinit var myShape: Shape; lateinit var enemShape: Shape
+	protected lateinit var game: MnkGame
+	protected lateinit var myShape: Shape; lateinit var enemShape: Shape
 
 	override fun playTurn(game: MnkGame): Point? {
 		return play(game, false).coord
@@ -40,9 +40,8 @@ class EmacsGomokuAi: MnkAi {
 		checkTuples(Mode.VER, values)
 		checkTuples(Mode.SLASH, values)
 		checkTuples(Mode.RESLASH, values)
-		if(justify)
-			return MnkAiDecision(findMax(game, values), values.map {i -> i.map {j -> j.toString()}.toTypedArray()}.toTypedArray())
-		else return MnkAiDecision(findMax(game, values), null)
+		return if(justify) MnkAiDecision(findMax(game, values), values.map {i -> i.map {j -> j.toString()}.toTypedArray()}.toTypedArray())
+		else MnkAiDecision(findMax(game, values), null)
 	}
 	private fun checkTuples(mode: Mode, values: Array<Array<Int>>) {
 		val po = Point(if(mode == Mode.RESLASH) game.horSize - 1 else 0, 0)
@@ -75,10 +74,10 @@ class EmacsGomokuAi: MnkAi {
 		}
 	}
 	private fun bigEnough(po: Point, pi: Point, mode: Mode): Boolean {
-		when(mode) {
-			Mode.HOR -> return pi.x >= game.winStreak - 1
-			Mode.VER -> return pi.y >= game.winStreak - 1
-			else -> return pi.y - po.y >= game.winStreak - 1
+		return when(mode) {
+			Mode.HOR -> pi.x >= game.winStreak - 1
+			Mode.VER -> pi.y >= game.winStreak - 1
+			else -> pi.y - po.y >= game.winStreak - 1
 		}
 	}
 	private fun forward(p: Point, mode: Mode) {

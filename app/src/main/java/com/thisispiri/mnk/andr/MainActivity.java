@@ -1,4 +1,4 @@
-package com.thisispiri.mnk;
+package com.thisispiri.mnk.andr;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -38,6 +38,17 @@ import java.util.concurrent.TimeUnit;
 import com.thisispiri.dialogs.DecisionDialogFragment;
 import com.thisispiri.dialogs.DialogListener;
 import com.thisispiri.dialogs.EditTextDialogFragment;
+import com.thisispiri.mnk.EmacsGomokuAi;
+import com.thisispiri.mnk.FillerMnkAi;
+import com.thisispiri.mnk.IoThread;
+import com.thisispiri.mnk.LegalMnkGame;
+import com.thisispiri.mnk.MnkAi;
+import com.thisispiri.mnk.MnkAiDecision;
+import com.thisispiri.mnk.MnkGame;
+import com.thisispiri.mnk.MnkManager;
+import com.thisispiri.mnk.MnkSaveLoader;
+import com.thisispiri.mnk.PiriMnkAi;
+import com.thisispiri.mnk.R;
 import com.thisispiri.util.AndroidUtilsKt;
 import com.thisispiri.util.GameTimer;
 import com.thisispiri.util.TimedGameManager;

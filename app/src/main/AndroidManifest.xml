@@ -17,7 +17,7 @@
 		android:fullBackupContent="@xml/backup_descriptor"
 		tools:ignore="GoogleAppIndexingWarning">
 		<activity
-			android:name="com.thisispiri.mnk.MainActivity"
+			android:name="com.thisispiri.mnk.andr.MainActivity"
 			android:screenOrientation="portrait">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -25,6 +25,6 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name="com.thisispiri.mnk.SettingActivity"/>
+		<activity android:name="com.thisispiri.mnk.andr.SettingActivity"/>
 	</application>
 </manifest>

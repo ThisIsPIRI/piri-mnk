@@ -11,9 +11,9 @@ import com.thisispiri.util.AndroidUtilsKt;
 /**Writes on and reads from .sgf and .pirimnk files an {@link MnkGame}.*/
 public class MnkSaveLoader {
 	/**The maximum horizontal/vertical size of the board SGF supports.*/
-	final static int SGF_MAX = 52;
+	public final static int SGF_MAX = 52;
 	/**Saves the {@code MnkGame}. If its horizontal/vertical size do not exceed {@link MnkSaveLoader#SGF_MAX}, uses SGF. Otherwise, uses a simple format called .pirimnk.*/
-	void save(final MnkGame game, final String directoryName, final String fileName) throws IOException {
+	public void save(final MnkGame game, final String directoryName, final String fileName) throws IOException {
 		if(game.getHorSize() > SGF_MAX || game.getVerSize() > SGF_MAX) piriSave(game, directoryName, fileName);
 		else sgfSave(game, directoryName, fileName);
 	}
@@ -39,7 +39,7 @@ public class MnkSaveLoader {
 		//TODO: implement
 		throw new IOException("incomplete method called");
 	}
-	MnkGame load(final String directoryName, final String fileName, final int winStreak) throws IOException {
+	public MnkGame load(final String directoryName, final String fileName, final int winStreak) throws IOException {
 		MnkGame game = new MnkGame();
 		InputStreamReader inputReader = new InputStreamReader(new FileInputStream(AndroidUtilsKt.getFile(directoryName, fileName, false)));
 		int skipper;

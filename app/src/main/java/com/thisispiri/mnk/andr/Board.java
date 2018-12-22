@@ -1,16 +1,19 @@
-package com.thisispiri.mnk;
+package com.thisispiri.mnk.andr;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.View;
 
+import com.thisispiri.mnk.MnkGame;
+import com.thisispiri.mnk.Shape;
+
 /**Draws a rectangular board of {@link Shape}s on its area.*/
 public class Board extends View {
-	enum Symbol {
+	public enum Symbol {
 		XS_AND_OS, GO_STONES
 	}
-	enum Line {
+	public enum Line {
 		LINES_ENCLOSING_SYMBOLS, LINES_UNDER_SYMBOLS, DIAGONAL_ENCLOSING_SYMBOLS
 	}
 	private final Paint background, line, o, x;

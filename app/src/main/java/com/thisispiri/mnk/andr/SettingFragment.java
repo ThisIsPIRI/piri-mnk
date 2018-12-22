@@ -1,4 +1,4 @@
-package com.thisispiri.mnk;
+package com.thisispiri.mnk.andr;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceFragment;
 import android.widget.Toast;
 
+import com.thisispiri.mnk.R;
 import com.thisispiri.util.AndroidUtilsKt;
 
 import java.util.HashSet;
