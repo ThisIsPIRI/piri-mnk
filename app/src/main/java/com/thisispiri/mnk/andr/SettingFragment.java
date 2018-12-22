@@ -16,20 +16,24 @@ import java.util.Set;
 
 /**Shows the preferences for the user to edit.*/
 public class SettingFragment extends PreferenceFragment {
-	private static final Set<String> presetTargets = new HashSet<>();
-	static {
-		presetTargets.add("symbols");
-		presetTargets.add("lineType");
-		presetTargets.add("backgroundColor");
-		presetTargets.add("xColor");
-		presetTargets.add("oColor");
-	}
+	private static final int[][] rulePresets = {{}, {3, 3, 3}, {15, 15, 5}, {19, 19, 5}};
+	private static final String[] ruleKeys = {"horSize", "verSize", "winStreak"};
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 		//TODO: Avoid registering listeners every time SettingActivity is entered?
 		//TODO: Make the changes show up immediately without reentering SettingActivity
+		findPreference("rulesPreset").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
+			int value = Integer.parseInt((String) newVal);
+			if(value != 0) {
+				final SharedPreferences.Editor edit = sharedPref.edit();
+				for(int i = 0;i < rulePresets[value].length;i++)
+					edit.putInt(ruleKeys[i], rulePresets[value][i]);
+				edit.apply();
+			}
+			return true;
+		});
 		findPreference("graphicsPreset").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
 			final SharedPreferences.Editor edit = sharedPref.edit();
 			//TODO: Simplify, support user-defined presets?
@@ -52,16 +56,6 @@ public class SettingFragment extends PreferenceFragment {
 			edit.apply();
 			return true;
 		});
-		Preference.OnPreferenceChangeListener listener = (Preference pref, Object newVal) -> {
-			sharedPref.edit().putString("graphicsPreset", "0").apply();
-			return true;
-		};
-		PreferenceGroup graphics = ((PreferenceGroup) getPreferenceScreen().findPreference("graphicsCategory"));
-		for(int i = 0; i < graphics.getPreferenceCount(); i++) {
-			Preference p = graphics.getPreference(i);
-			if(presetTargets.contains(p.getKey()))
-				p.setOnPreferenceChangeListener(listener);
-		}
 		findPreference("aiType").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
 			if(newVal.equals("2") && sharedPref.getInt("winStreak", 5) > 8) {
 				AndroidUtilsKt.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);

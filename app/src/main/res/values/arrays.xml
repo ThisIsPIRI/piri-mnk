@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string-array translatable="false" name="rulePresetIds">
+		<item>@string/none_preset</item>
+		<item>@string/tictactoe</item>
+		<item>@string/gomoku1515</item>
+		<item>@string/gomoku1919</item>
+	</string-array>
 	<string-array translatable="false" name="aiTypesIds">
 		<item>@string/filler</item>
 		<item>@string/piriValue</item>
 		<item>@string/emacsGomoku</item>
 	</string-array>
-	<string-array translatable="false" name="presetsIds">
+	<string-array translatable="false" name="graphicPresetIds">
 		<item>@string/none_preset</item>
 		<item>@string/tictactoe</item>
 		<item>@string/go</item>
@@ -23,5 +29,6 @@
 		<item>0</item>
 		<item>1</item>
 		<item>2</item>
+		<item>3</item>
 	</string-array>
 </resources>

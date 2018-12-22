@@ -3,6 +3,12 @@
 	xmlns:custom="http://schemas.android.com/apk/res-auto">
 	<PreferenceCategory
 		android:title="@string/rules">
+		<ListPreference
+			android:key="rulesPreset"
+			android:title="Preset"
+			android:entries="@array/rulePresetIds"
+			android:entryValues="@array/listValues"
+			android:defaultValue="2"/>
 		<com.thisispiri.preferences.TwoNumberPreference
 			custom:firstKey="horSize"
 			custom:firstText="@string/horSize"
@@ -43,7 +49,7 @@
 		<ListPreference
 			android:key="graphicsPreset"
 			android:title="Preset"
-			android:entries="@array/presetsIds"
+			android:entries="@array/graphicPresetIds"
 			android:entryValues="@array/listValues"
 			android:defaultValue="0"/>
 		<ListPreference

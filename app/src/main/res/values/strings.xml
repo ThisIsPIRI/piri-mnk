@@ -80,4 +80,6 @@
 	<string name="emacsGomoku">Emacs-style(WIP; usually hard)</string>
 	<string name="showAiInternals">Show AI internals</string>
 	<string name="emacsLengthWarning">Using Emacs-style with a winning length longer than 8 leads to crashes.</string>
+	<string name="gomoku1515">15x15 Gomoku</string>
+	<string name="gomoku1919">19x19 Gomoku</string>
 </resources>
