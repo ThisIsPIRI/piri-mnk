@@ -76,4 +76,6 @@
 	<string name="go">바둑</string>
 	<string name="filler">Filler(너무 쉬움)</string>
 	<string name="piriValue">PIRI Value(중간)</string>
+	<string name="aiType">AI 종류</string>
+	<string name="emacsGomoku">Emacs Gomoku(어려움)</string>
 </resources>

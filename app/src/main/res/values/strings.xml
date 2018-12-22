@@ -76,4 +76,6 @@
 	<string name="go">Go</string>
 	<string name="filler">Filler(stupidly easy)</string>
 	<string name="piriValue">PIRI Value(medium)</string>
+	<string name="aiType">AI type</string>
+	<string name="emacsGomoku">Emacs Gomoku(hard)</string>
 </resources>

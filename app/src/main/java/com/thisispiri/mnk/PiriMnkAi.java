@@ -26,8 +26,8 @@ import java.util.LinkedList;
 	 * Cells that can block a line of a higher number almost always have higher importance than cells that can block many lines of a lower number. It means values in latter indexes of the arrays are always considered first.
 	 * If two cells can block lines of a same number, the cell that can block more lines has higher importance.
 	 * If two or more cells seem to have same importance, put a stone on the cell with most blank spaces(that it can use to create lines). Due to this, the first move in a large board costs some time.
-	 * @param game the game for the AI to play
-	 * @return the {@code Point} to play on*/
+	 * @param game The game for the AI to play.
+	 * @return The {@code Point} to play on.*/
 	@Override public Point playTurn(final MnkGame game) {
 		this.game = game;
 		valueLength = (game.winStreak + 1) * STREAK_SCALE;
@@ -89,7 +89,8 @@ import java.util.LinkedList;
 					if(game.array[i][j] == EMPTY) {
 						spaces++;
 						pastTheLine = true;
-					} else if(game.array[i][j] != original || pastTheLine) break;
+					}
+					else if(game.array[i][j] != original || pastTheLine) break;
 				}
 			}
 			//right, down, right up, right down
@@ -100,7 +101,8 @@ import java.util.LinkedList;
 					if(game.array[i][j] == EMPTY) {
 						spaces++;
 						pastTheLine = true;
-					} else if(game.array[i][j] != original || pastTheLine) break;
+					}
+					else if(game.array[i][j] != original || pastTheLine) break;
 				}
 			}
 		}
@@ -118,13 +120,13 @@ import java.util.LinkedList;
 		examineLine(x, y, -1, 1); // / shape
 		examineLine(x, y, -1, -1); // \ shape
 	}
-	/**Examine a line(two if the two shapes on (x + xP, y + yP), (x - xP, y - yP) are different) and pass it to update()
+	/**Examines a line(two if the two shapes on (x + xP, y + yP), (x - xP, y - yP) are different) and passes it to update()
 	 * A cell being examined can block blockableLines[i] lines of i. e.g. if blockableLines[3] is 2, the cell can block 2 lines of 3 cells.
-	 * If a line can't be a line of game.winStreak cells(because it's blocked by wall or another symbol), ignore it(represented by setting streak to 0. enemy/ownLines[0] is not considered in playTurn()).
-	 * If a line is "open" (i.e. two ends are both empty), it receives bonus of OPEN_BONUS. if a cell can block two open lines of same length, they will be treated as one (the length) + DOUBLE_OPEN_BONUS line.
+	 * If a line has no possibility of being a line of game.winStreak cells(because it's blocked by wall or another symbol), ignores it(represented by setting streak to 0. enemy/ownLines[0] is not considered in playTurn()).
+	 * If a line is "open" (i.e. two ends are both empty), it receives bonus of OPEN_BONUS. If a cell can block two open lines of same length, they will be treated as one (the length) + DOUBLE_OPEN_BONUS line.
 	 * If a cell's neighbor at the opposite of line is empty or a cell is in the middle of a line, the line receives bonus of OPPOSITE_OPEN_BONUS.
-	 * @param xP the direction the function will add or subtract to x while examining
-	 * @param yP the direction the function will add or subtract to y while examining*/
+	 * @param xP The direction the function will add or subtract to x while examining.
+	 * @param yP The direction the function will add or subtract to y while examining.*/
 	private void examineLine(final int x, final int y, final int xP, final int yP) {
 		int previousStreak, blank = 0, streak = 0;
 		boolean isOpen = false, isOppositeOpen = false;
@@ -138,7 +140,8 @@ import java.util.LinkedList;
 				if(game.array[i][j] == EMPTY) {
 					isOpen = true;
 					break;
-				} else if(game.array[i][j] != lineShape) break;
+				}
+				else if(game.array[i][j] != lineShape) break;
 				streak++;
 			}
 			blank = lineSpaces(j, i, x, y, xP, yP);
@@ -151,10 +154,8 @@ import java.util.LinkedList;
 		update(streak, blank, lineShape, isOpen, isOppositeOpen);
 		firstShape = lineShape;
 		//right, down, right up, right down
-		streak = 0;
-		blank = 0;
-		isOppositeOpen = false;
-		boolean isConnected = false;
+		streak = blank = 0;
+		boolean isConnected = isOppositeOpen = false;
 		if(inBoundary(y - yP, x - xP) && game.array[y - yP][x - xP] != EMPTY) {
 			if(lineShape == game.array[y - yP][x - xP]) {
 				streak = previousStreak + 1;
@@ -175,7 +176,8 @@ import java.util.LinkedList;
 				if(game.array[i][j] == EMPTY) {
 					if(!isConnected) isOpen = true;
 					break;
-				} else if(game.array[i][j] != lineShape) {
+				}
+				else if(game.array[i][j] != lineShape) {
 					isOpen = false;
 					break;
 				}
