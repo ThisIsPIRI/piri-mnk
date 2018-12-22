@@ -20,7 +20,7 @@ public class Highlighter extends View {
 	/**Works recursively to make an overlay flick over cells for some time, thus highlighting them.*/
 	@Override public void onDraw(final Canvas canvas) {
 		if(toHighlight == null) return;
-		if (restart) {
+		if(restart) {
 			restart = false;
 			depth = 0;
 			highlight(toHighlight);
@@ -48,7 +48,7 @@ public class Highlighter extends View {
 	void highlight(final Point[] toHighlight) {
 		this.toHighlight = toHighlight;
 		if(depth == 0) {
-			if (Looper.myLooper() != Looper.getMainLooper())
+			if(Looper.myLooper() != Looper.getMainLooper())
 				postInvalidate();
 			else
 				invalidate();

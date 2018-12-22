@@ -296,18 +296,18 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**{@inheritDoc}*/
 	@Override public void revertLast() {
 		if(game.revertLast()) {
-			if (enableTimeLimit) {
+			if(enableTimeLimit) {
 				limitTimer.cancel();
 				limitTimer.start();
 			}
-			if (Looper.myLooper() != Looper.getMainLooper()) {
+			if(Looper.myLooper() != Looper.getMainLooper()) {
 				runOnUiThread(() -> {
 					board.invalidate();
 					winText.setText("");}); //gameEnd is usually set to false before this line is executed, so checking if it's true is a bad idea here.
 			}
 			else {
 				board.invalidate();
-				if (gameEnd) winText.setText("");
+				if(gameEnd) winText.setText("");
 			}
 			gameEnd = false;
 			preventPlaying = false;
@@ -317,13 +317,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	 * @return a {@code String} that should be displayed to the user. Null if the game hasn't ended.*/
 	private String checkEnd(final int x, final int y) {
 		Point[] result = game.checkWin(x, y);
-		if (result != null) { //if someone won the game
+		if(result != null) { //if someone won the game
 			gameEnd = true;
 			if(enableHighlight) highlighter.highlight(result);
 			if(game.getNextIndex() == 0) return (game.shapes.length) + getResources().getString(R.string.winAnnouncement); //since MnkGame.shapes starts at 0
 			else return game.getNextIndex() + getResources().getString(R.string.winAnnouncement);
 		}
-		else if (game.history.size() == game.getHorSize() * game.getVerSize()) { //if the board is full
+		else if(game.history.size() == game.getHorSize() * game.getVerSize()) { //if the board is full
 			gameEnd = true;
 			return getResources().getString(R.string.draw);
 		}
@@ -358,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		String result = checkEnd(x, y);
 		if(Looper.myLooper() != Looper.getMainLooper()) {
 			Message message = fillHandler.obtainMessage();
-			if (result != null) message.getData().putString("result", result);
+			if(result != null) message.getData().putString("result", result);
 			fillHandler.sendMessage(message);
 		}
 		else {
@@ -374,10 +374,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		winText.setText(String.format(Locale.getDefault(), "%02d : %02d : %03d", TimeUnit.MILLISECONDS.toMinutes(time), TimeUnit.MILLISECONDS.toSeconds(time) % 60, time % 1000));
 	}
 	@Override public void timerFinished() {
-		if (!enableTimeLimit) return;
+		if(!enableTimeLimit) return;
 		preventPlaying = false;
 		game.changeShape(1);
-		if (useAI.isChecked()) //Single player with AI. Let the AI play.
+		if(useAI.isChecked()) //Single player with AI. Let the AI play.
 			aiTurn(true);
 		else
 			limitTimer.start();
@@ -415,10 +415,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					if(wasRequest) {
 						if(!onBluetooth) break; //The opponent might cancel connection after sending a request.
 						byte request = arguments.getByte(getString(R.string.i_action));
-						if ((Boolean) result) {
+						if((Boolean) result) {
 							switch (request) {
 							case REQUEST_RESTART:
-								if (arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
+								if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
 									setRulesFrom(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)));
 								initialize();
 								break;
@@ -457,13 +457,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					break;
 				case FILE_TAG:
 					String message = arguments.getString(getString(R.string.piri_dialogs_messageArgument));
-					if (result != null && message != null) {
-						if (message.equals(getString(R.string.save))) saveGame((String) result);
-						else if (message.equals(getString(R.string.load))) loadGame((String) result);
+					if(result != null && message != null) {
+						if(message.equals(getString(R.string.save))) saveGame((String) result);
+						else if(message.equals(getString(R.string.load))) loadGame((String) result);
 					}
 					break;
 				case BLUETOOTH_TAG:
-					if (result == null)
+					if(result == null)
 						hiddenClick(radioLocal); //connection failed or canceled
 					else {
 						this.socket = (BluetoothSocket) result;
@@ -477,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 							radioLocal.setChecked(true);
 						}
 						initialize();
-						if (arguments.getBoolean(getString(R.string.i_isServer))) {
+						if(arguments.getBoolean(getString(R.string.i_isServer))) {
 							myIndex = 0;
 							bluetoothThread.write(22, ORDER_HEADER, ORDER_INITIALIZE, getRules());
 						}
@@ -501,14 +501,14 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_localConfirm)), getString(R.string.termConnection));
 				break;
 			case R.id.radioBluetooth:
-				if (adapter == null) {
+				if(adapter == null) {
 					hiddenClick(radioLocal);
 					showToast(MainActivity.this, R.string.noBluetoothSupport);
 				}
 				else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
 					break;
 				}
-				else if (!adapter.isEnabled()) {
+				else if(!adapter.isEnabled()) {
 					startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
 				}
 				else connectBluetooth();
@@ -646,7 +646,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	//SECTION: File and communication
 	@Override public void onRequestPermissionsResult(final int requestCode, @NonNull final String permissions[], @NonNull final int[] grantResults) {
 		if(grantResults.length > 0) {
-			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				if(requestCode == LOCATION_REQUEST_CODE && !adapter.isEnabled()) {
 					Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 					startActivityForResult(enableBtIntent, BLUETOOTH_ENABLE_CODE);
@@ -713,7 +713,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	private class FillThread extends Thread {
 		@Override synchronized public void run() {
-			while (!gameEnd) {
+			while(!gameEnd) {
 				aiTurn(false);
 				//if it doesn't wait until the UI thread finishes and keep calling endTurn, most of board.invalidate() calls will be ignored and the result will be shown at once when the game's end, breaking animation.
 				try { wait(); }

@@ -84,11 +84,11 @@ public class Board extends View {
 		//loop through the array
 		for (int i = 0; i < verSize; i++) {
 			for (int j = 0; j < horSize; j++) {
-				if (game.array[i][j] == Shape.O) { //draw O
+				if(game.array[i][j] == Shape.O) { //draw O
 					ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
 					canvas.drawOval(ovalData, o);
 				}
-				else if (game.array[i][j] == Shape.X) { //draw X
+				else if(game.array[i][j] == Shape.X) { //draw X
 					if(symbolType == Symbol.XS_AND_OS) {
 						canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, x);
 						canvas.drawLine((j + 1) * horUnit, i * verUnit, j * horUnit, (i + 1) * verUnit, x);

@@ -4,7 +4,7 @@ import android.graphics.Point;
 import java.util.LinkedList;
 
 /**An implementation of {@link MnkAi} that evaluates values of every cell on the board by rudimentary means.*/
-@SuppressWarnings("WeakerAccess") public class PiriMnkAi extends MnkAi {
+@SuppressWarnings("WeakerAccess") public class PiriMnkAi implements MnkAi {
 	private class CellValue {
 		final int[] enemyLines, ownLines; //enemyLines(that the cell can block with the cell) and ownLines(that can be extended to the cell)
 		CellValue(int length) {
@@ -16,6 +16,10 @@ import java.util.LinkedList;
 	private final static int STREAK_SCALE = 4, OPEN_BONUS = 2, DOUBLE_OPEN_BONUS = 3, FULL_OPEN_BONUS_THRESHOLD = 4, OPPOSITE_OPEN_BONUS = 1;
 	private int valueLength;
 	private CellValue value;
+	private MnkGame game;
+
+	/**Just an alias.*/
+	private boolean inBoundary(int y, int x) {return game.inBoundary(y, x);}
 	/**Has AI play a turn.
 	 * Determines every cell's importance and returns a Point that contains the cell which the AI deemed has highest importance.
 	 * Importance is represented by a {@link CellValue} which contains enemyLines and ownLines.
@@ -24,7 +28,7 @@ import java.util.LinkedList;
 	 * If two or more cells seem to have same importance, put a stone on the cell with most blank spaces(that it can use to create lines). Due to this, the first move in a large board costs some time.
 	 * @param game the game for the AI to play
 	 * @return the {@code Point} to play on*/
-	@Override Point playTurn(final MnkGame game) {
+	@Override public Point playTurn(final MnkGame game) {
 		this.game = game;
 		valueLength = (game.winStreak + 1) * STREAK_SCALE;
 		CellValue bestValue = new CellValue(valueLength); //the list of lines that a cell can block and has highest value
@@ -64,7 +68,7 @@ import java.util.LinkedList;
 		int max = -1, maxHolder;
 		for (Point p : list) {
 			maxHolder = cellSpaces(p.x, p.y);
-			if (maxHolder > max) {
+			if(maxHolder > max) {
 				good = p;
 				max = maxHolder;
 			}
@@ -79,24 +83,24 @@ import java.util.LinkedList;
 		boolean pastTheLine;
 		for (int k = 0; k < 4; k++) {
 			pastTheLine = false;
-			if (inBoundary(y + yP[k], x + xP[k])) {
+			if(inBoundary(y + yP[k], x + xP[k])) {
 				int i, j;
 				for (i = y + yP[k], j = x + xP[k]; inBoundary(i, j); i += yP[k], j += xP[k]) { //follow the line until it hits the other symbol or blank space.
-					if (game.array[i][j] == EMPTY) {
+					if(game.array[i][j] == EMPTY) {
 						spaces++;
 						pastTheLine = true;
-					} else if (game.array[i][j] != original || pastTheLine) break;
+					} else if(game.array[i][j] != original || pastTheLine) break;
 				}
 			}
 			//right, down, right up, right down
 			pastTheLine = false;
-			if (inBoundary(y - yP[k], x - xP[k])) {
+			if(inBoundary(y - yP[k], x - xP[k])) {
 				int i, j;
 				for (i = y - yP[k], j = x - xP[k]; inBoundary(i, j); i -= yP[k], j -= xP[k]) { //follow the line until it hits the other symbol or blank space.
-					if (game.array[i][j] == EMPTY) {
+					if(game.array[i][j] == EMPTY) {
 						spaces++;
 						pastTheLine = true;
-					} else if (game.array[i][j] != original || pastTheLine) break;
+					} else if(game.array[i][j] != original || pastTheLine) break;
 				}
 			}
 		}
@@ -105,7 +109,7 @@ import java.util.LinkedList;
 
 	private void evaluate(final int x, final int y) {
 		value = new CellValue(valueLength);
-		if (game.array[y][x] != Shape.N) { //if the cell is already filled, it has no importance.
+		if(game.array[y][x] != Shape.N) { //if the cell is already filled, it has no importance.
 			value.ownLines[valueLength - 1] = -1;
 			return;
 		}
@@ -126,21 +130,21 @@ import java.util.LinkedList;
 		boolean isOpen = false, isOppositeOpen = false;
 		Shape lineShape = EMPTY, firstShape;
 		//left, up, left up, left down
-		if (inBoundary(y + yP, x + xP) && game.array[y + yP][x + xP] != EMPTY) {
+		if(inBoundary(y + yP, x + xP) && game.array[y + yP][x + xP] != EMPTY) {
 			streak = 1;
 			lineShape = game.array[y + yP][x + xP];
 			int i, j;
 			for (i = y + yP * 2, j = x + xP * 2; inBoundary(i, j); i += yP, j += xP) { //follow the line until it hits the other symbol or blank space.
-				if (game.array[i][j] == EMPTY) {
+				if(game.array[i][j] == EMPTY) {
 					isOpen = true;
 					break;
-				} else if (game.array[i][j] != lineShape) break;
+				} else if(game.array[i][j] != lineShape) break;
 				streak++;
 			}
 			blank = lineSpaces(j, i, x, y, xP, yP);
 		}
 		previousStreak = streak;
-		if (streak + blank < game.winStreak)
+		if(streak + blank < game.winStreak)
 			streak = 0; //if the line is impossible to complete, set streak to 0 so the cell won't receive any importance because of it.
 		if(inBoundary(y - yP, x - xP) && game.array[y - yP][x - xP] == game.empty && lineShape != game.empty)
 			isOppositeOpen = true;
@@ -151,8 +155,8 @@ import java.util.LinkedList;
 		blank = 0;
 		isOppositeOpen = false;
 		boolean isConnected = false;
-		if (inBoundary(y - yP, x - xP) && game.array[y - yP][x - xP] != EMPTY) {
-			if (lineShape == game.array[y - yP][x - xP]) {
+		if(inBoundary(y - yP, x - xP) && game.array[y - yP][x - xP] != EMPTY) {
+			if(lineShape == game.array[y - yP][x - xP]) {
 				streak = previousStreak + 1;
 				//blockableLines[previousStreak]--; //since we added 1 to blockableLines[previousStreak] before but we found that the line is continuous.
 				isConnected = true;
@@ -168,22 +172,22 @@ import java.util.LinkedList;
 				* 2. first line is connected to second one but not open : second loop only sets isOpen to true if first line isn't connected to second one, so isOpen stays false.
 				* 3. first line is not connected to second one and open : second loop sets isOpen to false at the end if the second line isn't open.
 				* 4. first line is not connected to second one and not open : second loop behaves in the same way first loop does.*/
-				if (game.array[i][j] == EMPTY) {
-					if (!isConnected) isOpen = true;
+				if(game.array[i][j] == EMPTY) {
+					if(!isConnected) isOpen = true;
 					break;
-				} else if (game.array[i][j] != lineShape) {
+				} else if(game.array[i][j] != lineShape) {
 					isOpen = false;
 					break;
 				}
 				streak++;
 			}
-			if (!inBoundary(i, j))
+			if(!inBoundary(i, j))
 				isOpen = false; //loop is ended because of a wall == the line is blocked
 			if(isConnected) blank = lineSpaces(x + (xP * previousStreak) + xP, y + (yP * previousStreak) + yP, j, i, xP, yP);
 			else blank = lineSpaces(x, y, j, i, xP, yP);
 		}
 		else isOpen = false;
-		if (streak + blank + (isConnected ? 1 : 0) < game.winStreak) //if the line is separated only by the cell, we need to add 1 to possible blank spaces(since the cell is blank, too)
+		if(streak + blank + (isConnected ? 1 : 0) < game.winStreak) //if the line is separated only by the cell, we need to add 1 to possible blank spaces(since the cell is blank, too)
 			streak = 0; //if the line is impossible to complete, set streak to 0 so the cell won't receive any importance because of it.
 		if(firstShape != lineShape && firstShape == game.empty) {
 			isOppositeOpen = true;
@@ -194,15 +198,15 @@ import java.util.LinkedList;
 	/**Returns how many blank cells a line can use to complete itself.*/
 	private int lineSpaces(int x1, int y1, int x2, int y2, final int xP, final int yP) {
 		int blank = 0;
-		if (inBoundary(y1, x1)) {
+		if(inBoundary(y1, x1)) {
 			for (; inBoundary(y1, x1); y1 += yP, x1 += xP) {
-				if (game.array[y1][x1] != game.empty) break;
+				if(game.array[y1][x1] != game.empty) break;
 				blank++;
 			}
 		}
-		if (inBoundary(y2, x2)) {
+		if(inBoundary(y2, x2)) {
 			for (; inBoundary(y2, x2); y2 -= yP, x2 -= xP) {
-				if (game.array[y2][x2] != game.empty) break;
+				if(game.array[y2][x2] != game.empty) break;
 				blank++;
 			}
 		}
@@ -214,7 +218,7 @@ import java.util.LinkedList;
 		if(game.shapes[game.getNextIndex()] == lineShape) target = value.ownLines;
 		else target = value.enemyLines;
 		if(isConnectedOrOppositeOpen) streak += OPPOSITE_OPEN_BONUS;
-		if (isOpen) {
+		if(isOpen) {
 			streak += OPEN_BONUS / (blank >= FULL_OPEN_BONUS_THRESHOLD ? 1 : 2);
 			if(target[streak] == 1) { //if the cell can block two lines of x cells, mark it as an open line of x + DOUBLE_OPEN_BONUS cells.
 				target[streak] = 0;

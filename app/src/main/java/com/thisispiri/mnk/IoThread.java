@@ -103,12 +103,12 @@ public class IoThread extends Thread {
 	public void write(final int size, final Object... data) throws BufferOverflowException {
 		ByteBuffer buffer = ByteBuffer.allocate(size);
 		for(Object d : data) {
-			if (d instanceof Integer) buffer.putInt((Integer) d);
-			else if (d instanceof Byte) buffer.put((Byte) d);
-			else if (d instanceof Float) buffer.putFloat((Float) d);
-			else if (d instanceof Double) buffer.putDouble((Double) d);
-			else if (d instanceof Long) buffer.putLong((Long) d);
-			else if (d instanceof Short) buffer.putShort((Short) d);
+			if(d instanceof Integer) buffer.putInt((Integer) d);
+			else if(d instanceof Byte) buffer.put((Byte) d);
+			else if(d instanceof Float) buffer.putFloat((Float) d);
+			else if(d instanceof Double) buffer.putDouble((Double) d);
+			else if(d instanceof Long) buffer.putLong((Long) d);
+			else if(d instanceof Short) buffer.putShort((Short) d);
 			else if(d instanceof int[])
 				for(int i : (int[])d)
 					buffer.putInt(i);
