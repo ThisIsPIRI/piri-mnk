@@ -56,7 +56,7 @@
 		<FrameLayout
 			android:layout_height="wrap_content"
 			android:layout_width="match_parent">
-			<com.thisispiri.mnk.Board
+			<com.thisispiri.mnk.DebugBoard
 				android:id="@+id/illustrator"
 				android:layout_width="400dp"
 				android:layout_height="400dp" />

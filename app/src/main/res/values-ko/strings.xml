@@ -78,4 +78,5 @@
 	<string name="piriValue">PIRI Value(중간)</string>
 	<string name="aiType">AI 종류</string>
 	<string name="emacsGomoku">Emacs Gomoku(어려움)</string>
+	<string name="showAiInternals">AI 내부 정보 보이기</string>
 </resources>

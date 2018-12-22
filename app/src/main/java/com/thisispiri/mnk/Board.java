@@ -14,11 +14,11 @@ public class Board extends View {
 		LINES_ENCLOSING_SYMBOLS, LINES_UNDER_SYMBOLS, DIAGONAL_ENCLOSING_SYMBOLS
 	}
 	private final Paint background, line, o, x;
-	private int horUnit, verUnit, horSize, verSize;
+	protected int horUnit, verUnit, horSize, verSize;
 	private int sideLength;
-	private Symbol symbolType;
-	private Line lineType;
-	private MnkGame game;
+	protected Symbol symbolType;
+	protected Line lineType;
+	protected MnkGame game;
 	private final RectF ovalData = new RectF();
 	public Board(android.content.Context context, android.util.AttributeSet attr)  {
 		super(context, attr);

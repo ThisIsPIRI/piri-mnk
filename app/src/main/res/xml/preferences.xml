@@ -94,6 +94,10 @@
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="Others">
+		<CheckBoxPreference
+			android:key="showAiInternals"
+			android:title="@string/showAiInternals"
+			android:defaultValue="false"/>
 		<com.thisispiri.preferences.CreditsPreference
 			android:title="@string/credits"
 			custom:text="The AOSP, for AndroidX in Apache License 2.0\nYou can obtain a copy of Apache License 2.0 at https://www.apache.org/licenses/LICENSE-2.0

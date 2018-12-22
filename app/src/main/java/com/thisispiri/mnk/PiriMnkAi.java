@@ -2,6 +2,7 @@ package com.thisispiri.mnk;
 
 import android.graphics.Point;
 import java.util.LinkedList;
+import java.util.Locale;
 
 /**An implementation of {@link MnkAi} that evaluates values of every cell on the board by rudimentary means.*/
 @SuppressWarnings("WeakerAccess") public class PiriMnkAi implements MnkAi {
@@ -20,6 +21,9 @@ import java.util.LinkedList;
 
 	/**Just an alias.*/
 	private boolean inBoundary(int y, int x) {return game.inBoundary(y, x);}
+	@Override public Point playTurn(final MnkGame game) {
+		return play(game, false).coord;
+	}
 	/**Has AI play a turn.
 	 * Determines every cell's importance and returns a Point that contains the cell which the AI deemed has highest importance.
 	 * Importance is represented by a {@link CellValue} which contains enemyLines and ownLines.
@@ -28,11 +32,17 @@ import java.util.LinkedList;
 	 * If two or more cells seem to have same importance, put a stone on the cell with most blank spaces(that it can use to create lines). Due to this, the first move in a large board costs some time.
 	 * @param game The game for the AI to play.
 	 * @return The {@code Point} to play on.*/
-	@Override public Point playTurn(final MnkGame game) {
+	@Override public MnkAiDecision playTurnJustify(final MnkGame game) {
+		return play(game, true);
+	}
+	private MnkAiDecision play(final MnkGame game, final boolean justify) {
 		this.game = game;
 		valueLength = (game.winStreak + 1) * STREAK_SCALE;
 		CellValue bestValue = new CellValue(valueLength); //the list of lines that a cell can block and has highest value
 		LinkedList<Point> list = new LinkedList<>(); //list of cells to consider.
+		String[][] values = null;
+		if(justify)
+			values = new String[game.getVerSize()][game.getHorSize()];
 		//evaluation loop. checks all cells and evaluates them.
 		for (int i = 0; i < game.getVerSize(); i++) {
 			for (int j = 0; j < game.getHorSize(); j++) {
@@ -61,6 +71,8 @@ import java.util.LinkedList;
 				if(k == 0) {
 					list.addLast(new Point(j, i));
 				}
+				if(justify)
+					values[i][j] = String.format(Locale.US, "%d,%d,%d", k, value.ownLines[k], value.enemyLines[k]);
 			}
 		}
 		//if more than one cell appears to have a same value, place a stone on the cell with most blank spaces to fill a line containing the cell with
@@ -73,7 +85,8 @@ import java.util.LinkedList;
 				max = maxHolder;
 			}
 		}
-		return good;
+		if(justify) return new MnkAiDecision(good, values);
+		else return new MnkAiDecision(good, null);
 	}
 
 	private int cellSpaces(final int x, final int y) {

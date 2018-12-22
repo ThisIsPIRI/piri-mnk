@@ -49,7 +49,7 @@ import static com.thisispiri.util.AndroidUtilsKt.showToast;
 //TODO: Decouple more things from Android
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
 public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
-	private Board board;
+	private DebugBoard board;
 	private Highlighter highlighter;
 	private LegalMnkGame game;
 	private MnkAi ai;
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private boolean preventPlaying = false;
 	private boolean enableHighlight;
 	private boolean enableTimeLimit;
+	private boolean showAiInternals;
 	/**Used to tie myTurn to a specific Shape in Bluetooth mode.*/
 	private int myIndex = 0;
 	/**The width of the screen, for updating custom {@code View}s.*/
@@ -152,9 +153,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		parentView.setBackgroundColor(backColor);
 		board.setGame(game);
 		board.setSideLength(screenX);
+		board.setValues(null);
 		board.updateValues(backColor, pref.getInt("lineColor", 0xFF000000), pref.getInt("oColor", 0xFFFF0000), pref.getInt("xColor", 0xFF0000FF), symbolType, lineType);
 		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX, pref.getInt("highlightColor", 0x7F000000), pref.getInt("highlightDuration", 120), pref.getInt("highlightHowMany", 3));
 		enableHighlight = pref.getBoolean("enableHighlight", true);
+		showAiInternals = pref.getBoolean("showAiInternals", false);
 	}
 	/**Calls {@link MainActivity#readData} and invalidates {@link MainActivity#board}.*/
 	@SuppressWarnings("SuspiciousNameCombination")
@@ -281,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		game.initialize();
 		//Since the game's values could have been changed, update the values of the views that depend on it.
 		board.setGame(game);
+		board.setValues(null);
 		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);
 		if(Looper.myLooper() != Looper.getMainLooper()) {
 			runOnUiThread(() -> {
@@ -331,7 +335,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		return null;
 	}
 	private void aiTurn(boolean highlight) {
-		if(!endTurn(ai.playTurn(game), highlight))
+		MnkAiDecision decision = ai.playTurnJustify(game);
+		if(showAiInternals)
+			board.setValues(decision.values);
+		if(!endTurn(decision.coord, highlight))
 			showToast(this, "The AI's move was invalid.");
 	}
 	/**Places a stone on the designated position and highlights the position.*/

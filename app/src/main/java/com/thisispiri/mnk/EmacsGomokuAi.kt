@@ -1,7 +1,6 @@
 package com.thisispiri.mnk
 
 import android.graphics.Point
-import android.util.Log
 import java.util.ArrayDeque
 import java.util.Queue
 
@@ -19,14 +18,20 @@ class EmacsGomokuAi: MnkAi {
 	}
 
 	companion object {
-		val ownValues = arrayOf(7, 35, 800, 15000, 800000)
-		val enemValues = arrayOf(7, 15, 400, 1800, 100000)
+		val ownValues = arrayOf(7, 35, 800, 15000, 800000, 4000000)
+		val enemValues = arrayOf(7, 15, 400, 1800, 100000, 600000)
 		val xP = arrayOf(1, 0, -1, 1); val yP = arrayOf(0, 1, 1, 1)
 	}
 	lateinit var game: MnkGame
 	lateinit var myShape: Shape; lateinit var enemShape: Shape
 
 	override fun playTurn(game: MnkGame): Point? {
+		return play(game, false).coord
+	}
+	override fun playTurnJustify(game: MnkGame): MnkAiDecision {
+		return play(game, true)
+	}
+	private fun play(game: MnkGame, justify: Boolean): MnkAiDecision {
 		this.game = game
 		myShape = game.shapes[game.nextIndex]
 		enemShape = if(myShape == Shape.X) Shape.O else Shape.X
@@ -35,7 +40,9 @@ class EmacsGomokuAi: MnkAi {
 		checkTuples(Mode.VER, values)
 		checkTuples(Mode.SLASH, values)
 		checkTuples(Mode.RESLASH, values)
-		return findMax(game, values)
+		if(justify)
+			return MnkAiDecision(findMax(game, values), values.map {i -> i.map {j -> j.toString()}.toTypedArray()}.toTypedArray())
+		else return MnkAiDecision(findMax(game, values), null)
 	}
 	private fun checkTuples(mode: Mode, values: Array<Array<Int>>) {
 		val po = Point(if(mode == Mode.RESLASH) game.horSize - 1 else 0, 0)
@@ -101,9 +108,6 @@ class EmacsGomokuAi: MnkAi {
 				}
 			}
 		}
-		for(i in 0..(game.verSize - 1))
-			Log.d("EMACS", values[i].joinToString())
-		Log.d("EMACS", "----------------------------")
 		return if(max == -1) null else Point(maxJ, maxI)
 	}
 }

@@ -78,4 +78,5 @@
 	<string name="piriValue">PIRI Value(medium)</string>
 	<string name="aiType">AI type</string>
 	<string name="emacsGomoku">Emacs Gomoku(hard)</string>
+	<string name="showAiInternals">Show AI internals</string>
 </resources>
