@@ -1,6 +1,5 @@
 package com.thisispiri.mnk;
 
-import android.graphics.Point;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -76,7 +75,7 @@ import java.util.Locale;
 			}
 		}
 		//if more than one cell appears to have a same value, place a stone on the cell with most blank spaces to fill a line containing the cell with
-		Point good = new Point();
+		Point good = null;
 		int max = -1, maxHolder;
 		for (Point p : list) {
 			maxHolder = cellSpaces(p.x, p.y);
@@ -125,7 +124,7 @@ import java.util.Locale;
 	private void evaluate(final int x, final int y) {
 		value = new CellValue(valueLength);
 		if(game.array[y][x] != Shape.N) { //if the cell is already filled, it has no importance.
-			value.ownLines[valueLength - 1] = -1;
+			value.ownLines[valueLength - 1] = -100;
 			return;
 		}
 		examineLine(x, y, -1, 0); // - shape

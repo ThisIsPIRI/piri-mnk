@@ -19,7 +19,6 @@ import android.os.Bundle;
 import androidx.appcompat.widget.SwitchCompat;
 import android.view.MotionEvent;
 import android.view.View;
-import android.graphics.Point;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RadioButton;
@@ -48,6 +47,7 @@ import com.thisispiri.mnk.MnkGame;
 import com.thisispiri.mnk.MnkManager;
 import com.thisispiri.mnk.MnkSaveLoader;
 import com.thisispiri.mnk.PiriMnkAi;
+import com.thisispiri.mnk.Point;
 import com.thisispiri.mnk.R;
 import com.thisispiri.util.AndroidUtilsKt;
 import com.thisispiri.util.GameTimer;
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		rGroup = findViewById(R.id.radioPlayers);
 		rGroup.setOnCheckedChangeListener(rLis);
 		//Save the screen resolution.
-		Point screenSize = new Point();
+		android.graphics.Point screenSize = new android.graphics.Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
 		screenX = screenSize.x;
 	}
@@ -360,7 +360,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Places a stone on the designated position and highlights the position.*/
 	@Override public boolean endTurn(final int x, final int y) {return endTurn(x, y, true);}
 	/**@see MainActivity#endTurn(int, int, boolean)*/
-	private boolean endTurn(final Point p, final boolean highlight) {return endTurn(p.x, p.y, highlight);}
+	private boolean endTurn(final Point p, final boolean highlight) {
+		return p != null && endTurn(p.x, p.y, highlight);
+	}
 	/**Places a stone on the designated position and updates the graphics.
 	 * @param highlight Whether to highlight the position.*/
 	private boolean endTurn(final int x, final int y, final boolean highlight) {

@@ -3,10 +3,11 @@ package com.thisispiri.mnk.andr;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.thisispiri.mnk.Point;
 
 /**Highlights rectangular cells within a grid by overlaying a color over them. It is assumed that the {@code Highlighter} itself is a square.*/
 public class Highlighter extends View {
