@@ -14,7 +14,7 @@ public class Highlighter extends View {
 	private boolean restart = false;
 	private Point[] toHighlight;
 	/**{@code Paint} object used for highlighting.*/
-	private Paint paint = new Paint();
+	private final Paint paint = new Paint();
 	/**The only constructor.*/
 	public Highlighter(final Context context, final AttributeSet attrs) { super(context, attrs); }
 	/**Works recursively to make an overlay flick over cells for some time, thus highlighting them.*/

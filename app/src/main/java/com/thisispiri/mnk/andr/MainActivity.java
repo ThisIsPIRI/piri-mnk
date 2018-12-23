@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**The {@code Thread} used to communicate with another client via Bluetooth.*/
 	private IoThread bluetoothThread;
 	/**The {@code Handler} used to handle invalidation requests from {@link MainActivity#fillThread}.*/
-	private Handler fillHandler = new FillHandler(this);
+	private final Handler fillHandler = new FillHandler(this);
 	/**The {@code CountDownTimer} for implementing the time limit.*/
 	private GameTimer limitTimer = new GameTimer(this, -1); //The first instance is replaced in setTimeLimit()
 	private final MnkSaveLoader saveLoader = new MnkSaveLoader();
