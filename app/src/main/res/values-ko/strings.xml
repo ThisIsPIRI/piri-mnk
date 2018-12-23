@@ -77,7 +77,7 @@
 	<string name="filler">Filler(너무 쉬움)</string>
 	<string name="piriValue">PIRI Value(중간)</string>
 	<string name="aiType">AI 종류</string>
-	<string name="emacsGomoku">Emacs-style(미완성/보통은 어려움)</string>
+	<string name="emacsGomoku">Emacs-style(어려움)</string>
 	<string name="showAiInternals">AI 내부 정보 보이기</string>
 	<string name="emacsLengthWarning">이기는 길이가 8을 초과할 때 Emacs-style을 사용하면 크래시가 발생합니다.</string>
 	<string name="gomoku1515">15x15 오목</string>

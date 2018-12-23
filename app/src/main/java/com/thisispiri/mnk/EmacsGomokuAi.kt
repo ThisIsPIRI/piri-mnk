@@ -6,7 +6,7 @@ import java.util.Queue
 open class EmacsGomokuAi: MnkAi {
 	enum class Mode(val value: Int) {
 		HOR(0), VER(1), SLASH(2), RESLASH(3);
-		fun opposite(): Mode {
+		fun perpendicular(): Mode {
 			return when(this) {
 				HOR -> VER
 				VER -> HOR
@@ -66,8 +66,8 @@ open class EmacsGomokuAi: MnkAi {
 				forward(pi, mode)
 			}
 			if(mode == Mode.HOR || mode == Mode.VER)
-				forward(po, mode.opposite())
-			else if(mode == Mode.SLASH && po.x < game.horSize) po.x++
+				forward(po, mode.perpendicular())
+			else if(mode == Mode.SLASH && po.x < game.horSize - 1) po.x++
 			else if(mode == Mode.RESLASH && po.x > 0) po.x--
 			else po.y++
 		}

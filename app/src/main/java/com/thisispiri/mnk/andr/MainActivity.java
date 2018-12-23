@@ -431,9 +431,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	//Responses to requests, myIndex change(when requesting restart), disconnection confirmation, save/load and receiving Bluetooth sockets
 	/**Call to return the result of a {@code Dialog} to this {@code Activity}.*/
-	@Override public <T> void giveResult(T result, final Bundle arguments) {
+	@Override public <T> void giveResult(final T result, final Bundle arguments) {
 		if(arguments != null) {
-			String tag = arguments.getString(getString(R.string.i_tagInBundle));
+			final String tag = arguments.getString(getString(R.string.i_tagInBundle));
 			if(tag != null) {
 				switch (tag) {
 				case DECISION_TAG:
@@ -460,13 +460,14 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
 					}
 					else {
-						String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
+						final String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
 						if(decisionKey == null) break;
 						if(decisionKey.equals(getString(R.string.i_playOrder))) {
-							if(ruleChanged) {//Request to restart AND change the rules.
-								final int[] rulesWithOrder = Arrays.copyOf(changedRules, changedRules.length);
-								rulesWithOrder[4] = ((Boolean) result) ? 0 : 1; //Apply the myIndex change from the Dialog
-								bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, (byte) 1, rulesWithOrder);
+							final int newMyIndex = ((Boolean) result) ? 0 : 1;
+							if(myIndex != newMyIndex) ruleChanged = true;
+							if(ruleChanged) { //Request to restart AND change the rules.
+								final int[] rulesWithOrder = Arrays.copyOf(changedRules, changedRules.length - 1);
+								bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, (byte) 1, rulesWithOrder, newMyIndex);
 							}
 							else
 								bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
@@ -482,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					}
 					break;
 				case FILE_TAG:
-					String message = arguments.getString(getString(R.string.piri_dialogs_messageArgument));
+					final String message = arguments.getString(getString(R.string.piri_dialogs_messageArgument));
 					if(result != null && message != null) {
 						if(message.equals(getString(R.string.save))) saveGame((String) result);
 						else if(message.equals(getString(R.string.load))) loadGame((String) result);

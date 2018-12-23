@@ -42,39 +42,39 @@ public class IoThread extends Thread {
 			readLoop: while (!interrupted()) {
 				if(inputStream.read(buffer) == -1) continue; //If the end of stream was reached.
 				switch(buffer[0]) {
-					case MOVE_HEADER:
-						if(!manager.endTurn(ByteBuffer.wrap(Arrays.copyOfRange(buffer, 1, 5)).getInt(), ByteBuffer.wrap(Arrays.copyOfRange(buffer, 5, 9)).getInt()))
-							manager.informUser(Info.INVALID_MOVE);
-						break;
-					case REQUEST_HEADER:
-						if(buffer[1] == REQUEST_RESTART && buffer[2] != 0)
-							manager.requestToUser(buffer[1], getRulesFrom(buffer, 3));
-						else
-							manager.requestToUser(buffer[1]);
-						break;
-					case RESPONSE_HEADER:
-						if(buffer[1] == RESPONSE_PERMIT) {
-							switch(buffer[2]) {
-								case REQUEST_RESTART:
-									if(buffer[3] != 0)
-										manager.setRulesFrom(getRulesFrom(buffer, 4));
-									manager.initialize();
-									break;
-								case REQUEST_REVERT: manager.revertLast(); break;
-							}
+				case MOVE_HEADER:
+					if(!manager.endTurn(ByteBuffer.wrap(Arrays.copyOfRange(buffer, 1, 5)).getInt(), ByteBuffer.wrap(Arrays.copyOfRange(buffer, 5, 9)).getInt()))
+						manager.informUser(Info.INVALID_MOVE);
+					break;
+				case REQUEST_HEADER:
+					if(buffer[1] == REQUEST_RESTART && buffer[2] != 0)
+						manager.requestToUser(buffer[1], getRulesFrom(buffer, 3));
+					else
+						manager.requestToUser(buffer[1]);
+					break;
+				case RESPONSE_HEADER:
+					if(buffer[1] == RESPONSE_PERMIT) {
+						switch(buffer[2]) {
+							case REQUEST_RESTART:
+								if(buffer[3] != 0)
+									manager.setRulesFrom(getRulesFrom(buffer, 4));
+								manager.initialize();
+								break;
+							case REQUEST_REVERT: manager.revertLast(); break;
 						}
-						else if(buffer[1] == RESPONSE_REJECT) manager.informUser(Info.REJECTION);
-						break;
-					case ORDER_HEADER:
-						if(buffer[1] == ORDER_INITIALIZE) {
-							manager.setRulesFrom(getRulesFrom(buffer, 2));
-							manager.initialize();
-						}
-						else if(buffer[1] == ORDER_CANCEL_CONNECTION) {
-							manager.cancelConnection();
-							break readLoop;
-						}
-						break;
+					}
+					else if(buffer[1] == RESPONSE_REJECT) manager.informUser(Info.REJECTION);
+					break;
+				case ORDER_HEADER:
+					if(buffer[1] == ORDER_INITIALIZE) {
+						manager.setRulesFrom(getRulesFrom(buffer, 2));
+						manager.initialize();
+					}
+					else if(buffer[1] == ORDER_CANCEL_CONNECTION) {
+						manager.cancelConnection();
+						break readLoop;
+					}
+					break;
 				}
 			}
 			inputStream.close();

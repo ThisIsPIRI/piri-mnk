@@ -136,7 +136,7 @@ import java.util.Locale;
 	 * A cell being examined can block blockableLines[i] lines of i. e.g. if blockableLines[3] is 2, the cell can block 2 lines of 3 cells.
 	 * If a line has no possibility of being a line of game.winStreak cells(because it's blocked by wall or another symbol), ignores it(represented by setting streak to 0. enemy/ownLines[0] is not considered in playTurn()).
 	 * If a line is "open" (i.e. two ends are both empty), it receives bonus of OPEN_BONUS. If a cell can block two open lines of same length, they will be treated as one (the length) + DOUBLE_OPEN_BONUS line.
-	 * If a cell's neighbor at the opposite of line is empty or a cell is in the middle of a line, the line receives bonus of OPPOSITE_OPEN_BONUS.
+	 * If a cell's neighbor opposite of line is empty or a cell is in the middle of a line, the line receives a bonus of OPPOSITE_OPEN_BONUS.
 	 * @param xP The direction the function will add or subtract to x while examining.
 	 * @param yP The direction the function will add or subtract to y while examining.*/
 	private void examineLine(final int x, final int y, final int xP, final int yP) {
