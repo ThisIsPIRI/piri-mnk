@@ -101,8 +101,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Indicates what {@code Dialog} to show on next {@link MainActivity#onResumeFragments}. Needed because {@code IllegalStateException} is thrown when {@code DialogFragment.show()} is called inside some methods.
 	 * Values for this field can be {@link MainActivity#SAVE_REQUEST_CODE}, {@link MainActivity#LOAD_REQUEST_CODE}, {@link MainActivity#LOCATION_REQUEST_CODE} or {@link MainActivity#BLUETOOTH_ENABLE_CODE}. Any other value does nothing.*/
 	private int displayDialog = 0;
-	/**TODO: WIP. Whether the rules has changed since the last rule sync(in multiplayer)*/
-	private final boolean ruleChanged = true;
+	/**Whether the rules has changed since the last rule sync(in multiplayer)*/
+	private boolean ruleChanged = false;
 	/**A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit}*/
 	private int[] changedRules;
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
@@ -134,17 +134,22 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		game.winStreak = array[2];
 		setTimeLimit(array[3]);
 		myIndex = array[4];
+		ruleChanged = false;
 	}
-	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/ //TODO: Move initialization to readData?
-	private void readRules(final SharedPreferences pref) {
+	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/
+	private void readRules(final SharedPreferences pref) { //TODO: Move initialization to readData?
 		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
 		game.winStreak = pref.getInt("winStreak", 5);
 		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
 	}
 	/**Saves the rules from {@code pref} to {@link MainActivity#changedRules}.*/
 	private void cacheRules(final SharedPreferences pref) {
-		changedRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
+		int[] rules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
 				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1, myIndex};
+		if(!Arrays.equals(changedRules, rules)) {
+			changedRules = rules;
+			ruleChanged = true;
+		}
 	}
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
 	private void readData() {
@@ -430,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			if(tag != null) {
 				switch (tag) {
 				case DECISION_TAG:
-					boolean wasRequest = arguments.getBoolean(getString(R.string.i_wasRequest)); //TODO: replace with string resources
+					boolean wasRequest = arguments.getBoolean(getString(R.string.i_wasRequest));
 					if(wasRequest) {
 						if(!onBluetooth) break; //The opponent might cancel connection after sending a request.
 						byte request = arguments.getByte(getString(R.string.i_action));
@@ -516,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
 			switch(id) {
-			case R.id.radioLocal: //TODO: request confirmation of the user when he clicks the local button in Bluetooth mode
+			case R.id.radioLocal:
 				requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_localConfirm)), getString(R.string.termConnection));
 				break;
 			case R.id.radioBluetooth:

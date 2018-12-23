@@ -8,7 +8,7 @@ import java.util.Stack;
 
 /**A representation of an MNK game.*/
 public class MnkGame {
-	public Shape[][] array; //TODO: make this private
+	public Shape[][] array;
 	/**The array of shapes to be placed rotationally in a normal game.*/
 	public final Shape[] shapes = {Shape.X, Shape.O};
 	/**The list of shapes for searching*/
