@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		parentView.setBackgroundColor(backColor);
 		board.setGame(game);
 		board.setSideLength(screenX);
-		board.setValues(null);
+		board.setAiInternals(null);
 		board.updateValues(backColor, pref.getInt("lineColor", 0xFF000000), pref.getInt("oColor", 0xFFFF0000), pref.getInt("xColor", 0xFF0000FF), symbolType, lineType);
 		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX, pref.getInt("highlightColor", 0x7F000000), pref.getInt("highlightDuration", 120), pref.getInt("highlightHowMany", 3));
 		enableHighlight = pref.getBoolean("enableHighlight", true);
@@ -295,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		game.initialize();
 		//Since the game's values could have been changed, update the values of the views that depend on it.
 		board.setGame(game);
-		board.setValues(null);
+		board.setAiInternals(null);
 		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);
 		if(Looper.myLooper() != Looper.getMainLooper()) {
 			runOnUiThread(() -> {
@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void aiTurn(boolean highlight) {
 		MnkAiDecision decision = ai.playTurnJustify(game);
 		if(showAiInternals)
-			board.setValues(decision.values);
+			board.setAiInternals(decision.values);
 		if(!endTurn(decision.coord, highlight))
 			showToast(this, "The AI's move was invalid.");
 	}

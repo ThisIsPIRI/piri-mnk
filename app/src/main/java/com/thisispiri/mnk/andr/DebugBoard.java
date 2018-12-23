@@ -5,21 +5,21 @@ import android.graphics.Paint;
 
 public class DebugBoard extends Board {
 	private Paint textPaint = new Paint();
-	private String[][] values;
+	private String[][] aiInternals;
 	public DebugBoard(android.content.Context context, android.util.AttributeSet attr)  {
 		super(context, attr);
 		textPaint.setTextSize(9);
 	}
 	@Override protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		if(values == null || values.length != verSize || values[0].length != horSize) return;
-		for (int i = 0; i < verSize; i++) {
+		if(aiInternals == null || aiInternals.length != verSize || aiInternals[0].length != horSize) return;
+		for (int i = 1; i <= verSize; i++) {
 			for (int j = 0; j < horSize; j++) {
-				canvas.drawText(values[i][j], j * horUnit, i * verUnit, textPaint);
+				canvas.drawText(aiInternals[i - 1][j], j * horUnit, i * verUnit, textPaint);
 			}
 		}
 	}
-	public void setValues(String[][] values) {
-		this.values = values;
+	public void setAiInternals(String[][] internals) {
+		this.aiInternals = internals;
 	}
 }
