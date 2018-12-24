@@ -30,8 +30,8 @@
 	<string name="bluetooth">Bluetooth</string>
 	<string name="connect">Connect</string>
 	<string name="multiplayerOnBluetooth">Multiplayer over Bluetooth</string>
-	<string name="clientIdentifierHint">Enter the same thing as the opponent</string>
-	<string name="serverIdentifierHint">Enter the same thing as your opponent</string>
+	<string name="clientIdentifierHint">Enter the same thing as our opponent</string>
+	<string name="serverIdentifierHint">Enter the same thing as our opponent</string>
 	<string name="locationRationale">The permission is needed to search for Bluetooth devices.</string>
 	<string name="ruleChangeWhileBluetooth">Request a restart to apply the changed rules.</string>
 	<string name="requestRejected">Your request was rejected.</string>

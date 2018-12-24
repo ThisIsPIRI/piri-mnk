@@ -14,13 +14,16 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.app.AlertDialog;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import com.thisispiri.dialogs.ListenerDialogFragment;
 import com.thisispiri.mnk.R;
+import com.thisispiri.util.AndroidUtilsKt;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -32,6 +35,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	private BluetoothSocket socket = null;
 	private RadioButton radioClient;
 	private EditText uuidEditText;
+	private ProgressBar progressBar;
 	private UUID targetUUID;
 	private BluetoothReceiver receiver;
 	private Thread runningThread;
@@ -49,6 +53,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 		builder.setNegativeButton(R.string.cancel, (dialog, id) -> giveSocket(null, false)); //return to local if the user cancels connection
 		radioClient = view.findViewById(R.id.dialogRadioClient);
 		uuidEditText = view.findViewById(R.id.uuidEditText);
+		progressBar = view.findViewById(R.id.bluetoothProgress);
 		view.findViewById(R.id.connectButton).setOnClickListener(new ConnectButtonListener());
 		((RadioGroup)view.findViewById(R.id.dialogRadioMethod)).setOnCheckedChangeListener(new RadioListener());
 		receiver = new BluetoothReceiver();
@@ -66,14 +71,15 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 		@Override public void onCheckedChanged(RadioGroup group, int id) {
 			if(runningThread != null) runningThread.interrupt();
 			switch(group.getCheckedRadioButtonId()) {
-				case R.id.dialogRadioServer:
-					uuidEditText.setHint(R.string.serverIdentifierHint);
-					adapter.cancelDiscovery();
-					break;
-				case R.id.dialogRadioClient:
-					uuidEditText.setHint(R.string.clientIdentifierHint);
-					break;
+			case R.id.dialogRadioServer:
+				uuidEditText.setHint(R.string.serverIdentifierHint);
+				adapter.cancelDiscovery();
+				break;
+			case R.id.dialogRadioClient:
+				uuidEditText.setHint(R.string.clientIdentifierHint);
+				break;
 			}
+			progressBar.setVisibility(View.GONE);
 		}
 	}
 	private class ConnectButtonListener implements View.OnClickListener {
@@ -82,6 +88,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 				targetUUID = UUID.nameUUIDFromBytes(uuidEditText.getText().toString().getBytes());
 				adapter.cancelDiscovery();
 				adapter.startDiscovery();
+				progressBar.setVisibility(View.VISIBLE);
 			}
 			else {
 				if(!discoverable) startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_TIME), DISCOVERABLE_REQUEST_CODE);
@@ -98,6 +105,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 		else radioClient.setChecked(true);
 	}
 	private void openServer() {
+		progressBar.setVisibility(View.VISIBLE);
 		adapter.cancelDiscovery();
 		final UUID uuid = UUID.nameUUIDFromBytes(uuidEditText.getText().toString().getBytes());
 		if(runningThread != null) runningThread.interrupt();
@@ -118,8 +126,9 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 					serverSocket.close();
 				}
 				catch (IOException e) {
-					//Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() fail");
-					//Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
+					Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() failed");
+					AndroidUtilsKt.showToast(getActivity(), R.string.ioError);
+					progressBar.setVisibility(View.GONE);
 				}
 			}
 		};
@@ -127,7 +136,8 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	}
 	class BluetoothReceiver extends BroadcastReceiver {
 		@Override public void onReceive(final Context context, final Intent intent) {
-			if(intent.getAction() != null && intent.getAction().equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED) && intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.SCAN_MODE_NONE) != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+			if(intent.getAction() == null) return;
+			if(intent.getAction().equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED) && intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.SCAN_MODE_NONE) != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 				discoverable = false;
 				if(!radioClient.isChecked()) //if discoverability times out while in server mode, request for discoverability again.
 					startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_TIME), DISCOVERABLE_REQUEST_CODE);
@@ -143,19 +153,23 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 							try {
 								socket.connect();
 								giveSocket(socket, false);
-								dismiss();
 							}
 							catch (IOException e) {
-								//Log.e("PIRIMNK", "socket.connect() fail");
-								//Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
+								Log.e("PIRIMNK", "socket.connect() failed");
+								AndroidUtilsKt.showToast(getActivity(), R.string.ioError);
+								giveSocket(null, false);
+							}
+							finally {
+								dismiss();
 							}
 						}
 					};
 					runningThread.start();
 				}
 				catch (IOException e) {
-					//Log.e("PIRIMNK", "device.createRfcommSocketToServiceRecord() fail");
-					//Toast.makeText(context, R.string.ioError, Toast.LENGTH_SHORT).show();
+					Log.e("PIRIMNK", "device.createRfcommSocketToServiceRecord() failed");
+					AndroidUtilsKt.showToast(getActivity(), R.string.ioError);
+					progressBar.setVisibility(View.GONE);
 				}
 			}
 		}
@@ -173,7 +187,8 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	}
 	private class BackListener implements DialogInterface.OnKeyListener {
 		@Override public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event) {
-			if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) giveSocket(null, false); //return to local if the user cancels connection
+			if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP)
+				giveSocket(null, false); //return to local if the user cancels connection
 			return false;
 		}
 	}

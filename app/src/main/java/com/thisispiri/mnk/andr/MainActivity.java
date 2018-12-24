@@ -499,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					break;
 				case BLUETOOTH_TAG:
 					if(result == null)
-						hiddenClick(radioLocal); //connection failed or canceled
+						runOnUiThread(() -> hiddenClick(radioLocal)); //connection failed or canceled
 					else {
 						this.socket = (BluetoothSocket) result;
 						runOnUiThread(() -> configureUI(true));
