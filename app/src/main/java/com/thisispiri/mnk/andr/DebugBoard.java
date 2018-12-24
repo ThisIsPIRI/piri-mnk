@@ -8,7 +8,7 @@ public class DebugBoard extends Board {
 	private String[][] aiInternals;
 	public DebugBoard(android.content.Context context, android.util.AttributeSet attr)  {
 		super(context, attr);
-		textPaint.setTextSize(9);
+		textPaint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 9);
 	}
 	@Override protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);

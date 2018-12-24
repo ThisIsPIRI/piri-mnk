@@ -21,6 +21,7 @@ public class IoThread extends Thread {
 	public final static byte REQUEST_RESTART = 4, REQUEST_REVERT = 5; //requests
 	public final static byte RESPONSE_PERMIT = 6, RESPONSE_REJECT = 7; //responses
 	public final static byte ORDER_INITIALIZE = 8, ORDER_CANCEL_CONNECTION = 9; //orders
+	public final static byte RULE_CHANGED = 10; //, PACKET_END = 11; TODO: Account for the possibility of data not arriving all at once
 	private final InputStream inputStream;
 	private final OutputStream outputStream;
 	private final MnkManager manager;
@@ -47,7 +48,7 @@ public class IoThread extends Thread {
 						manager.informUser(Info.INVALID_MOVE);
 					break;
 				case REQUEST_HEADER:
-					if(buffer[1] == REQUEST_RESTART && buffer[2] != 0)
+					if(buffer[1] == REQUEST_RESTART && buffer[2] == RULE_CHANGED)
 						manager.requestToUser(buffer[1], getRulesFrom(buffer, 3));
 					else
 						manager.requestToUser(buffer[1]);
@@ -56,7 +57,7 @@ public class IoThread extends Thread {
 					if(buffer[1] == RESPONSE_PERMIT) {
 						switch(buffer[2]) {
 							case REQUEST_RESTART:
-								if(buffer[3] != 0)
+								if(buffer[3] == RULE_CHANGED)
 									manager.setRulesFrom(getRulesFrom(buffer, 4));
 								manager.initialize();
 								break;
@@ -76,6 +77,7 @@ public class IoThread extends Thread {
 					}
 					break;
 				}
+				Arrays.fill(buffer, (byte) 0);
 			}
 			inputStream.close();
 			outputStream.close();

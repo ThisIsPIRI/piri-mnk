@@ -101,9 +101,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Indicates what {@code Dialog} to show on next {@link MainActivity#onResumeFragments}. Needed because {@code IllegalStateException} is thrown when {@code DialogFragment.show()} is called inside some methods.
 	 * Values for this field can be {@link MainActivity#SAVE_REQUEST_CODE}, {@link MainActivity#LOAD_REQUEST_CODE}, {@link MainActivity#LOCATION_REQUEST_CODE} or {@link MainActivity#BLUETOOTH_ENABLE_CODE}. Any other value does nothing.*/
 	private int displayDialog = 0;
-	/**Whether the rules has changed since the last rule sync(in multiplayer)*/
+	/**Whether this user's cached Preference rules are different from the one in effect(in multiplayer)*/
 	private boolean ruleChanged = false;
-	/**A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit}*/
+	/**A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit, myIndex}*/
 	private int[] changedRules;
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
 	private final static String DECISION_TAG = "decision", FILE_TAG = "file", BLUETOOTH_TAG = "bluetooth";
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		game.winStreak = array[2];
 		setTimeLimit(array[3]);
 		myIndex = array[4];
-		ruleChanged = false;
+		ruleChanged = !Arrays.equals(getRules(), changedRules);
 	}
 	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/
 	private void readRules(final SharedPreferences pref) { //TODO: Move initialization to readData?
@@ -142,22 +142,19 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		game.winStreak = pref.getInt("winStreak", 5);
 		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
 	}
-	/**Saves the rules from {@code pref} to {@link MainActivity#changedRules}.*/
-	private void cacheRules(final SharedPreferences pref) {
-		int[] rules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
+	/**Saves the rules from {@code pref} to {@link MainActivity#changedRules} and updates {@link MainActivity#myIndex}.*/
+	private void cacheChangedRules(final SharedPreferences pref) {
+		changedRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
 				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1, myIndex};
-		if(!Arrays.equals(changedRules, rules)) {
-			changedRules = rules;
-			ruleChanged = true;
-		}
+		ruleChanged = !Arrays.equals(getRules(), changedRules);
 	}
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
 	private void readData() {
 		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		//rules
-		cacheRules(pref);
 		if(!onBluetooth)
 			readRules(pref);
+		cacheChangedRules(pref);
 		//graphics. TODO: pass functions as symbol type?
 		int backColor;
 		Board.Symbol symbolType;
@@ -453,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 								break;
 							}
 							if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
-								bluetoothThread.write(24, RESPONSE_HEADER, RESPONSE_PERMIT, request, (byte)1, getRules());
+								bluetoothThread.write(24, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
 							else
 								bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 						}
@@ -464,10 +461,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						if(decisionKey == null) break;
 						if(decisionKey.equals(getString(R.string.i_playOrder))) {
 							final int newMyIndex = ((Boolean) result) ? 0 : 1;
-							if(myIndex != newMyIndex) ruleChanged = true;
-							if(ruleChanged) { //Request to restart AND change the rules.
+							if(ruleChanged || myIndex != newMyIndex) { //Request to restart AND change the rules.
 								final int[] rulesWithOrder = Arrays.copyOf(changedRules, changedRules.length - 1);
-								bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, (byte) 1, rulesWithOrder, newMyIndex);
+								bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED, rulesWithOrder, newMyIndex);
 							}
 							else
 								bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
@@ -742,7 +738,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		@Override synchronized public void run() {
 			while(!gameEnd) {
 				aiTurn(false);
-				//if it doesn't wait until the UI thread finishes and keep calling endTurn, most of board.invalidate() calls will be ignored and the result will be shown at once when the game's end, breaking animation.
+				//If it doesn't wait until the UI thread finishes and keep calling aiTurn, most of board.invalidate() calls will be ignored and the result will be shown at once when the game's end, breaking animation.
 				try { wait(); }
 				catch(InterruptedException e) { break; }
 			}
