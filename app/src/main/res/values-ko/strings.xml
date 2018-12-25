@@ -2,7 +2,7 @@
 <resources>
 	<string name="backgroundColor">배경색</string>
 	<string name="boardSize">판 크기</string>
-	<string name="change_side">편 바꾸기</string>
+	<string name="changeSide">편 바꾸기</string>
 	<string name="draw">무승부</string>
 	<string name="lineColor">선 색</string>
 	<string name="oColor">둘째 사람 색</string>
@@ -69,8 +69,6 @@
 	<string name="none_preset">없음</string>
 	<string name="ordinalMarker">번째</string>
 	<string name="myIndex">우리는</string>
-	<string name="yes">예</string>
-	<string name="no">아니오</string>
 	<string name="tictactoe">틱택토</string>
 	<string name="go">바둑</string>
 	<string name="filler">Filler(너무 쉬움)</string>

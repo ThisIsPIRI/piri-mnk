@@ -14,7 +14,7 @@
 		<Button
 			android:id="@+id/buttonSettings"
 			android:text="@string/settings"
-			android:textSize="15sp"
+			android:textSize="@dimen/upperButtonTextSize"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content" />
 		<LinearLayout
@@ -23,7 +23,7 @@
 			<androidx.appcompat.widget.SwitchCompat
 				android:id="@+id/useAI"
 				android:textAppearance="@style/TextShadow"
-				android:textSize="15sp"
+				android:textSize="@dimen/upperButtonTextSize"
 				android:layout_marginStart="20dp"
 				android:layout_marginLeft="20dp"
 				android:checked="true"
@@ -40,7 +40,7 @@
 				<RadioButton
 					android:id="@+id/radioLocal"
 					android:textAppearance="@style/TextShadow"
-					android:textSize="15sp"
+					android:textSize="@dimen/upperButtonTextSize"
 					android:checked="true"
 					android:text="@string/local"
 					android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
 				<RadioButton
 					android:id="@+id/radioBluetooth"
 					android:textAppearance="@style/TextShadow"
-					android:textSize="15sp"
+					android:textSize="@dimen/upperButtonTextSize"
 					android:text="@string/bluetooth"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
@@ -82,7 +82,7 @@
 			android:layout_width="match_parent" >
 			<Button
 				android:id="@+id/buttonAI"
-				android:text="@string/change_side"
+				android:text="@string/changeSide"
 				android:textSize="@dimen/lowerButtonTextSize"
 				android:layout_weight="1"
 				android:layout_width="0dp"

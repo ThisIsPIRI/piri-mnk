@@ -3,7 +3,7 @@
 	<string name="settings">Settings</string>
 	<string name="restart">Restart</string>
 	<string name="draw">Draw</string>
-	<string name="change_side">Change side</string>
+	<string name="changeSide">Change side</string>
 	<string name="boardSize">Board size</string>
 	<string name="backgroundColor">Background color</string>
 	<string name="lineColor">Line color</string>
@@ -69,8 +69,6 @@
 	<string name="none_preset">None</string>
 	<string name="myIndex">We play</string>
 	<string name="ordinalMarker">th</string>
-	<string name="yes">Yes</string>
-	<string name="no">No</string>
 	<string name="tictactoe">Tic Tac Toe</string>
 	<string name="go">Go</string>
 	<string name="filler">Filler(stupidly easy)</string>
