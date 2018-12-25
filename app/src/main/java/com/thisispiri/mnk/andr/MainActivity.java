@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.thisispiri.dialogs.ChecksDialogFragment;
 import com.thisispiri.dialogs.DecisionDialogFragment;
 import com.thisispiri.dialogs.DialogListener;
 import com.thisispiri.dialogs.EditTextDialogFragment;
@@ -108,13 +109,14 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit, myIndex}*/
 	private int[] preferenceRules;
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
-	private final static String DECISION_TAG = "decision", FILE_TAG = "file", BLUETOOTH_TAG = "bluetooth";
+	private final static String DECISION_TAG = "decision", EDITTEXT_TAG = "file", BLUETOOTH_TAG = "bluetooth", CHECKS_TAG = "checks";
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
 	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriMnkAi(), new EmacsGomokuAi()};
 	private final static Board.Symbol[] availableSymbols = {Board.Symbol.XS_AND_OS, Board.Symbol.GO_STONES};
 	private final static Board.Line[] availableLines = {Board.Line.LINES_ENCLOSING_SYMBOLS, Board.Line.LINES_UNDER_SYMBOLS, Board.Line.DIAGONAL_ENCLOSING_SYMBOLS};
+	private final static int[] restartOptions = {R.string.playFirst, R.string.sendChangedRules};
 
 	static {
 		//Map the Infos to String IDs.
@@ -125,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		tempMap.put(Info.WRITE_FAIL, R.string.failedToSend);
 		ioMessages = Collections.unmodifiableMap(tempMap);
 	}
+
 	//SECTION: Rules, UI and Android API
 	/**{@inheritDoc}*/
 	@Override public int[] getRules() {
@@ -231,8 +234,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			switch(v.getId()) {
 			case R.id.restart:
 				if(onBluetooth) {
-					requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_playOrder)), getString(R.string.playFirstQuestion),
-							getString(R.string.yes), getString(R.string.no));
+					showChecksDialog(getString(R.string.restartOptions), restartOptions);
 				}
 				else initialize();
 				break;
@@ -281,19 +283,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			return false;
 		}
 		else return true;
-	}
-	/**Shows the {@code Dialog} {@link MainActivity#displayDialog} points to and initializes it.*/
-	@Override public void onResumeFragments() {
-		super.onResumeFragments();
-		switch(displayDialog) {
-		case SAVE_REQUEST_CODE:
-			saveGame(null); break;
-		case LOAD_REQUEST_CODE:
-			loadGame(null); break;
-		case BLUETOOTH_ENABLE_CODE:case LOCATION_REQUEST_CODE:
-			connectBluetooth(); break;
-		}
-		displayDialog = 0;
 	}
 
 	//SECTION: Game handling
@@ -434,93 +423,145 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			return true;
 		}
 	}
+
+	//SECTION: Dialogs
+	/**Shows the {@code Dialog} {@link MainActivity#displayDialog} points to and initializes it.*/
+	@Override public void onResumeFragments() {
+		super.onResumeFragments();
+		switch(displayDialog) {
+		case SAVE_REQUEST_CODE:
+			saveGame(null); break;
+		case LOAD_REQUEST_CODE:
+			loadGame(null); break;
+		case BLUETOOTH_ENABLE_CODE:case LOCATION_REQUEST_CODE:
+			showBluetoothDialog(); break;
+		}
+		displayDialog = 0;
+	}
+	/**Shows a {@code DecisionDialogFragment} asking the user to confirm something.
+	 * Adds {@link MainActivity#DECISION_TAG} to the arguments as tagInBundle.
+	 * The positive and negative buttons will read {@code positive} and {@code negative}, respectively.*/
+	private void requestConfirm(Bundle arguments, String message, String positive, String negative) {
+		arguments.putString(getString(R.string.i_tagInBundle), DECISION_TAG);
+		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
+		decisionDialog.setArguments(arguments);
+		decisionDialog.show(getSupportFragmentManager(), "request", message, positive, negative);
+		decisionDialog.setCancelable(false);
+		runOnUiThread(() -> {
+			getSupportFragmentManager().executePendingTransactions();
+			decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
+	}
+	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
+	private void showEditTextDialog(final String message, final String hint) {
+		EditTextDialogFragment fragment = new EditTextDialogFragment();
+		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), EDITTEXT_TAG));
+		fragment.show(getSupportFragmentManager(), EDITTEXT_TAG, message, hint);
+	}
+	/**Opens a {@link BluetoothDialogFragment}.*/
+	private void showBluetoothDialog() {
+		BluetoothDialogFragment fragment = new BluetoothDialogFragment();
+		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), BLUETOOTH_TAG));
+		fragment.show(getSupportFragmentManager(), "bluetooth");
+	}
+	private void showChecksDialog(String message, int[] questions) {
+		ChecksDialogFragment checks = new ChecksDialogFragment();
+		checks.setArguments(bundleWith(getString(R.string.i_tagInBundle), CHECKS_TAG));
+		checks.show(getSupportFragmentManager(), CHECKS_TAG, message, questions);
+	}
 	//Responses to requests, myIndex change(when requesting restart), disconnection confirmation, save/load and receiving Bluetooth sockets
 	/**Call to return the result of a {@code Dialog} to this {@code Activity}.*/
 	@Override public <T> void giveResult(final T result, final Bundle arguments) {
-		if(arguments != null) {
-			final String tag = arguments.getString(getString(R.string.i_tagInBundle));
-			if(tag != null) {
-				switch (tag) {
-				case DECISION_TAG:
-					boolean wasRequest = arguments.getBoolean(getString(R.string.i_wasRequest));
-					if(wasRequest) {
-						if(!onBluetooth) break; //The opponent might cancel connection after sending a request.
-						byte request = arguments.getByte(getString(R.string.i_action));
-						if((Boolean) result) {
-							switch (request) {
-							case REQUEST_RESTART:
-								if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
-									setRulesFrom(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)));
-								initialize();
-								break;
-							case REQUEST_REVERT:
-								revertLast();
-								break;
-							}
-							if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
-								bluetoothThread.write(24, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
-							else
-								bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
-						}
-						else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
-					}
-					else {
-						final String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
-						if(decisionKey == null) break;
-						if(decisionKey.equals(getString(R.string.i_playOrder))) {
-							final int newMyIndex = ((Boolean) result) ? 0 : 1;
-							if((hasChangedRules && ruleDiffersFromPreference) || myIndex != newMyIndex) { //Request to restart AND change the rules.
-								final int[] rulesWithoutOrder;
-								if(hasChangedRules)
-									rulesWithoutOrder = Arrays.copyOf(preferenceRules, preferenceRules.length);
-								else
-									rulesWithoutOrder = Arrays.copyOf(getRules(), preferenceRules.length);
-								bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED, rulesWithoutOrder, newMyIndex);
-							}
-							else
-								bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
-						}
-						else if(decisionKey.equals(getString(R.string.i_localConfirm))) {
-							if((Boolean) result) {
-								stopBluetooth(true);
-								configureUI(false);
-							}
-							else
-								hiddenClick(radioBluetooth);
-						}
-					}
-					break;
-				case FILE_TAG:
-					final String message = arguments.getString(getString(R.string.piri_dialogs_messageArgument));
-					if(result != null && message != null) {
-						if(message.equals(getString(R.string.save))) saveGame((String) result);
-						else if(message.equals(getString(R.string.load))) loadGame((String) result);
-					}
-					break;
-				case BLUETOOTH_TAG:
-					if(result == null)
-						runOnUiThread(() -> hiddenClick(radioLocal)); //connection failed or canceled
-					else {
-						this.socket = (BluetoothSocket) result;
-						runOnUiThread(() -> configureUI(true));
-						try {
-							bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
-							bluetoothThread.start();
-						}
-						catch (IOException e) {
-							showToast(this, R.string.couldntGetStream);
-							radioLocal.setChecked(true);
-						}
+		if(arguments == null) {
+			showToast(this, "Error: giveResults arguments were null.");
+			return;
+		}
+		final String tag = arguments.getString(getString(R.string.i_tagInBundle));
+		if(tag == null) {
+			showToast(this, "Error: giveResult arguments didn't contain a tag.");
+			return;
+		}
+		switch (tag) {
+		case DECISION_TAG:
+			boolean wasRequest = arguments.getBoolean(getString(R.string.i_wasRequest));
+			if(wasRequest) {
+				if(!onBluetooth) break; //The opponent might cancel connection after sending a request.
+				byte request = arguments.getByte(getString(R.string.i_action));
+				if((Boolean) result) {
+					switch (request) {
+					case REQUEST_RESTART:
+						if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
+							setRulesFrom(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)));
 						initialize();
-						hasChangedRules = false;
-						if(arguments.getBoolean(getString(R.string.i_isServer))) {
-							myIndex = 0;
-							bluetoothThread.write(22, ORDER_HEADER, ORDER_INITIALIZE, getRules());
-						}
+						break;
+					case REQUEST_REVERT:
+						revertLast();
+						break;
 					}
-					break;
+					if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
+						bluetoothThread.write(24, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
+					else
+						bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 				}
-			} //TODO: add some way to inform the user that a Dialog didn't "return" correctly
+				else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
+			}
+			else {
+				final String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
+				if(decisionKey == null) break;
+				if(decisionKey.equals(getString(R.string.i_playOrder))) {
+					final int newMyIndex = ((Boolean) result) ? 0 : 1;
+					if((hasChangedRules && ruleDiffersFromPreference) || myIndex != newMyIndex) { //Request to restart AND change the rules.
+						final int[] rulesWithoutOrder;
+						if(hasChangedRules)
+							rulesWithoutOrder = Arrays.copyOf(preferenceRules, preferenceRules.length);
+						else
+							rulesWithoutOrder = Arrays.copyOf(getRules(), preferenceRules.length);
+						bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED, rulesWithoutOrder, newMyIndex);
+					}
+					else
+						bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+				}
+				else if(decisionKey.equals(getString(R.string.i_localConfirm))) {
+					if((Boolean) result) {
+						stopBluetooth(true);
+						configureUI(false);
+					}
+					else
+						hiddenClick(radioBluetooth);
+				}
+			}
+			break;
+		case EDITTEXT_TAG:
+			final String message = arguments.getString(getString(R.string.piri_dialogs_messageArgument));
+			if(result != null && message != null) {
+				if(message.equals(getString(R.string.save))) saveGame((String) result);
+				else if(message.equals(getString(R.string.load))) loadGame((String) result);
+			}
+			break;
+		case BLUETOOTH_TAG:
+			if(result == null)
+				runOnUiThread(() -> hiddenClick(radioLocal)); //connection failed or canceled
+			else {
+				this.socket = (BluetoothSocket) result;
+				runOnUiThread(() -> configureUI(true));
+				try {
+					bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
+					bluetoothThread.start();
+				}
+				catch (IOException e) {
+					showToast(this, R.string.couldntGetStream);
+					radioLocal.setChecked(true);
+				}
+				initialize();
+				hasChangedRules = false;
+				if(arguments.getBoolean(getString(R.string.i_isServer))) {
+					myIndex = 0;
+					bluetoothThread.write(22, ORDER_HEADER, ORDER_INITIALIZE, getRules());
+				}
+			}
+			break;
+		case CHECKS_TAG:
+			//TODO: send restart request
+			break;
 		}
 	}
 
@@ -547,28 +588,22 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				else if(!adapter.isEnabled()) {
 					startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
 				}
-				else connectBluetooth();
+				else showBluetoothDialog();
 				break;
 			}
 		}
 	}
-	/**Calls {@link MainActivity#connectBluetooth} or checks radioLocal and tells the user he must enable Bluetooth to play wirelessly depending on the {@code resultCode}.*/
+	/**Calls {@link MainActivity#showBluetoothDialog} or checks radioLocal and tells the user he must enable Bluetooth to play wirelessly depending on the {@code resultCode}.*/
 	@Override public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 		if(requestCode == BLUETOOTH_ENABLE_CODE) {
 			if(resultCode == RESULT_OK)
-				displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling connectBluetooth()
+				displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling showBluetoothDialog()
 			else {
 				hiddenClick(radioLocal);
 				showToast(this, R.string.enableBluetooth);
 			}
 		}
 		else super.onActivityResult(requestCode, resultCode, data); //to have BluetoothDialogFragment.onActivityResult() called
-	}
-	/**Opens a {@link BluetoothDialogFragment}.*/
-	private void connectBluetooth() {
-		BluetoothDialogFragment fragment = new BluetoothDialogFragment();
-		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), BLUETOOTH_TAG));
-		fragment.show(getSupportFragmentManager(), "bluetooth");
 	}
 	/**Configures the UI for Bluetooth or local play.*/
 	private void configureUI(final boolean toBluetooth) {
@@ -624,19 +659,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	 * The Dialog class's default text will be used for the buttons.*/
 	private void requestConfirm(Bundle arguments, String message) {
 		requestConfirm(arguments, message, null, null);
-	}
-	/**Shows a {@code DecisionDialogFragment} asking the user to confirm something.
-	 * Adds {@link MainActivity#DECISION_TAG} to the arguments as tagInBundle.
-	 * The positive and negative buttons will read {@code positive} and {@code negative}, respectively.*/
-	private void requestConfirm(Bundle arguments, String message, String positive, String negative) {
-		arguments.putString(getString(R.string.i_tagInBundle), DECISION_TAG);
-		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
-		decisionDialog.setArguments(arguments);
-		decisionDialog.show(getSupportFragmentManager(), "request", message, positive, negative);
-		decisionDialog.setCancelable(false);
-		runOnUiThread(() -> {
-			getSupportFragmentManager().executePendingTransactions();
-			decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
 	}
 	@Override public void requestToUser(byte action) {
 		requestToUser(action, null);
@@ -699,16 +721,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 
 	//SECTION: Files
-	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
-	private void showEditTextDialog(final String tag, final String message, final String hint) {
-		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), tag));
-		fragment.show(getSupportFragmentManager(), tag, message, hint);
-	}
 	/**Saves the game.
 	 * @param fileName If null, shows a {@code Dialog} prompting the user to input the file name. If not, saves the game.*/
 	private void saveGame(final String fileName) {
-		if(fileName == null) showEditTextDialog(FILE_TAG, getString(R.string.save), getString(R.string.fileNameHint));
+		if(fileName == null) showEditTextDialog(getString(R.string.save), getString(R.string.fileNameHint));
 		else {
 			try {
 				saveLoader.save(game, DIRECTORY_NAME, fileName + FILE_EXTENSION);
@@ -721,7 +737,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Loads the game.
 	 * @param fileName If null, shows a {@code Dialog} prompting the user to input the file name. If not, loads the game.*/
 	private void loadGame(final String fileName) {
-		if(fileName == null) showEditTextDialog(FILE_TAG, getString(R.string.load), getString(R.string.fileNameHint));
+		if(fileName == null) showEditTextDialog(getString(R.string.load), getString(R.string.fileNameHint));
 		else {
 			try {
 				MnkGame loaded = saveLoader.load(DIRECTORY_NAME, fileName + FILE_EXTENSION, game.winStreak);
@@ -737,7 +753,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 	}
 
-	//SECTION: Miscellaneous
+	//SECTION: Fun
 	private static class FillHandler extends Handler{
 		final WeakReference<MainActivity> activity;
 		FillHandler(MainActivity a) {activity = new WeakReference<>(a);}
