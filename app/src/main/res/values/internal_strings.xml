@@ -6,6 +6,5 @@
 	<string name="i_action" translatable="false">action</string>
 	<string name="i_rulesRequestToResultKey" translatable="false">rules</string>
 	<string name="i_nonreqAction" translatable="false">nonrequestDecisionKey</string>
-	<string name="i_playOrder" translatable="false">playOrder</string>
 	<string name="i_localConfirm" translatable="false">localConfirm</string>
 </resources>

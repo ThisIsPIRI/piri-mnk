@@ -81,7 +81,7 @@
 	<string name="emacsLengthWarning">이기는 길이가 8을 초과할 때 Emacs-style을 사용하면 크래시가 발생합니다.</string>
 	<string name="gomoku1515">15x15 오목</string>
 	<string name="gomoku1919">19x19 오목</string>
-	<string name="restartOptions">재시작 옵션</string>
+	<string name="restartRequest">재시작 요청</string>
 	<string name="sendChangedRules">바뀐 규칙 보내기</string>
 	<string name="playFirst">먼저 두기</string>
 </resources>

@@ -104,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private int displayDialog = 0;
 	/**Whether this user's cached Preference rules are different from the one in effect(in multiplayer)*/
 	private boolean ruleDiffersFromPreference = false;
-	/**Whether this user has changed a rule in Preferences since the last rule sync.*/
-	private boolean hasChangedRules = false;
 	/**A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit, myIndex}*/
 	private int[] preferenceRules;
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
@@ -143,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		setTimeLimit(array[3]);
 		myIndex = array[4];
 		ruleDiffersFromPreference = !Arrays.equals(getPureRules(), preferenceRules);
-		hasChangedRules = false;
 	}
 	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/
 	private void readRules(final SharedPreferences pref) { //TODO: Move initialization to readData?
@@ -153,11 +150,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	/**Saves the rules from {@code pref} to {@link MainActivity#preferenceRules} and updates {@link MainActivity#myIndex}.*/
 	private void cacheChangedRules(final SharedPreferences pref) {
-		int[] newPreferenceRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
+		preferenceRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
 				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1};
-		hasChangedRules |= !Arrays.equals(preferenceRules, newPreferenceRules);
-		preferenceRules = newPreferenceRules;
-		ruleDiffersFromPreference = !Arrays.equals(getRules(), preferenceRules);
+		ruleDiffersFromPreference = !Arrays.equals(getPureRules(), preferenceRules);
 	}
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
 	private void readData() {
@@ -234,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			switch(v.getId()) {
 			case R.id.restart:
 				if(onBluetooth) {
-					showChecksDialog(getString(R.string.restartOptions), restartOptions);
+					showChecksDialog(getString(R.string.restartRequest), restartOptions);
 				}
 				else initialize();
 				break;
@@ -507,20 +502,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			else {
 				final String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
 				if(decisionKey == null) break;
-				if(decisionKey.equals(getString(R.string.i_playOrder))) {
-					final int newMyIndex = ((Boolean) result) ? 0 : 1;
-					if((hasChangedRules && ruleDiffersFromPreference) || myIndex != newMyIndex) { //Request to restart AND change the rules.
-						final int[] rulesWithoutOrder;
-						if(hasChangedRules)
-							rulesWithoutOrder = Arrays.copyOf(preferenceRules, preferenceRules.length);
-						else
-							rulesWithoutOrder = Arrays.copyOf(getRules(), preferenceRules.length);
-						bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED, rulesWithoutOrder, newMyIndex);
-					}
-					else
-						bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
-				}
-				else if(decisionKey.equals(getString(R.string.i_localConfirm))) {
+				if(decisionKey.equals(getString(R.string.i_localConfirm))) {
 					if((Boolean) result) {
 						stopBluetooth(true);
 						configureUI(false);
@@ -552,7 +534,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					radioLocal.setChecked(true);
 				}
 				initialize();
-				hasChangedRules = false;
 				if(arguments.getBoolean(getString(R.string.i_isServer))) {
 					myIndex = 0;
 					bluetoothThread.write(22, ORDER_HEADER, ORDER_INITIALIZE, getRules());
@@ -560,7 +541,18 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			}
 			break;
 		case CHECKS_TAG:
-			//TODO: send restart request
+			final boolean[] boolArrayResult = (boolean[]) result;
+			final int newMyIndex = boolArrayResult[0] ? 0 : 1;
+			if(ruleDiffersFromPreference || myIndex != newMyIndex) { //Request to restart AND change the rules.
+				final int[] rulesWithoutOrder;
+				if(boolArrayResult[1])
+					rulesWithoutOrder = Arrays.copyOf(preferenceRules, preferenceRules.length);
+				else
+					rulesWithoutOrder = Arrays.copyOf(getRules(), preferenceRules.length);
+				bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED, rulesWithoutOrder, newMyIndex);
+			}
+			else
+				bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
 			break;
 		}
 	}

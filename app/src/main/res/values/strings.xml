@@ -81,7 +81,7 @@
 	<string name="emacsLengthWarning">Using Emacs-style with a winning length longer than 8 leads to crashes.</string>
 	<string name="gomoku1515">15x15 Gomoku</string>
 	<string name="gomoku1919">19x19 Gomoku</string>
-	<string name="restartOptions">Restart options</string>
+	<string name="restartRequest">Request a restart</string>
 	<string name="sendChangedRules">Send changed rules</string>
 	<string name="playFirst">Play first</string>
 </resources>
