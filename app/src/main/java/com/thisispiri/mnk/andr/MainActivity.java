@@ -446,6 +446,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			getSupportFragmentManager().executePendingTransactions();
 			decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
 	}
+	/**@see MainActivity#requestConfirm(Bundle, String, String, String).
+	 * The Dialog class's default text will be used for the buttons.*/
+	private void requestConfirm(Bundle arguments, String message) {
+		requestConfirm(arguments, message, null, null);
+	}
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
 	private void showEditTextDialog(final String message, final String hint) {
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
@@ -646,11 +651,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		catch(IOException e) {
 			showToast(this, R.string.problemWhileClosing);
 		}
-	}
-	/**@see MainActivity#requestConfirm(Bundle, String, String, String).
-	 * The Dialog class's default text will be used for the buttons.*/
-	private void requestConfirm(Bundle arguments, String message) {
-		requestConfirm(arguments, message, null, null);
 	}
 	@Override public void requestToUser(byte action) {
 		requestToUser(action, null);
