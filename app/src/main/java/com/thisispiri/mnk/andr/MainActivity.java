@@ -461,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void showBluetoothDialog() {
 		BluetoothDialogFragment fragment = new BluetoothDialogFragment();
 		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), BLUETOOTH_TAG));
-		fragment.show(getSupportFragmentManager(), "bluetooth");
+		fragment.show(getSupportFragmentManager(), BLUETOOTH_TAG, getString(R.string.app_name));
 	}
 	private void showChecksDialog(String message, int[] questions) {
 		ChecksDialogFragment checks = new ChecksDialogFragment();
@@ -547,14 +547,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			break;
 		case CHECKS_TAG:
 			final boolean[] boolArrayResult = (boolean[]) result;
+			if(result == null) break;
 			final int newMyIndex = boolArrayResult[0] ? 0 : 1;
-			if(ruleDiffersFromPreference || myIndex != newMyIndex) { //Request to restart AND change the rules.
-				final int[] rulesWithoutOrder;
-				if(boolArrayResult[1])
-					rulesWithoutOrder = Arrays.copyOf(preferenceRules, preferenceRules.length);
-				else
-					rulesWithoutOrder = Arrays.copyOf(getRules(), preferenceRules.length);
-				bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED, rulesWithoutOrder, newMyIndex);
+			if((ruleDiffersFromPreference && boolArrayResult[1]) || myIndex != newMyIndex) { //Request to restart AND change the rules.
+				bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED,
+						boolArrayResult[1] ? preferenceRules : getPureRules(), newMyIndex);
 			}
 			else
 				bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});

@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
+
 import android.app.AlertDialog;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -40,10 +42,16 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	private BluetoothReceiver receiver;
 	private Thread runningThread;
 	private boolean discoverable = false;
+	private String serviceName, isServerString;
 	private final static int DISCOVERABLE_REQUEST_CODE = 415;
 	private final static int DISCOVERABLE_TIME = 60;
 
 	//SECTION: Initialization
+	/**@param serviceName The service name to be used for the SDP record.*/
+	public void show(FragmentManager manager, String tag, String serviceName) {
+		this.serviceName = serviceName;
+		show(manager, tag);
+	}
 	@Override @NonNull public Dialog onCreateDialog(final Bundle savedInstanceState) {
 		super.onCreateDialog(savedInstanceState);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -64,6 +72,10 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 		dialog.setCancelable(false);
 		dialog.setOnKeyListener(new BackListener());
 		return dialog;
+	}
+	@Override public void onStart() {
+		super.onStart();
+		isServerString = getString(R.string.i_isServer);
 	}
 
 	//SECTION: Establishing connection
@@ -112,7 +124,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 		runningThread = new Thread() {
 			public void run() {
 				try {
-					BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord(getResources().getString(R.string.app_name), uuid);
+					BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord(serviceName, uuid);
 					while (!radioClient.isChecked()) {
 						socket = serverSocket.accept();
 						if (socket != null) {
@@ -177,7 +189,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 
 	//SECTION: Connection established/canceled
 	private void giveSocket(final BluetoothSocket socket, final boolean isServer) {
-		getArguments().putBoolean(getString(R.string.i_isServer), isServer);
+		getArguments().putBoolean(isServerString, isServer);
 		getListener().giveResult(socket, getArguments());
 	}
 	@Override public void onDestroy() {

@@ -36,7 +36,6 @@
 	<string name="bluetooth">블루투스</string>
 	<string name="requestRejected">요청이 거부되었습니다.</string>
 	<string name="requested">상대가 %s을(를) 요청했습니다.</string>
-	<string name="ruleChangeWhileBluetooth">변경된 규칙을 적용하려면 재시작을 요청하세요.</string>
 	<string name="symbols">모양</string>
 	<string name="sgfLimit">한 변이 52보다 큰 게임은 현재 저장할 수 없습니다.</string>
 	<string name="noBluetoothSupport">이 장치는 블루투스를 지원하지 않습니다.</string>

@@ -33,7 +33,6 @@
 	<string name="clientIdentifierHint">Enter the same thing as our opponent</string>
 	<string name="serverIdentifierHint">Enter the same thing as our opponent</string>
 	<string name="locationRationale">The permission is needed to search for Bluetooth devices.</string>
-	<string name="ruleChangeWhileBluetooth">Request a restart to apply the changed rules.</string>
 	<string name="requestRejected">Your request was rejected.</string>
 	<string name="requested">The opponent requested %s.</string>
 	<string name="symbols">Symbols</string>
