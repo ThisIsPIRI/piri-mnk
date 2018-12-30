@@ -2,4 +2,3 @@ build/
 libs/
 release/
 debug/
-**.pro
