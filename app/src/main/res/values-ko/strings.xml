@@ -81,4 +81,5 @@
 	<string name="restartRequest">재시작 요청</string>
 	<string name="sendChangedRules">바뀐 규칙 보내기</string>
 	<string name="playFirst">먼저 두기</string>
+	<string name="preset">프리셋</string>
 </resources>
