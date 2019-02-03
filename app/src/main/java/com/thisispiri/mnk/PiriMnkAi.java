@@ -12,7 +12,6 @@ import java.util.Locale;
 			ownLines = new int[length];
 		}
 	}
-	private final static Shape EMPTY = Shape.N;
 	private final static int STREAK_SCALE = 4, OPEN_BONUS = 2, DOUBLE_OPEN_BONUS = 3, FULL_OPEN_BONUS_THRESHOLD = 4, OPPOSITE_OPEN_BONUS = 1;
 	private int valueLength;
 	private CellValue value;
@@ -98,7 +97,7 @@ import java.util.Locale;
 			if(inBoundary(y + yP[k], x + xP[k])) {
 				int i, j;
 				for (i = y + yP[k], j = x + xP[k]; inBoundary(i, j); i += yP[k], j += xP[k]) { //follow the line until it hits the other symbol or blank space.
-					if(game.array[i][j] == EMPTY) {
+					if(game.array[i][j] == game.empty) {
 						spaces++;
 						pastTheLine = true;
 					}
@@ -110,7 +109,7 @@ import java.util.Locale;
 			if(inBoundary(y - yP[k], x - xP[k])) {
 				int i, j;
 				for (i = y - yP[k], j = x - xP[k]; inBoundary(i, j); i -= yP[k], j -= xP[k]) { //follow the line until it hits the other symbol or blank space.
-					if(game.array[i][j] == EMPTY) {
+					if(game.array[i][j] == game.empty) {
 						spaces++;
 						pastTheLine = true;
 					}
@@ -123,7 +122,7 @@ import java.util.Locale;
 
 	private void evaluate(final int x, final int y) {
 		value = new CellValue(valueLength);
-		if(game.array[y][x] != Shape.N) { //if the cell is already filled, it has no importance.
+		if(game.array[y][x] != game.empty) { //if the cell is already filled, it has no importance.
 			value.ownLines[valueLength - 1] = -100;
 			return;
 		}
@@ -142,14 +141,14 @@ import java.util.Locale;
 	private void examineLine(final int x, final int y, final int xP, final int yP) {
 		int previousStreak, blank = 0, streak = 0;
 		boolean isOpen = false, isOppositeOpen = false;
-		Shape lineShape = EMPTY, firstShape;
+		Shape lineShape = game.empty, firstShape;
 		//left, up, left up, left down
-		if(inBoundary(y + yP, x + xP) && game.array[y + yP][x + xP] != EMPTY) {
+		if(inBoundary(y + yP, x + xP) && game.array[y + yP][x + xP] != game.empty) {
 			streak = 1;
 			lineShape = game.array[y + yP][x + xP];
 			int i, j;
 			for (i = y + yP * 2, j = x + xP * 2; inBoundary(i, j); i += yP, j += xP) { //follow the line until it hits the other symbol or blank space.
-				if(game.array[i][j] == EMPTY) {
+				if(game.array[i][j] == game.empty) {
 					isOpen = true;
 					break;
 				}
@@ -168,7 +167,7 @@ import java.util.Locale;
 		//right, down, right up, right down
 		streak = blank = 0;
 		boolean isConnected = isOppositeOpen = false;
-		if(inBoundary(y - yP, x - xP) && game.array[y - yP][x - xP] != EMPTY) {
+		if(inBoundary(y - yP, x - xP) && game.array[y - yP][x - xP] != game.empty) {
 			if(lineShape == game.array[y - yP][x - xP]) {
 				streak = previousStreak + 1;
 				//blockableLines[previousStreak]--; //since we added 1 to blockableLines[previousStreak] before but we found that the line is continuous.
@@ -185,7 +184,7 @@ import java.util.Locale;
 				* 2. first line is connected to second one but not open : second loop only sets isOpen to true if first line isn't connected to second one, so isOpen stays false.
 				* 3. first line is not connected to second one and open : second loop sets isOpen to false at the end if the second line isn't open.
 				* 4. first line is not connected to second one and not open : second loop behaves in the same way first loop does.*/
-				if(game.array[i][j] == EMPTY) {
+				if(game.array[i][j] == game.empty) {
 					if(!isConnected) isOpen = true;
 					break;
 				}

@@ -19,9 +19,9 @@ import static java.util.Collections.emptyList;
 public class SettingFragment extends PreferenceFragment {
 	private static final List<List<Integer>> rulePresets = asList(emptyList(), asList(3, 3, 3), asList(15, 15, 5), asList(19, 19, 5));
 	private static final String[] ruleKeys = {"horSize", "verSize", "winStreak"};
-	private static final List<List<?>> graphicPresets = asList(emptyList(), asList("0", "0", 0xFFFFFFFF, 0xFF0000FF, 0xFFFF0000),
-			asList("1", "1", 0xFFB69B4C, 0xFF000000, 0xFFFFFFFF));
-	private static final String[] graphicKeys = {"symbols", "lineType", "backgroundColor", "xColor", "oColor"};
+	private static final List<List<?>> graphicPresets = asList(emptyList(), asList("0", "0", 0xFF000000, 0xFFFFFFFF, 0xFF0000FF, 0xFFFF0000),
+			asList("1", "1", 0xFF000000, 0xFFB69B4C, 0xFF000000, 0xFFFFFFFF));
+	private static final String[] graphicKeys = {"symbols", "lineType", "lineColor", "backgroundColor", "xColor", "oColor"};
 	@Override public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);

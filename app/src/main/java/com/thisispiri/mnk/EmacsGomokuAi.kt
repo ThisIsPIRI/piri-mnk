@@ -22,7 +22,7 @@ open class EmacsGomokuAi: MnkAi {
 		val xP = arrayOf(1, 0, -1, 1); val yP = arrayOf(0, 1, 1, 1)
 	}
 	protected lateinit var game: MnkGame
-	protected lateinit var myShape: Shape; lateinit var enemShape: Shape
+	protected lateinit var myShape: Shape
 
 	override fun playTurn(game: MnkGame): Point? {
 		return play(game, false).coord
@@ -33,7 +33,6 @@ open class EmacsGomokuAi: MnkAi {
 	private fun play(game: MnkGame, justify: Boolean): MnkAiDecision {
 		this.game = game
 		myShape = game.shapes[game.nextIndex]
-		enemShape = if(myShape == Shape.X) Shape.O else Shape.X
 		val values: Array<Array<Int>> = Array(game.verSize) {Array(game.horSize) {0}}
 		checkTuples(Mode.HOR, values)
 		checkTuples(Mode.VER, values)
@@ -45,23 +44,23 @@ open class EmacsGomokuAi: MnkAi {
 	private fun checkTuples(mode: Mode, values: Array<Array<Int>>) {
 		val po = Point(if(mode == Mode.RESLASH) game.horSize - 1 else 0, 0)
 		while(game.inBoundary(po.y, po.x)) {
-			val count: Array<Int> = arrayOf(0, 0)
+			val count: Array<Int> = arrayOf(0, 0) //count[0] == ownCount, count[1] == enemCount. TODO: use separate variables?
 			val tuple: Queue<Shape> = ArrayDeque()
 			val pi = Point(po)
 			while(game.inBoundary(pi.y, pi.x)) {
-				if(game.array[pi.y][pi.x] != Shape.N)
-					count[game.array[pi.y][pi.x].value]++
+				if(game.array[pi.y][pi.x] != game.empty)
+					count[if(game.array[pi.y][pi.x] == myShape) 0 else 1]++
 				tuple.add(game.array[pi.y][pi.x])
 				if(bigEnough(po, pi, mode)) {
 					forBackward(pi, mode, game.winStreak) { x, y ->
-						if (count[enemShape.value] == 0)
-							values[y][x] += ownValues[count[myShape.value]]
-						else if (count[myShape.value] == 0)
-							values[y][x] += enemValues[count[enemShape.value]]
+						if(count[1] == 0)
+							values[y][x] += ownValues[count[0]]
+						else if (count[0] == 0)
+							values[y][x] += enemValues[count[1]]
 					}
 					val removed: Shape = tuple.remove()
-					if(removed != Shape.N)
-						count[removed.value]--
+					if(removed != game.empty)
+						count[if(game.array[pi.y][pi.x] == myShape) 0 else 1]--
 				}
 				forward(pi, mode)
 			}
@@ -99,7 +98,7 @@ open class EmacsGomokuAi: MnkAi {
 		var maxI: Int = -1; var maxJ: Int = -1
 		for(i in 0..(game.verSize - 1)) {
 			for(j in 0..(game.horSize - 1)) {
-				if(game.array[i][j] == Shape.N && values[i][j] > max) {
+				if(game.array[i][j] == game.empty && values[i][j] > max) {
 					max = values[i][j]
 					maxI = i
 					maxJ = j

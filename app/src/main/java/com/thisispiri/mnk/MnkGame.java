@@ -26,7 +26,7 @@ public class MnkGame {
 	 * @return The index of the next {@link Shape} to be placed.*/
 	public int getNextIndex() {return nextIndex;}
 	/**Initializes the game with the default size of 15 * 15 and winning length of 5.*/
-	MnkGame() {
+	public MnkGame() {
 		array = new Shape[verSize][horSize];
 		initialize();
 	}
@@ -103,14 +103,14 @@ public class MnkGame {
 		//vertical check
 		for(i = 0;i + 1 < verSize;i++) {
 			streak++;
-			if (array[i][x] != array[i + 1][x] || array[i][x] == Shape.N) streak = 0;
+			if (array[i][x] != array[i + 1][x] || array[i][x] == empty) streak = 0;
 			if(streak == winStreak - 1) return getLinePoints(winStreak, x, i + 1, 0, -1);
 		}
 		//horizontal check
 		streak = 0;
 		for(i = 0;i + 1 < horSize;i++) {
 			streak++;
-			if(array[y][i] != array[y][i + 1] || array[y][i] == Shape.N) streak = 0;
+			if(array[y][i] != array[y][i + 1] || array[y][i] == empty) streak = 0;
 			if(streak == winStreak - 1) return getLinePoints(winStreak, i + 1, y, -1, 0);
 		}
 		//diagonal check / shape
@@ -119,7 +119,7 @@ public class MnkGame {
 		j = (x + y) - i;
 		while(inBoundary(i - 1, j + 1)) {
 			streak++;
-			if(array[i][j] != array[i - 1][j + 1] || array[i][j] == Shape.N) streak = 0;
+			if(array[i][j] != array[i - 1][j + 1] || array[i][j] == empty) streak = 0;
 			if(streak == winStreak - 1) return getLinePoints(winStreak, j + 1, i - 1, -1, 1);
 			i--; j++;
 		}
@@ -129,7 +129,7 @@ public class MnkGame {
 		j = x - y < 0 ? 0 : x - y;
 		while(i + 1 < verSize && j + 1 < horSize) {
 			streak++;
-			if(array[i][j] != array[i + 1][j + 1] || array[i][j] == Shape.N) streak = 0;
+			if(array[i][j] != array[i + 1][j + 1] || array[i][j] == empty) streak = 0;
 			if(streak == winStreak - 1) return getLinePoints(winStreak, j + 1, i + 1, -1, -1);
 			i++; j++;
 		}
