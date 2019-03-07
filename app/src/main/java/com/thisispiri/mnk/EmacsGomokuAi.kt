@@ -96,8 +96,8 @@ open class EmacsGomokuAi: MnkAi {
 	private fun findMax(game: MnkGame, values: Array<Array<Int>>): Point? {
 		var max: Int = -1
 		var maxI: Int = -1; var maxJ: Int = -1
-		for(i in 0..(game.verSize - 1)) {
-			for(j in 0..(game.horSize - 1)) {
+		for(i in 0 until game.verSize) {
+			for(j in 0 until game.horSize) {
 				if(game.array[i][j] == game.empty && values[i][j] > max) {
 					max = values[i][j]
 					maxI = i

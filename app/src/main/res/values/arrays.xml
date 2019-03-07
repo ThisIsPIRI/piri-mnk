@@ -10,6 +10,7 @@
 		<item>@string/filler</item>
 		<item>@string/piriValue</item>
 		<item>@string/emacsGomoku</item>
+		<item>@string/piriPolicy</item>
 	</string-array>
 	<string-array translatable="false" name="graphicPresetIds">
 		<item>@string/none_preset</item>

@@ -1,6 +1,7 @@
 package com.thisispiri.util
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
@@ -9,7 +10,10 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
 
 //TODO: separate into a library
 
@@ -69,4 +73,10 @@ fun bundleWith(vararg these: String): Bundle {
 		result.putString(these[i - 1], these[i])
 	}
 	return result
+}
+
+@Throws(IOException::class)
+fun assetToMappedByteBuffer(context: Context, filename: String): MappedByteBuffer {
+	val desc = context.assets.openFd(filename)
+	return FileInputStream(desc.fileDescriptor).channel.map(FileChannel.MapMode.READ_ONLY, desc.startOffset, desc.declaredLength)
 }

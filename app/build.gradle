@@ -27,6 +27,9 @@ android {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
+	aaptOptions {
+		noCompress "tflite"
+	}
 }
 
 dependencies {
@@ -42,6 +45,7 @@ dependencies {
 	testImplementation 'junit:junit:4.12'
 	testImplementation 'org.robolectric:robolectric:4.0.2'
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+	implementation "org.tensorflow:tensorflow-lite:+"
 }
 repositories {
     maven {

@@ -82,4 +82,5 @@
 	<string name="sendChangedRules">Send changed rules</string>
 	<string name="playFirst">Play first</string>
 	<string name="preset">Preset</string>
+	<string name="piriPolicy" translatable="false">PIRI Policy</string>
 </resources>

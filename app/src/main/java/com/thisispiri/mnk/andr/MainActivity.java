@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -47,7 +48,8 @@ import com.thisispiri.mnk.MnkAiDecision;
 import com.thisispiri.mnk.MnkGame;
 import com.thisispiri.mnk.MnkManager;
 import com.thisispiri.mnk.MnkSaveLoader;
-import com.thisispiri.mnk.PiriMnkAi;
+import com.thisispiri.mnk.PiriPolicyAi;
+import com.thisispiri.mnk.PiriValueAi;
 import com.thisispiri.mnk.Point;
 import com.thisispiri.mnk.R;
 import com.thisispiri.util.AndroidUtilsKt;
@@ -55,6 +57,7 @@ import com.thisispiri.util.GameTimer;
 import com.thisispiri.util.TimedGameManager;
 
 import static com.thisispiri.mnk.IoThread.*;
+import static com.thisispiri.util.AndroidUtilsKt.assetToMappedByteBuffer;
 import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
 import static com.thisispiri.util.AndroidUtilsKt.showToast;
 
@@ -111,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
-	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriMnkAi(), new EmacsGomokuAi()};
+	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriValueAi(), new EmacsGomokuAi(), null};
 	private final static Board.Symbol[] availableSymbols = {Board.Symbol.XS_AND_OS, Board.Symbol.GO_STONES};
 	private final static Board.Line[] availableLines = {Board.Line.LINES_ENCLOSING_SYMBOLS, Board.Line.LINES_UNDER_SYMBOLS, Board.Line.DIAGONAL_ENCLOSING_SYMBOLS};
 	private final static int[] restartOptions = {R.string.playFirst, R.string.sendChangedRules};
@@ -222,6 +225,12 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		android.graphics.Point screenSize = new android.graphics.Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
 		screenX = screenSize.x;
+		try {
+			availableAis[3] = new PiriPolicyAi(assetToMappedByteBuffer(this, "model.tflite"));
+		}
+		catch(IOException e) {
+			showToast(this, "Failed to initialize PIRI Policy AI.", Toast.LENGTH_LONG);
+		}
 	}
 	/**Listens for clicks on various buttons.*/
 	private class ButtonListener implements View.OnClickListener {

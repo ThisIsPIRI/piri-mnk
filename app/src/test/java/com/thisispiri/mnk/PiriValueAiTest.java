@@ -1,7 +1,5 @@
 package com.thisispiri.mnk;
 
-import android.graphics.Point;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -9,10 +7,10 @@ import org.robolectric.RobolectricTestRunner;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
-public class PiriMnkAiTest {
-	private PiriMnkAi ai;
+public class PiriValueAiTest {
+	private PiriValueAi ai;
 	@Test public void test1() throws Exception {
-		ai = new PiriMnkAi();
+		ai = new PiriValueAi();
 		MnkGame game = new MnkGame();
 		game.setSize(11, 11);
 		game.winStreak = 5;
