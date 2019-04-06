@@ -14,7 +14,7 @@ public class MnkGame {
 	/**The {@link Shape} representing an empty cell.*/
 	public final Shape empty = Shape.N;
 	/**The list of all {@link Move}s made in the game. Earlier moves are stored first.*/
-	public final Stack<Move> history = new Stack<>();
+	public final Stack<Move> history;
 	private int horSize = 15, verSize = 15;
 	public int getHorSize() {return horSize;}
 	public int getVerSize() {return verSize;}
@@ -28,7 +28,19 @@ public class MnkGame {
 	/**Initializes the game with the default size of 15 * 15 and winning length of 5.*/
 	public MnkGame() {
 		array = new Shape[verSize][horSize];
+		history = new Stack<>();
 		initialize();
+	}
+	/**Shallow copies the supplied {@link MnkGame}.*/
+	public MnkGame(final MnkGame original) {
+		setSize(original.getHorSize(), original.getVerSize());
+		array = original.array;
+		//shapes = original.shapes;
+		//shapesList = Arrays.asList(shapes);
+		//empty = original.empty;
+		history = original.history;
+		winStreak = original.winStreak;
+		nextIndex = original.nextIndex;
 	}
 	/**Places a {@link Shape} at the supplied coordinate. Does not check if the move is illegal(the Shape may be placed on another, already placed, one).
 	 * Changes the result of {@link MnkGame#getNextIndex()}.

@@ -5,11 +5,9 @@ public class LegalMnkGame extends MnkGame {
 	public LegalMnkGame() {
 		super();
 	}
-	/**Shallow copies the supplied {@link MnkGame}.*/
-	public LegalMnkGame(final MnkGame original) {
-		setSize(original.getHorSize(), original.getVerSize());
-		winStreak = original.winStreak;
-		array = original.array;
+	/**{@inheritDoc}*/
+	public LegalMnkGame(MnkGame original) {
+		super(original);
 	}
 	/**Places a {@link Shape} on the position if and only if the tile is empty.
 	 * Changes the result of {@link MnkGame#getNextIndex()}.
