@@ -47,7 +47,7 @@
 	<string name="highlightDuration">길이</string>
 	<string name="highlightHowMany">횟수</string>
 	<string name="enableHighlighting">하이라이트 켜기</string>
-	<string name="enableTimeLimit">시간제한 활성화</string>
+	<string name="enableTimeLimit">시간제한 켜기</string>
 	<string name="timeLimit">시간제한(밀리초)</string>
 	<string name="linesEnclosingSymbols">둘러싸는 선</string>
 	<string name="linesUnderSymbols">돌 아래 선</string>
@@ -82,4 +82,9 @@
 	<string name="sendChangedRules">바뀐 규칙 보내기</string>
 	<string name="playFirst">먼저 두기</string>
 	<string name="preset">프리셋</string>
+	<string name="enableGravity">중력 켜기</string>
+	<string name="gravitySummary">경고: AI는 중력에 익숙하지 않습니다.</string>
+	<string name="disabled">없음</string>
+	<string name="enabled">있음</string>
+	<string name="gravity">중력</string>
 </resources>

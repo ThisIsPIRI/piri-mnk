@@ -41,6 +41,7 @@ import com.thisispiri.dialogs.EditTextDialogFragment;
 import com.thisispiri.mnk.EmacsGomokuAi;
 import com.thisispiri.mnk.FillerMnkAi;
 import com.thisispiri.mnk.IoThread;
+import com.thisispiri.mnk.LegalGravityMnkGame;
 import com.thisispiri.mnk.LegalMnkGame;
 import com.thisispiri.mnk.MnkAi;
 import com.thisispiri.mnk.MnkAiDecision;
@@ -63,7 +64,7 @@ import static com.thisispiri.util.AndroidUtilsKt.showToast;
 public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
 	private DebugBoard board;
 	private Highlighter highlighter;
-	private LegalMnkGame game;
+	private MnkGame game;
 	private MnkAi ai;
 	private Button buttonFill, buttonAI, buttonLoad;
 	private TextView winText;
@@ -91,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private boolean enableHighlight;
 	private boolean enableTimeLimit;
 	private boolean showAiInternals;
+	/**1 if gravity is enabled. Else 0.*/
+	private int gravity;
 	/**Used to tie myTurn to a specific Shape in Bluetooth mode.*/
 	private int myIndex = 0;
 	/**The width of the screen, for updating custom {@code View}s.*/
@@ -129,21 +132,25 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	//SECTION: Rules, UI and Android API
 	/**{@inheritDoc}*/
 	@Override public int[] getRules() {
-		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, myIndex};
+		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, gravity, myIndex};
 	}
 	private int[] getPureRules() {
-		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1};
+		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, gravity};
 	}
 	/**{@inheritDoc}*/
 	@Override public void setRulesFrom(int[] array) {
+		if(array[4] != gravity)
+			game = array[4] == 1 ? new LegalGravityMnkGame() : new LegalMnkGame();
 		game.setSize(array[0], array[1]);
 		game.winStreak = array[2];
 		setTimeLimit(array[3]);
-		myIndex = array[4];
+		myIndex = array[5];
 		ruleDiffersFromPreference = !Arrays.equals(getPureRules(), preferenceRules);
 	}
 	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/
 	private void readRules(final SharedPreferences pref) { //TODO: Move initialization to readData?
+		gravity = pref.getBoolean("enableGravity", false) ? 1 : 0;
+		game = gravity == 1 ? new LegalGravityMnkGame() : new LegalMnkGame();
 		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
 		game.winStreak = pref.getInt("winStreak", 5);
 		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
@@ -151,7 +158,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Saves the rules from {@code pref} to {@link MainActivity#preferenceRules} and updates {@link MainActivity#myIndex}.*/
 	private void cacheChangedRules(final SharedPreferences pref) {
 		preferenceRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
-				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1};
+				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1,
+				pref.getBoolean("enableGravity", false) ? 1 : 0};
 		ruleDiffersFromPreference = !Arrays.equals(getPureRules(), preferenceRules);
 	}
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
@@ -195,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	@Override protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		game = new LegalMnkGame();
 		fillThread = new FillThread();
 		//Find views and assign listeners.
 		board = findViewById(R.id.illustrator);
@@ -675,13 +682,16 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private String stringifyRules(int[] rules) {
 		StringBuilder builder = new StringBuilder();
 		final String[] names = {getString(R.string.horSize), getString(R.string.verSize),
-				getString(R.string.winCondition), getString(R.string.timeLimit), getString(R.string.myIndex)};
-		for(int i = 0;i < 5;i++) {
+				getString(R.string.winCondition), getString(R.string.timeLimit), getString(R.string.gravity), getString(R.string.myIndex)};
+		for(int i = 0;i < 6;i++) {
 			builder.append(names[i]);
 			builder.append(": ");
-			if(i == 4) { //For myIndex
+			if(i == 5) { //For myIndex
 				builder.append(rules[i] + 1);
 				builder.append(getString(R.string.ordinalMarker));
+			}
+			else if(i == 4) { //For gravity
+				builder.append(rules[i] == 1 ? getString(R.string.enabled) : getString(R.string.disabled));
 			}
 			else
 				builder.append(rules[i] != -1 ? rules[i] : getString(R.string.none_ruleSync)); //For timeLimit == -1

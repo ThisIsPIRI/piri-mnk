@@ -30,10 +30,10 @@ public class IoThread extends Thread {
 		this.manager = manager;inputStream = input; outputStream = output;
 	}
 	private int[] getRulesFrom(byte[] array, int startingFrom) {
-		int[] result = new int[5];
-		for(int i = 0;i < 5;i++)
+		int[] result = new int[6];
+		for(int i = 0;i < 6;i++)
 			result[i] = ByteBuffer.wrap(Arrays.copyOfRange(array, i * 4 + startingFrom, i * 4 + startingFrom + 4)).getInt();
-		result[4] ^= 1; //Flip myIndex.
+		result[5] ^= 1; //Flip myIndex.
 		return result;
 	}
 	/**Constantly reads data from the {@code InputStream}.*/

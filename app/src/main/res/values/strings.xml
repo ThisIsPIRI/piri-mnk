@@ -82,4 +82,9 @@
 	<string name="sendChangedRules">Send changed rules</string>
 	<string name="playFirst">Play first</string>
 	<string name="preset">Preset</string>
+	<string name="enableGravity">Enable gravity</string>
+	<string name="gravitySummary">Warning: the AIs weren\'t built for this</string>
+	<string name="gravity">Gravity</string>
+	<string name="disabled">disabled</string>
+	<string name="enabled">enabled</string>
 </resources>

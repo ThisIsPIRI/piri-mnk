@@ -17,18 +17,23 @@
 			custom:secondText="@string/verSize"
 			custom:secondDefault="@integer/defaultVerSize"
 			custom:imposeScreenLimit="true"
-			android:title="@string/boardSize" />
+			android:title="@string/boardSize"/>
 		<com.thisispiri.preferences.IntegerPreference
 			android:key="winStreak"
 			android:title="@string/winCondition"
 			android:inputType="numberSigned"
 			android:digits="0123456789"
 			android:defaultValue="@integer/defaultWinStreak"
-			custom:imposeScreenLimit="true" />
+			custom:imposeScreenLimit="true"/>
+		<CheckBoxPreference
+			android:key="enableGravity"
+			android:title="@string/enableGravity"
+			android:summary="@string/gravitySummary"
+			android:defaultValue="false"/>
 		<CheckBoxPreference
 			android:key="enableTimeLimit"
 			android:title="@string/enableTimeLimit"
-			android:defaultValue="false" />
+			android:defaultValue="false"/>
 		<com.thisispiri.preferences.IntegerPreference
 			android:key="timeLimit"
 			android:title="@string/timeLimit"
