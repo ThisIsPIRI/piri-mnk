@@ -1,16 +1,16 @@
 package com.thisispiri.mnk;
 
-/**An {@link MnkGame} in which you can only play valid moves.*/
-public class LegalMnkGame extends MnkGame {
-	public LegalMnkGame() {super();}
-	/**{@inheritDoc}*/
-	public LegalMnkGame(final MnkGame original) {super(original);}
+/**A {@link GravityMnkGame} in which you can only play valid moves.*/
+public class LegalGravityMnkGame extends GravityMnkGame {
+	public LegalGravityMnkGame() {super();}
+	public LegalGravityMnkGame(final MnkGame original){super(original);}
 	/**Places a {@link Shape} on the position if and only if the tile is empty.
 	 * Changes the result of {@link MnkGame#getNextIndex()}.
 	 * @return if it succeeded in placing a stone.*/
-	@Override public boolean place(final int x, final int y) {
-		//Never call super.place(int, int) here; it calls place(int, int, Shape), which is overridden here to call this method(place(int, int)), recursing infinitely.
-		if(isEmpty(x, y) && super.place(x, y, shapes[getNextIndex()])) {
+	@Override public boolean place(final int x, int y) {
+		//Never call super.place(int, int, Shape) here; it calls place(int, int, Shape, boolean), which is overridden here to call this method(place(int, int)) indirectly, recursing infinitely.
+		y = getFallenY(x, y);
+		if(isEmpty(x, y) && super.place(x, y, shapes[getNextIndex()], true)) {
 			changeShape(1);
 			return true;
 		}
@@ -21,5 +21,8 @@ public class LegalMnkGame extends MnkGame {
 	 * @return if it succeeded in placing the {@link Shape}.*/
 	@Override public boolean place(final int x, final int y, final Shape toPlace) {
 		return toPlace == shapes[getNextIndex()] && place(x, y);
+	}
+	@Override public boolean place(final int x, final int y, final Shape toPlace, final boolean gravity) {
+		return gravity && place(x, y, toPlace);
 	}
 }
