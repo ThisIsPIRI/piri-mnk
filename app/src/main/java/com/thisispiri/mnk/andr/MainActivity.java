@@ -150,7 +150,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/
 	private void readRules(final SharedPreferences pref) { //TODO: Move initialization to readData?
 		gravity = pref.getBoolean("enableGravity", false) ? 1 : 0;
-		game = gravity == 1 ? new LegalGravityMnkGame() : new LegalMnkGame();
+		if(game != null)
+			game = gravity == 1 ? new LegalGravityMnkGame(game) : new LegalMnkGame(game);
+		else
+			game = gravity == 1 ? new LegalGravityMnkGame() : new LegalMnkGame();
 		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
 		game.winStreak = pref.getInt("winStreak", 5);
 		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
@@ -330,11 +333,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			preventPlaying = false;
 		}
 	}
-	/**Checks if the game has ended(whether it's because of a win or draw) and set {@link MainActivity#gameEnd} to true if it's ended.
-	 * @return a {@code String} that should be displayed to the user. Null if the game hasn't ended.*/
+	/**Checks if the game has ended(whether it's because of a win or draw) and sets {@link MainActivity#gameEnd} to true if it's ended.
+	 * @return A {@code String} that should be displayed to the user. Null if the game hasn't ended.*/
 	private String checkEnd(final int x, final int y) {
 		Point[] result = game.checkWin(x, y);
-		if(result != null) { //if someone won the game
+		if(result != null) { //If someone won the game
 			gameEnd = true;
 			if(enableHighlight) highlighter.highlight(result);
 			if(game.getNextIndex() == 0) return (game.shapes.length) + getResources().getString(R.string.winAnnouncement); //since MnkGame.shapes starts at 0
@@ -361,9 +364,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	/**Places a stone on the designated position and updates the graphics.
 	 * @param highlight Whether to highlight the position.*/
-	private boolean endTurn(final int x, final int y, final boolean highlight) {
+	private boolean endTurn(final int x, int y, final boolean highlight) {
 		//Check the legality of the move. Don't check for preventPlaying here; see GameTimer and BoardListener for details.
 		if(!game.place(x, y)) return false; //Do nothing if the move was invalid.
+		y = game.history.peek().coord.y; //y may change in a GravityMnkGame.
 		if(onBluetooth) {
 			//TODO: don't rely on the Looper to determine if it's the user or the opponent playing
 			if(Looper.myLooper() == Looper.getMainLooper()) bluetoothThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.

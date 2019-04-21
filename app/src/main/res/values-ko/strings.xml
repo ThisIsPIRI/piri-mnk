@@ -87,4 +87,5 @@
 	<string name="disabled">없음</string>
 	<string name="enabled">있음</string>
 	<string name="gravity">중력</string>
+	<string name="fourInRow">사목</string>
 </resources>

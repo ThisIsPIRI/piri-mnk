@@ -87,4 +87,5 @@
 	<string name="gravity">Gravity</string>
 	<string name="disabled">disabled</string>
 	<string name="enabled">enabled</string>
+	<string name="fourInRow">Four in a Row</string>
 </resources>

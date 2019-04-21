@@ -5,6 +5,7 @@
 		<item>@string/tictactoe</item>
 		<item>@string/gomoku1515</item>
 		<item>@string/gomoku1919</item>
+		<item>@string/fourInRow</item>
 	</string-array>
 	<string-array translatable="false" name="aiTypesIds">
 		<item>@string/filler</item>
@@ -30,5 +31,6 @@
 		<item>1</item>
 		<item>2</item>
 		<item>3</item>
+		<item>4</item>
 	</string-array>
 </resources>

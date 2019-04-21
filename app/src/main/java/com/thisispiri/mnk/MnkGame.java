@@ -14,7 +14,7 @@ public class MnkGame {
 	/**The {@link Shape} representing an empty cell.*/
 	public final Shape empty = Shape.N;
 	/**The list of all {@link Move}s made in the game. Earlier moves are stored first.*/
-	public final Stack<Move> history;
+	public Stack<Move> history = new Stack<>(); //Give initialize() something to clear when the copy constructor is used
 	private int horSize = 15, verSize = 15;
 	public int getHorSize() {return horSize;}
 	public int getVerSize() {return verSize;}
@@ -28,7 +28,6 @@ public class MnkGame {
 	/**Initializes the game with the default size of 15 * 15 and winning length of 5.*/
 	public MnkGame() {
 		array = new Shape[verSize][horSize];
-		history = new Stack<>();
 		initialize();
 	}
 	/**Shallow copies the supplied {@link MnkGame}.*/

@@ -17,8 +17,9 @@ import static java.util.Collections.emptyList;
 
 /**Shows the preferences for the user to edit.*/
 public class SettingFragment extends PreferenceFragment {
-	private static final List<List<Integer>> rulePresets = asList(emptyList(), asList(3, 3, 3), asList(15, 15, 5), asList(19, 19, 5));
-	private static final String[] ruleKeys = {"horSize", "verSize", "winStreak"};
+	private static final List<List<?>> rulePresets = asList(emptyList(), asList(3, 3, 3, false), asList(15, 15, 5, false),
+			asList(19, 19, 5, false), asList(7, 6, 4, true));
+	private static final String[] ruleKeys = {"horSize", "verSize", "winStreak", "enableGravity"};
 	private static final List<List<?>> graphicPresets = asList(emptyList(), asList("0", "0", 0xFF000000, 0xFFFFFFFF, 0xFF0000FF, 0xFFFF0000),
 			asList("1", "1", 0xFF000000, 0xFFB69B4C, 0xFF000000, 0xFFFFFFFF));
 	private static final String[] graphicKeys = {"symbols", "lineType", "lineColor", "backgroundColor", "xColor", "oColor"};
@@ -54,6 +55,8 @@ public class SettingFragment extends PreferenceFragment {
 				for(int i = 0;i < presets.get(value).size();i++) {
 					if(presets.get(value).get(i) instanceof Integer)
 						edit.putInt(keys[i], (Integer) presets.get(value).get(i));
+					else if(presets.get(value).get(i) instanceof Boolean)
+						edit.putBoolean(keys[i], (Boolean) presets.get(value).get(i));
 					else
 						edit.putString(keys[i], (String) presets.get(value).get(i));
 				}

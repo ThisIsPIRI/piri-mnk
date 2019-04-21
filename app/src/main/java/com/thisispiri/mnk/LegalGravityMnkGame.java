@@ -22,6 +22,8 @@ public class LegalGravityMnkGame extends GravityMnkGame {
 	@Override public boolean place(final int x, final int y, final Shape toPlace) {
 		return toPlace == shapes[getNextIndex()] && place(x, y);
 	}
+	//TODO: Allow toggling gravity in LegalGravityMnkGame to avoid switching between LegalMnkGame and LegalGravityMnkGame?
+	/**Places if and only if the tile is empty, {@code toPlace} is the next {@link Shape} and {@code gravity == true}.*/
 	@Override public boolean place(final int x, final int y, final Shape toPlace, final boolean gravity) {
 		return gravity && place(x, y, toPlace);
 	}
