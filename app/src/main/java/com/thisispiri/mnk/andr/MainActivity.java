@@ -707,7 +707,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 
 	//SECTION: File and communication
-	@Override public void onRequestPermissionsResult(final int requestCode, @NonNull final String permissions[], @NonNull final int[] grantResults) {
+	@Override public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
 		if(grantResults.length > 0) {
 			if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				if(requestCode == LOCATION_REQUEST_CODE && !adapter.isEnabled()) {
