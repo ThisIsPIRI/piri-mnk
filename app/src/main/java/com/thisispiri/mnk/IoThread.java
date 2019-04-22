@@ -30,10 +30,10 @@ public class IoThread extends Thread {
 		this.manager = manager;inputStream = input; outputStream = output;
 	}
 	private int[] getRulesFrom(byte[] array, int startingFrom) {
-		int[] result = new int[6];
-		for(int i = 0;i < 6;i++)
+		int[] result = new int[MnkManager.RULE_SIZE];
+		for(int i = 0;i < MnkManager.RULE_SIZE;i++)
 			result[i] = ByteBuffer.wrap(Arrays.copyOfRange(array, i * 4 + startingFrom, i * 4 + startingFrom + 4)).getInt();
-		result[5] ^= 1; //Flip myIndex.
+		result[MnkManager.RULE_SIZE - 1] ^= 1; //Flip myIndex.
 		return result;
 	}
 	/**Constantly reads data from the {@code InputStream}.*/
@@ -103,6 +103,7 @@ public class IoThread extends Thread {
 	 * @param data The data to write to the {@code OutputStream}.
 	 * @throws BufferOverflowException If the {@code size} is smaller than the sum of the size of {@code data} in bytes.*/
 	public void write(final int size, final Object... data) throws BufferOverflowException {
+		//TODO: Remove the size argument?
 		ByteBuffer buffer = ByteBuffer.allocate(size);
 		for(Object d : data) {
 			if(d instanceof Integer) buffer.putInt((Integer) d);

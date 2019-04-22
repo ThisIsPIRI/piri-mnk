@@ -59,7 +59,7 @@ import static com.thisispiri.mnk.IoThread.*;
 import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
 import static com.thisispiri.util.AndroidUtilsKt.showToast;
 
-//TODO: Decouple more things from Android
+//TODO: Decouple more things from Android and Bluetooth
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
 public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
 	private DebugBoard board;
@@ -139,8 +139,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	/**{@inheritDoc}*/
 	@Override public void setRulesFrom(int[] array) {
-		if(array[4] != gravity)
+		if(array[4] != gravity) {
+			gravity = array[4];
 			game = array[4] == 1 ? new LegalGravityMnkGame() : new LegalMnkGame();
+		}
 		game.setSize(array[0], array[1]);
 		game.winStreak = array[2];
 		setTimeLimit(array[3]);
@@ -509,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						break;
 					}
 					if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
-						bluetoothThread.write(24, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
+						bluetoothThread.write(4 + RULE_SIZE * 4, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
 					else
 						bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 				}
@@ -552,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				initialize();
 				if(arguments.getBoolean(getString(R.string.i_isServer))) {
 					myIndex = 0;
-					bluetoothThread.write(22, ORDER_HEADER, ORDER_INITIALIZE, getRules());
+					bluetoothThread.write(2 + RULE_SIZE * 4, ORDER_HEADER, ORDER_INITIALIZE, getRules());
 				}
 			}
 			break;
@@ -561,7 +563,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			if(result == null) break;
 			final int newMyIndex = boolArrayResult[0] ? 0 : 1;
 			if((ruleDiffersFromPreference && boolArrayResult[1]) || myIndex != newMyIndex) { //Request to restart AND change the rules.
-				bluetoothThread.write(23, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED,
+				bluetoothThread.write(3 + RULE_SIZE * 4, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED,
 						boolArrayResult[1] ? preferenceRules : getPureRules(), newMyIndex);
 			}
 			else

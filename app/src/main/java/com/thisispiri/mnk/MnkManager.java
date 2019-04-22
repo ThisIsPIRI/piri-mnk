@@ -28,6 +28,8 @@ public interface MnkManager {
 	 * For example, the first player's myIndex is 0, while that of the second would be 1.
 	 * It is typically only useful when 2 or more devices are used.*/
 	void setRulesFrom(int[] array);
+	/**The size of a rules array.*/
+	int RULE_SIZE = 6;
 	enum Info {
 		REJECTION, INVALID_MOVE, READ_FAIL, WRITE_FAIL
 	}
