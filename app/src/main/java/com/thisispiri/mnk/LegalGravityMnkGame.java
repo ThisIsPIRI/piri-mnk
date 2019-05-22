@@ -3,7 +3,8 @@ package com.thisispiri.mnk;
 /**A {@link GravityMnkGame} in which you can only play valid moves.*/
 public class LegalGravityMnkGame extends GravityMnkGame {
 	public LegalGravityMnkGame() {super();}
-	public LegalGravityMnkGame(final MnkGame original){super(original);}
+	public LegalGravityMnkGame(int horSize, int verSize, int winStreak) {super(horSize, verSize, winStreak);}
+	public LegalGravityMnkGame(final MnkGame original) {super(original);}
 	/**Places a {@link Shape} on the position if and only if the tile is empty.
 	 * Changes the result of {@link MnkGame#getNextIndex()}.
 	 * @return if it succeeded in placing a stone.*/

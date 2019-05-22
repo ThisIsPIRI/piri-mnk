@@ -10,9 +10,8 @@ import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class MnkGameTest {
-	private MnkGame game;
 	@Test public void test1() throws Exception {
-		game = new MnkGame();
+		MnkGame game = new MnkGame();
 		game.setSize(11, 19);
 		//Test if it returns its size correctly
 		assertEquals(11, game.getHorSize());
@@ -57,6 +56,17 @@ public class MnkGameTest {
 		assertEquals(0, game.getNextIndex());
 		game.changeShape(2);
 		assertEquals(0, game.getNextIndex());
+	}
+	@Test public void testCheckWinArray() {
+		MnkGame game0 = new MnkGame(20, 20, 5);
+		for(int i = 0;i < 20; i++)
+			game0.place(0, i, Shape.O);
+		Point[] expected = {new Point(0, 4), new Point(0, 3), new Point(0, 2), new Point(0, 1), new Point(0,0)};
+		assertArrayEquals(expected, game0.checkWin(0, 19));
+		assertNull(game0.checkWin(1, 19));
+		MnkGame game1 = new MnkGame(game0);
+		game1.winStreak = 21;
+		assertNull(game1.checkWin(0, 19));
 	}
 	private void forAllCellOn(MnkGame game, Consumer<Shape> action) {
 		for(int i = 0;i < game.getVerSize();i++) {

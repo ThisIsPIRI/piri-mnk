@@ -3,7 +3,7 @@ package com.thisispiri.mnk;
 /**An {@link MnkGame} in which you can only play valid moves.*/
 public class LegalMnkGame extends MnkGame {
 	public LegalMnkGame() {super();}
-	/**{@inheritDoc}*/
+	public LegalMnkGame(int horSize, int verSize, int winStreak) {super(horSize, verSize, winStreak);}
 	public LegalMnkGame(final MnkGame original) {super(original);}
 	/**Places a {@link Shape} on the position if and only if the tile is empty.
 	 * Changes the result of {@link MnkGame#getNextIndex()}.

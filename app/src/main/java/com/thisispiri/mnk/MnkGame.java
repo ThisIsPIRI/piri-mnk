@@ -6,6 +6,7 @@ import java.util.Stack;
 
 /**A representation of an MNK game.*/
 public class MnkGame {
+	/**The state of the board, on which lie the {@link Shape}s of the game.*/
 	public Shape[][] array;
 	/**The array of shapes to be placed rotationally in a normal game.*/
 	public final Shape[] shapes = {Shape.X, Shape.O};
@@ -15,11 +16,11 @@ public class MnkGame {
 	public final Shape empty = Shape.N;
 	/**The list of all {@link Move}s made in the game. Earlier moves are stored first.*/
 	public Stack<Move> history = new Stack<>(); //Give initialize() something to clear when the copy constructor is used
-	private int horSize = 15, verSize = 15;
+	private int horSize, verSize;
 	public int getHorSize() {return horSize;}
 	public int getVerSize() {return verSize;}
 	/**The number of shapes in a line it takes to win.*/
-	public int winStreak = 5;
+	public int winStreak;
 	/**The index of the {@link Shape} to be placed next in {@link MnkGame#shapes}.*/
 	private int nextIndex = 0;
 	/**Returns the index of the next {@link Shape} to be placed in {@link MnkGame#shapes}.
@@ -27,8 +28,12 @@ public class MnkGame {
 	public int getNextIndex() {return nextIndex;}
 	/**Initializes the game with the default size of 15 * 15 and winning length of 5.*/
 	public MnkGame() {
-		array = new Shape[verSize][horSize];
-		initialize();
+		this(15, 15, 5);
+	}
+	/**Initializes the game with the supplied arguments.*/
+	public MnkGame(int horSize, int verSize, int winStreak) {
+		setSize(horSize, verSize); //Will initialize the game, assuming the sizes aren't 0
+		this.winStreak = winStreak;
 	}
 	/**Shallow copies the supplied {@link MnkGame}.*/
 	public MnkGame(final MnkGame original) {
@@ -96,7 +101,7 @@ public class MnkGame {
 	/**Sets the size of the board.
 	 * @param hor The horizontal length of the board in the number of tiles.
 	 * @param ver The vertical length of the board in the number of tiles.
-	 * @return Whether the game was initialized(because of the change in the board size) or not.*/
+	 * @return Whether the game was initialized(because of a change in the board size) or not.*/
 	public boolean setSize(final int hor, final int ver) {
 		int previousHor = horSize, previousVer = verSize;
 		horSize = hor; verSize = ver;
@@ -107,8 +112,12 @@ public class MnkGame {
 		}
 		else return false;
 	}
-	/**Checks if someone won by placing a {@link Shape} on the supplied coordinate. To know who(what {@link Shape}) won, use {@link MnkGame#shapes}[{@link MnkGame#getNextIndex()}].
-	 * @return An array of {@code Point} responsible for the win. {@code null} if no one won. If the length of the line exceeds {@link MnkGame#winStreak}, the array will not contain all of them.*/
+	/**Checks if someone won by placing a {@link Shape} on the supplied coordinate.
+	 * To know who(what {@link Shape}) won, use {@link MnkGame#shapes}[{@link MnkGame#getNextIndex()}].
+	 * @return An array of {@code Point} responsible for the win. {@code null} if no one won.
+	 * The array will only contain {@link MnkGame#winStreak} Points even if the line is longer than that.
+	 * The Points are stored from bottom to top if the line is vertical, right to left if horizontal,
+	 * top right to bottom left if a /-shaped diagonal and bottom right to top left if a \-shaped diagonal.*/
 	public Point[] checkWin(final int x, final int y) {
 		int i, j, streak = 0;
 		//vertical check
@@ -148,8 +157,8 @@ public class MnkGame {
 	}
 	/**Returns the {@code Point}s consisting a line.
 	 * @param length The length of the line.
-	 * @param xP The direction the X coordinate progresses toward from startX on the line.
-	 * @param yP The direction the Y coordinate progresses toward from startY on the line.
+	 * @param xP The direction the X coordinate progresses in from startX on the line.
+	 * @param yP The direction the Y coordinate progresses in from startY on the line.
 	 * @return The {@code Point}s consisting the line.*/
 	private Point[] getLinePoints(final int length, int startX, int startY, final int xP, final int yP) {
 		Point[] arr = new Point[length];
