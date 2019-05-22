@@ -58,15 +58,39 @@ public class MnkGameTest {
 		assertEquals(0, game.getNextIndex());
 	}
 	@Test public void testCheckWinArray() {
-		MnkGame game0 = new MnkGame(20, 20, 5);
-		for(int i = 0;i < 20; i++)
-			game0.place(0, i, Shape.O);
+		//TODO: Make getLinePoints public/move it to a utility class?
+		MnkGame game = new MnkGame(20, 20, 5);
+		// vertical
+		for(int i = 0;i < 20;i++)
+			game.place(0, i, Shape.O);
 		Point[] expected = {new Point(0, 4), new Point(0, 3), new Point(0, 2), new Point(0, 1), new Point(0,0)};
-		assertArrayEquals(expected, game0.checkWin(0, 19));
-		assertNull(game0.checkWin(1, 19));
-		MnkGame game1 = new MnkGame(game0);
-		game1.winStreak = 21;
-		assertNull(game1.checkWin(0, 19));
+		assertArrayEquals(expected, game.checkWin(0, 19));
+		assertNull(game.checkWin(1, 19));
+		game = new MnkGame(game);
+		game.winStreak = 21;
+		assertNull(game.checkWin(0, 19));
+		game.winStreak = 20;
+		expected = new Point[20];
+		for(int i = 0;i < 20;i++) expected[i] = new Point(0, 19 - i);
+		assertArrayEquals(expected, game.checkWin(0, 0));
+		// \ diagonal
+		game.winStreak = 5;
+		expected = new Point[5];
+		for(int i = 7;i > 7 - 5;i--) {
+			expected[7 - i] = new Point(i, i + 4);
+			game.place(i, i + 4, Shape.X);
+		}
+		assertArrayEquals(expected, game.checkWin(6, 10));
+		// / diagonal
+		expected = new Point[3];
+		expected[0] = new Point(2, 2); expected[1] = new Point(1, 3); expected[2] = new Point(0, 4);
+		game.setSize(4, 5);
+		game.winStreak = 3;
+		game.place(0, 4, Shape.X); game.place(1, 3, Shape.X); game.place(2, 2, Shape.X);
+		assertArrayEquals(expected, game.checkWin(3, 1));
+	}
+	@Test public void testCheckWinExact() {
+
 	}
 	private void forAllCellOn(MnkGame game, Consumer<Shape> action) {
 		for(int i = 0;i < game.getVerSize();i++) {
