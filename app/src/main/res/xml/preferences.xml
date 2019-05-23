@@ -26,6 +26,11 @@
 			android:defaultValue="@integer/defaultWinStreak"
 			custom:imposeScreenLimit="true"/>
 		<CheckBoxPreference
+			android:key="exactOnly"
+			android:title="@string/onlyCountExact"
+			android:summary="@string/exactSummary"
+			android:defaultValue="false"/>
+		<CheckBoxPreference
 			android:key="enableGravity"
 			android:title="@string/enableGravity"
 			android:summary="@string/gravitySummary"

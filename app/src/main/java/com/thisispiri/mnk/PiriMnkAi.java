@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 
 /**An implementation of {@link MnkAi} that evaluates values of every cell on the board by rudimentary means.*/
-@SuppressWarnings("WeakerAccess") public class PiriMnkAi implements MnkAi {
+public class PiriMnkAi implements MnkAi {
 	private class CellValue {
 		final int[] enemyLines, ownLines; //enemyLines(that the cell can block with the cell) and ownLines(that can be extended to the cell)
 		CellValue(int length) {
@@ -35,7 +35,8 @@ import java.util.Locale;
 	}
 	private MnkAiDecision play(final MnkGame game, final boolean justify) {
 		this.game = game;
-		valueLength = (game.winStreak + 1) * STREAK_SCALE;
+		valueLength = Math.max(game.getHorSize(), game.getVerSize()) * STREAK_SCALE;
+		//valueLength = (game.winStreak + 1) * STREAK_SCALE; Better for performances on larger boards, but causes crashes
 		CellValue bestValue = new CellValue(valueLength); //the list of lines that a cell can block and has highest value
 		LinkedList<Point> list = new LinkedList<>(); //list of cells to consider.
 		String[][] values = null;

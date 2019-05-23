@@ -85,7 +85,10 @@
 	<string name="enableGravity">Enable gravity</string>
 	<string name="gravitySummary">Warning: the AIs weren\'t built for this</string>
 	<string name="gravity">Gravity</string>
-	<string name="disabled">disabled</string>
-	<string name="enabled">enabled</string>
+	<string name="disabled">no</string>
+	<string name="enabled">yes</string>
 	<string name="fourInRow">Four in a Row</string>
+	<string name="exactOnly">Exact lines only</string>
+	<string name="onlyCountExact">Only count lines of exact length as win</string>
+	<string name="exactSummary">Discounts 6-lines in gomoku and such.</string>
 </resources>
