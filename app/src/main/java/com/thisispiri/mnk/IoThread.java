@@ -38,7 +38,7 @@ public class IoThread extends Thread {
 	}
 	/**Constantly reads data from the {@code InputStream}.*/
 	@Override public void run() { //main loop is dedicated to reading
-		byte[] buffer = new byte[32];
+		byte[] buffer = new byte[36];
 		try {
 			readLoop: while (!interrupted()) {
 				if(inputStream.read(buffer) == -1) continue; //If the end of stream was reached.

@@ -84,8 +84,11 @@
 	<string name="preset">프리셋</string>
 	<string name="enableGravity">중력 켜기</string>
 	<string name="gravitySummary">경고: AI는 중력에 익숙하지 않습니다.</string>
-	<string name="disabled">없음</string>
-	<string name="enabled">있음</string>
+	<string name="disabled">아니오</string>
+	<string name="enabled">예</string>
 	<string name="gravity">중력</string>
 	<string name="fourInRow">사목</string>
+	<string name="onlyCountExact">정확한 길이의 선만 인정</string>
+	<string name="exactOnly">정확한 길이만</string>
+	<string name="exactSummary">예) 오목에서 육목을 만들면 인정x</string>
 </resources>

@@ -23,13 +23,13 @@ public interface MnkManager {
 	 * @see MnkManager#setRulesFrom for the format of the returned array.*/
 	int[] getRules();
 	/**Sets the rules as described in the array. May also {@link MnkManager#initialize} the game.
-	 * The array must contain {horSize, verSize, winStreak, timeLimit, gravity(0 or 1), myIndex} in order.
+	 * The array must contain {horSize, verSize, winStreak, timeLimit, gravity(0 or 1), exactOnly, myIndex} in order.
 	 * myIndex is this player's index in the list of players by playing order, starting from 0.
 	 * For example, the first player's myIndex is 0, while that of the second would be 1.
 	 * It is typically only useful when 2 or more devices are used.*/
 	void setRulesFrom(int[] array);
 	/**The size of a rules array.*/
-	int RULE_SIZE = 6;
+	int RULE_SIZE = 7;
 	enum Info {
 		REJECTION, INVALID_MOVE, READ_FAIL, WRITE_FAIL
 	}

@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private boolean showAiInternals;
 	/**1 if gravity is enabled. Else 0.*/
 	private int gravity;
+	/**1 if matching only lines with exactly winStreak stones. Else 0.*/
+	private int exactOnly;
 	/**Used to tie myTurn to a specific Shape in Bluetooth mode.*/
 	private int myIndex = 0;
 	/**The width of the screen, for updating custom {@code View}s.*/
@@ -131,10 +133,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	//SECTION: Rules, UI and Android API
 	/**{@inheritDoc}*/
 	@Override public int[] getRules() {
-		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, gravity, myIndex};
+		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, gravity, exactOnly, myIndex};
 	}
 	private int[] getPureRules() {
-		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, gravity};
+		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, gravity, exactOnly};
 	}
 	/**{@inheritDoc}*/
 	@Override public void setRulesFrom(int[] array) {
@@ -145,25 +147,27 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		game.setSize(array[0], array[1]);
 		game.winStreak = array[2];
 		setTimeLimit(array[3]);
-		myIndex = array[5];
+		exactOnly = array[5];
+		myIndex = array[MnkManager.RULE_SIZE - 1];
 		ruleDiffersFromPreference = !Arrays.equals(getPureRules(), preferenceRules);
 	}
-	/**Read the rules from {@code pref}. Also initializes the game if the size has changed.*/
+	/**Reads the rules from {@code pref}. Also initializes the game if the size has changed.*/
 	private void readRules(final SharedPreferences pref) { //TODO: Move initialization to readData?
 		gravity = pref.getBoolean("enableGravity", false) ? 1 : 0;
 		if(game != null)
 			game = gravity == 1 ? new LegalGravityMnkGame(game) : new LegalMnkGame(game);
 		else
 			game = gravity == 1 ? new LegalGravityMnkGame() : new LegalMnkGame();
-		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //initialize MainActivity fields too if the game was initialized.
+		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //Initialize MainActivity fields too if the game was initialized.
 		game.winStreak = pref.getInt("winStreak", 5);
 		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
+		exactOnly = pref.getBoolean("exactOnly", false) ? 1 : 0;
 	}
 	/**Saves the rules from {@code pref} to {@link MainActivity#preferenceRules} and updates {@link MainActivity#myIndex}.*/
 	private void cacheChangedRules(final SharedPreferences pref) {
 		preferenceRules = new int[]{pref.getInt("horSize", 15), pref.getInt("verSize", 15), pref.getInt("winStreak", 5),
 				pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1,
-				pref.getBoolean("enableGravity", false) ? 1 : 0};
+				pref.getBoolean("enableGravity", false) ? 1 : 0, pref.getBoolean("exactOnly", false) ? 1 : 0};
 		ruleDiffersFromPreference = !Arrays.equals(getPureRules(), preferenceRules);
 	}
 	/**Reads the default {@code SharedPreferences} and sets values for {@link MainActivity#game}, {@link MainActivity#board}, {@link MainActivity#highlighter} and more.*/
@@ -326,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Checks if the game has ended(whether it's because of a win or draw) and sets {@link MainActivity#gameEnd} to true if it's ended.
 	 * @return A {@code String} that should be displayed to the user. Null if the game hasn't ended.*/
 	private String checkEnd(final int x, final int y) {
-		Point[] result = game.checkWin(x, y);
+		Point[] result = game.checkWin(x, y, exactOnly == 1);
 		if(result != null) { //If someone won the game
 			gameEnd = true;
 			if(enableHighlight) highlighter.highlight(result);
@@ -676,16 +680,16 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	private String stringifyRules(int[] rules) {
 		StringBuilder builder = new StringBuilder();
-		final String[] names = {getString(R.string.horSize), getString(R.string.verSize),
-				getString(R.string.winCondition), getString(R.string.timeLimit), getString(R.string.gravity), getString(R.string.myIndex)};
-		for(int i = 0;i < 6;i++) {
+		final String[] names = {getString(R.string.horSize), getString(R.string.verSize), getString(R.string.winCondition),
+				getString(R.string.timeLimit), getString(R.string.gravity), getString(R.string.exactOnly), getString(R.string.myIndex)};
+		for(int i = 0;i < MnkManager.RULE_SIZE;i++) {
 			builder.append(names[i]);
 			builder.append(": ");
-			if(i == 5) { //For myIndex
+			if(i == MnkManager.RULE_SIZE - 1) { //For myIndex
 				builder.append(rules[i] + 1);
 				builder.append(getString(R.string.ordinalMarker));
 			}
-			else if(i == 4) { //For gravity
+			else if(i >= 4) { //For gravity and exactOnly
 				builder.append(rules[i] == 1 ? getString(R.string.enabled) : getString(R.string.disabled));
 			}
 			else

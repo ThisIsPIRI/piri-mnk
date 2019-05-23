@@ -6,6 +6,7 @@ import java.util.Stack;
 
 /**A representation of an MNK game.*/
 public class MnkGame {
+	/**The state of the board, on which lie the {@link Shape}s of the game.*/
 	public Shape[][] array;
 	/**The array of shapes to be placed rotationally in a normal game.*/
 	public final Shape[] shapes = {Shape.X, Shape.O};
@@ -15,11 +16,11 @@ public class MnkGame {
 	public final Shape empty = Shape.N;
 	/**The list of all {@link Move}s made in the game. Earlier moves are stored first.*/
 	public Stack<Move> history = new Stack<>(); //Give initialize() something to clear when the copy constructor is used
-	private int horSize = 15, verSize = 15;
+	private int horSize, verSize;
 	public int getHorSize() {return horSize;}
 	public int getVerSize() {return verSize;}
 	/**The number of shapes in a line it takes to win.*/
-	public int winStreak = 5;
+	public int winStreak;
 	/**The index of the {@link Shape} to be placed next in {@link MnkGame#shapes}.*/
 	private int nextIndex = 0;
 	/**Returns the index of the next {@link Shape} to be placed in {@link MnkGame#shapes}.
@@ -27,8 +28,12 @@ public class MnkGame {
 	public int getNextIndex() {return nextIndex;}
 	/**Initializes the game with the default size of 15 * 15 and winning length of 5.*/
 	public MnkGame() {
-		array = new Shape[verSize][horSize];
-		initialize();
+		this(15, 15, 5);
+	}
+	/**Initializes the game with the supplied arguments.*/
+	public MnkGame(int horSize, int verSize, int winStreak) {
+		setSize(horSize, verSize); //Will initialize the game, assuming the sizes aren't 0
+		this.winStreak = winStreak;
 	}
 	/**Shallow copies the supplied {@link MnkGame}.*/
 	public MnkGame(final MnkGame original) {
@@ -96,7 +101,7 @@ public class MnkGame {
 	/**Sets the size of the board.
 	 * @param hor The horizontal length of the board in the number of tiles.
 	 * @param ver The vertical length of the board in the number of tiles.
-	 * @return Whether the game was initialized(because of the change in the board size) or not.*/
+	 * @return Whether the game was initialized(because of a change in the board size) or not.*/
 	public boolean setSize(final int hor, final int ver) {
 		int previousHor = horSize, previousVer = verSize;
 		horSize = hor; verSize = ver;
@@ -107,58 +112,60 @@ public class MnkGame {
 		}
 		else return false;
 	}
-	/**Checks if someone won by placing a {@link Shape} on the supplied coordinate. To know who(what {@link Shape}) won, use {@link MnkGame#shapes}[{@link MnkGame#getNextIndex()}].
-	 * @return An array of {@code Point} responsible for the win. {@code null} if no one won. If the length of the line exceeds {@link MnkGame#winStreak}, the array will not contain all of them.*/
-	public Point[] checkWin(final int x, final int y) {
-		int i, j, streak = 0;
-		//vertical check
-		for(i = 0;i + 1 < verSize;i++) {
-			streak++;
-			if (array[i][x] != array[i + 1][x] || array[i][x] == empty) streak = 0;
-			if(streak == winStreak - 1) return getLinePoints(winStreak, x, i + 1, 0, -1);
-		}
-		//horizontal check
-		streak = 0;
-		for(i = 0;i + 1 < horSize;i++) {
-			streak++;
-			if(array[y][i] != array[y][i + 1] || array[y][i] == empty) streak = 0;
-			if(streak == winStreak - 1) return getLinePoints(winStreak, i + 1, y, -1, 0);
-		}
-		//diagonal check / shape
-		streak = 0;
-		i = x + y >= verSize ? verSize - 1 : x + y;
-		j = (x + y) - i;
-		while(inBoundary(i - 1, j + 1)) {
-			streak++;
-			if(array[i][j] != array[i - 1][j + 1] || array[i][j] == empty) streak = 0;
-			if(streak == winStreak - 1) return getLinePoints(winStreak, j + 1, i - 1, -1, 1);
-			i--; j++;
-		}
-		//diagonal check \ shape
-		streak = 0;
-		i = y - x < 0 ? 0 : y - x;
-		j = x - y < 0 ? 0 : x - y;
-		while(i + 1 < verSize && j + 1 < horSize) {
-			streak++;
-			if(array[i][j] != array[i + 1][j + 1] || array[i][j] == empty) streak = 0;
-			if(streak == winStreak - 1) return getLinePoints(winStreak, j + 1, i + 1, -1, -1);
-			i++; j++;
+	/**Checks if someone won, counting lines with more than {@link MnkGame#winStreak} lines as winning lines also.
+	 * @see MnkGame#checkWin(int, int, boolean)*/
+	public Point[] checkWin(final int x, final int y) {return checkWin(x, y, false);}
+	/**Checks if someone won by placing a {@link Shape} on the supplied coordinate.
+	 * To know who(what {@link Shape}) won, use {@link MnkGame#shapes}[{@link MnkGame#getNextIndex()}].
+	 * Note that <b>only lines that contain the supplied cell will be checked.</b>
+	 * @param exact Whether to match only lines with exactly {@link MnkGame#winStreak} {@link Shape}s.
+	 * @return An array of {@code Point} responsible for the win. {@code null} if no one won.
+	 * The array will only contain {@link MnkGame#winStreak} Points even if the line is longer than that.
+	 * The Points are stored from bottom to top if the line is vertical, right to left if horizontal,
+	 * top right to bottom left if a /-shaped diagonal and bottom right to top left if a \-shaped diagonal.*/
+	public Point[] checkWin(final int x, final int y, final boolean exact) {
+		//TODO: Merge with EmacsGomokuAi's pointer system?
+		final int[] xP = {1, 0, 1, 1}, yP = {0, 1, -1, 1};
+		final Point[] starting = {new Point(0, y), new Point(x, 0),
+				new Point((x + y) - Math.min(x + y, verSize - 1), Math.min(x + y, verSize - 1)),
+				new Point(Math.max(x - y, 0), Math.max(y - x, 0))};
+		for(int i = 0;i < xP.length;i++) {
+			int streak = 0;
+			Point p = starting[i];
+			while(inBoundary(getNextPoint(p, xP[i], yP[i]))) {
+				streak++;
+				Point n = getNextPoint(p, xP[i], yP[i]);
+				if(array[p.y][p.x] != array[n.y][n.x] || isEmpty(p.x, p.y)) {
+					if(streak == winStreak) //Exact matches not including the last cell
+						return getLinePoints(winStreak, p.x, p.y, -xP[i], -yP[i]);
+					streak = 0;
+				}
+				//All non-exact matches and exact matches including the last cell
+				if(streak == winStreak - 1 && (!exact || !inBoundary(getNextPoint(n, xP[i], yP[i]))))
+					return getLinePoints(winStreak, n.x, n.y, -xP[i], -yP[i]);
+				p = n;
+			}
 		}
 		return null;
 	}
+	private Point getNextPoint(final Point p, final int xP, final int yP) {
+		return new Point(p.x + xP, p.y + yP);
+	}
 	/**Returns the {@code Point}s consisting a line.
 	 * @param length The length of the line.
-	 * @param xP The direction the X coordinate progresses toward from startX on the line.
-	 * @param yP The direction the Y coordinate progresses toward from startY on the line.
+	 * @param xP The direction the X coordinate progresses in from startX on the line.
+	 * @param yP The direction the Y coordinate progresses in from startY on the line.
 	 * @return The {@code Point}s consisting the line.*/
-	private Point[] getLinePoints(final int length, int startX, int startY, final int xP, final int yP) {
+	private static Point[] getLinePoints(final int length, int startX, int startY, final int xP, final int yP) {
 		Point[] arr = new Point[length];
 		for(int i = 0;i < length;startX += xP, startY += yP, i++) {
 			arr[i] = new Point(startX, startY);
 		}
 		return arr;
 	}
+	public boolean isEmpty(final Point p) {return isEmpty(p.x, p.y);}
 	/**Returns {@code true} if (x, y) is within the boundary and is empty.*/
 	public boolean isEmpty(final int x, final int y) {return inBoundary(y, x) && array[y][x] == empty;}
+	public boolean inBoundary(final Point p) {return inBoundary(p.y, p.x);}
 	public boolean inBoundary(final int y, final int x) {return y >= 0 && y < verSize && x >= 0 && x < horSize;}
 }
