@@ -57,8 +57,9 @@ import com.thisispiri.util.TimedGameManager;
 
 import static com.thisispiri.mnk.IoThread.*;
 import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
-import static com.thisispiri.util.AndroidUtilsKt.showToast;
+import static com.thisispiri.util.AndroidUtilsKt.getFile;
 import static com.thisispiri.util.AndroidUtilsKt.getPermission;
+import static com.thisispiri.util.AndroidUtilsKt.showToast;
 
 //TODO: Decouple more things from Android and Bluetooth
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
@@ -757,7 +758,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		if(fileName == null) showEditTextDialog(getString(R.string.save), getString(R.string.fileNameHint));
 		else {
 			try {
-				saveLoader.save(game, DIRECTORY_NAME, fileName + FILE_EXTENSION);
+				saveLoader.save(game, getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, true));
 			}
 			catch (IOException e) {
 				showToast(this, R.string.couldntCreateFile);
@@ -770,7 +771,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		if(fileName == null) showEditTextDialog(getString(R.string.load), getString(R.string.fileNameHint));
 		else {
 			try {
-				MnkGame loaded = saveLoader.load(DIRECTORY_NAME, fileName + FILE_EXTENSION, game.winStreak);
+				MnkGame loaded = saveLoader.load(getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, false), game.winStreak);
 				initialize(); //Initialize after loading the game so that if loading fails, the previous game doesn't get initialized
 				game = new LegalMnkGame(loaded);
 				board.setGame(game);

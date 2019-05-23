@@ -1,24 +1,23 @@
 package com.thisispiri.mnk;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import com.thisispiri.util.AndroidUtilsKt;
-
 /**Writes on and reads from .sgf and .pirimnk files an {@link MnkGame}.*/
 public class MnkSaveLoader {
 	/**The maximum horizontal/vertical size of the board SGF supports.*/
 	public final static int SGF_MAX = 52;
 	/**Saves the {@code MnkGame}. If its horizontal/vertical size do not exceed {@link MnkSaveLoader#SGF_MAX}, uses SGF. Otherwise, uses a simple format called .pirimnk.*/
-	public void save(final MnkGame game, final String directoryName, final String fileName) throws IOException {
-		if(game.getHorSize() > SGF_MAX || game.getVerSize() > SGF_MAX) piriSave(game, directoryName, fileName);
-		else sgfSave(game, directoryName, fileName);
+	public void save(final MnkGame game, final File file) throws IOException {
+		if(game.getHorSize() > SGF_MAX || game.getVerSize() > SGF_MAX) piriSave(game, file);
+		else sgfSave(game, file);
 	}
-	private void sgfSave(final MnkGame game, final String directoryName, final String fileName) throws IOException {
-		OutputStreamWriter outputWriter = new OutputStreamWriter(new FileOutputStream(AndroidUtilsKt.getFile(directoryName, fileName, true)));
+	private void sgfSave(final MnkGame game, final File file) throws IOException {
+		OutputStreamWriter outputWriter = new OutputStreamWriter(new FileOutputStream(file));
 		outputWriter.write("(;FF[4]GM[4]SZ["); //FF[4] : use SGF version 4. GM[4] : game type is gomoku+renju(although PIRI MNK doesn't support renju yet). SZ[game.boardSize] : use board of horSize:verSize(rectangle) or horSize(square)
 		if(game.getHorSize() == game.getVerSize()) outputWriter.write(String.valueOf(game.getHorSize())); //writing square boards' size with two numbers is illegal
 		else outputWriter.write(game.getHorSize() + ":" + game.getVerSize());
@@ -35,13 +34,13 @@ public class MnkSaveLoader {
 		outputWriter.write(')'); //mark end of the tree
 		outputWriter.close();
 	}
-	private void piriSave(final MnkGame game, final String directoryName, final String fileName) throws IOException {
+	private void piriSave(final MnkGame game, final File file) throws IOException {
 		//TODO: implement
 		throw new IOException("incomplete method called");
 	}
-	public MnkGame load(final String directoryName, final String fileName, final int winStreak) throws IOException {
+	public MnkGame load(final File file, final int winStreak) throws IOException {
 		MnkGame game = new MnkGame();
-		InputStreamReader inputReader = new InputStreamReader(new FileInputStream(AndroidUtilsKt.getFile(directoryName, fileName, false)));
+		InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
 		int skipper;
 		Shape last = Shape.O;
 		do {skipper = inputReader.read();}

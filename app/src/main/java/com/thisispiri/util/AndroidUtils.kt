@@ -16,8 +16,11 @@ import java.io.IOException
 
 //TODO: separate into a library
 
-@Throws(IOException::class)
-fun getFile(directoryName: String, fileName: String, allowCreation: Boolean): File {
+/**Obtains a `File` called `fileName` from `directoryName` under the external storage.
+ * @param directoryName The name of the directory, right under the external storage.
+ * @param fileName The filename of the file to obtain.
+ * @param allowCreation If `true`, will create a new, empty file in case a file called `fileName` doesn't exist.*/
+@Throws(IOException::class) fun getFile(directoryName: String, fileName: String, allowCreation: Boolean): File {
 	if (Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED) {
 		throw IOException()
 	}
