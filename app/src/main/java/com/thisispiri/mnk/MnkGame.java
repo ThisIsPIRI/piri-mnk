@@ -125,8 +125,8 @@ public class MnkGame {
 	 * top right to bottom left if a /-shaped diagonal and bottom right to top left if a \-shaped diagonal.*/
 	public Point[] checkWin(final int x, final int y, final boolean exact) {
 		//TODO: Merge with EmacsGomokuAi's pointer system?
-		int[] xP = {1, 0, 1, 1}, yP = {0, 1, -1, 1};
-		Point[] starting = {new Point(0, y), new Point(x, 0),
+		final int[] xP = {1, 0, 1, 1}, yP = {0, 1, -1, 1};
+		final Point[] starting = {new Point(0, y), new Point(x, 0),
 				new Point((x + y) - Math.min(x + y, verSize - 1), Math.min(x + y, verSize - 1)),
 				new Point(Math.max(x - y, 0), Math.max(y - x, 0))};
 		for(int i = 0;i < xP.length;i++) {
@@ -136,25 +136,20 @@ public class MnkGame {
 				streak++;
 				Point n = getNextPoint(p, xP[i], yP[i]);
 				if(array[p.y][p.x] != array[n.y][n.x] || isEmpty(p.x, p.y)) {
-					if(streak == winStreak)
+					if(streak == winStreak) //Exact matches not including the last cell
 						return getLinePoints(winStreak, p.x, p.y, -xP[i], -yP[i]);
 					streak = 0;
 				}
-				if(streak == winStreak - 1 && !exact)
+				//All non-exact matches and exact matches including the last cell
+				if(streak == winStreak - 1 && (!exact || !inBoundary(getNextPoint(n, xP[i], yP[i]))))
 					return getLinePoints(winStreak, n.x, n.y, -xP[i], -yP[i]);
 				p = n;
 			}
-			if(streak == winStreak - 1)
-				return getLinePoints(winStreak, p.x - xP[i], p.y - yP[i], -xP[i], -yP[i]);
 		}
 		return null;
 	}
 	private Point getNextPoint(final Point p, final int xP, final int yP) {
 		return new Point(p.x + xP, p.y + yP);
-	}
-	private void progress(final Point p, final int xP, final int yP) {
-		p.x += xP;
-		p.y += yP;
 	}
 	/**Returns the {@code Point}s consisting a line.
 	 * @param length The length of the line.

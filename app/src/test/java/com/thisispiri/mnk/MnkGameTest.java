@@ -90,7 +90,32 @@ public class MnkGameTest {
 		assertArrayEquals(expected, game.checkWin(3, 1));
 	}
 	@Test public void testCheckWinExact() {
-
+		MnkGame game = new MnkGame(5, 5, 3);
+		// / diagonal
+		Point[] expected = {new Point(4, 0), new Point(3, 1), new Point(2, 2)};
+		game.place(4, 0, Shape.X); game.place(3, 1, Shape.X); game.place(2, 2, Shape.X); game.place(1, 3, Shape.O);
+		assertArrayEquals(expected, game.checkWin(4, 0, true));
+		game.place(1, 3, Shape.X);
+		assertNull(game.checkWin(4, 0, true));
+		assertNotNull(game.checkWin(4, 0, false));
+		// horizontal
+		game.setSize(541, 433);
+		game.winStreak = 150;
+		expected = new Point[150];
+		for(int i = 0;i < 150;i++) {
+			game.place(i + 100, 150, Shape.O);
+			expected[i] = new Point(249 - i, 150);
+		}
+		assertArrayEquals(expected, game.checkWin(6, 150, true));
+		game.place(250, 150, Shape.X);
+		assertNotNull(game.checkWin(6, 150, true));
+		game.place(250, 150, Shape.O);
+		assertNull(game.checkWin(6, 150, true));
+		assertNotNull(game.checkWin(6, 150, false));
+		for(int i = 0;i < 541; i++)
+			game.place(i, 150, Shape.O);
+		assertNull(game.checkWin(6, 150, true));
+		assertNotNull(game.checkWin(6, 150, false));
 	}
 	private void forAllCellOn(MnkGame game, Consumer<Shape> action) {
 		for(int i = 0;i < game.getVerSize();i++) {
