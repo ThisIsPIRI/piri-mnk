@@ -31,7 +31,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**A {@code DialogFragment} for finding and connecting to another Android device via Bluetooth.
- * The calling {@code Context} must implement {@code DialogListener} to receive the results and call {@code setArguments()} on this. If either isn't fulfilled, it will throw an {@code Exception}.*/
+ * The calling {@code Context} must implement {@code DialogListener} to receive the results and call {@code setArguments()} on this.
+ * If either isn't fulfilled, it will throw an exception.*/
 public class BluetoothDialogFragment extends ListenerDialogFragment {
 	private final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 	private BluetoothSocket socket = null;

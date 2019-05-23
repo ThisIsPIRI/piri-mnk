@@ -28,6 +28,8 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +112,12 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private boolean ruleDiffersFromPreference = false;
 	/**A temporary cache of rules changed by this player, but not yet agreed upon by the other player. Format: {horSize, verSizse, winStreak, timeLimit, myIndex}*/
 	private int[] preferenceRules;
+	/**Set to {@code true} in onStart() and to {@code false} in onStop().*/
+	private boolean activityRunning = false;
+	/**Used to call requestConfirm() from onResumeFragment in case a request is received outside MainActivity.*/
+	private final List<BunStr> bunStrs = new LinkedList<>();
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
+	private final static int REQUEST_RECEIVED_OUTSIDE_MAIN = 416;
 	private final static String DECISION_TAG = "decision", EDITTEXT_TAG = "file", BLUETOOTH_TAG = "bluetooth", CHECKS_TAG = "checks";
 	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
@@ -205,6 +212,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		params.setMargins(0, 0, 0, -screenX);
 		highlighter.setLayoutParams(params);
 		highlighter.bringToFront();
+		activityRunning = true;
+	}
+	@Override protected void onStop() {
+		activityRunning = false;
+		super.onStop();
 	}
 	/**Instantiates some fields, finds {@code View}s, registers listeners to them and saves the resolution of the screen.*/
 	@SuppressLint("ClickableViewAccessibility")
@@ -425,6 +437,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 
 	//SECTION: Dialogs
+	private class BunStr {
+		private BunStr(Bundle b, String[] s) {bun = b; strs = s;}
+		private final Bundle bun;
+		private final String[] strs;
+	}
 	/**Shows the {@code Dialog} {@link MainActivity#displayDialog} points to and initializes it.*/
 	@Override public void onResumeFragments() {
 		super.onResumeFragments();
@@ -435,6 +452,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			loadGame(null); break;
 		case BLUETOOTH_ENABLE_CODE:case LOCATION_REQUEST_CODE:
 			showBluetoothDialog(); break;
+		case REQUEST_RECEIVED_OUTSIDE_MAIN:
+			for (int i = 0;i < bunStrs.size();i++) {
+				BunStr bs = bunStrs.get(i);
+				requestConfirm(bs.bun, bs.strs[0], bs.strs[1], bs.strs[2]);
+			}
+			bunStrs.clear();
+			break;
 		}
 		displayDialog = 0;
 	}
@@ -442,14 +466,21 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	 * Adds {@link MainActivity#DECISION_TAG} to the arguments as tagInBundle.
 	 * The positive and negative buttons will read {@code positive} and {@code negative}, respectively.*/
 	private void requestConfirm(Bundle arguments, String message, String positive, String negative) {
-		arguments.putString(getString(R.string.i_tagInBundle), DECISION_TAG);
-		DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
-		decisionDialog.setArguments(arguments);
-		decisionDialog.show(getSupportFragmentManager(), "request", message, positive, negative);
-		decisionDialog.setCancelable(false);
-		runOnUiThread(() -> {
-			getSupportFragmentManager().executePendingTransactions();
-			decisionDialog.getDialog().setCanceledOnTouchOutside(false);});
+		if(activityRunning) {
+			arguments.putString(getString(R.string.i_tagInBundle), DECISION_TAG);
+			DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
+			decisionDialog.setArguments(arguments);
+			decisionDialog.show(getSupportFragmentManager(), "request", message, positive, negative);
+			decisionDialog.setCancelable(false);
+			runOnUiThread(() -> {
+				getSupportFragmentManager().executePendingTransactions();
+				decisionDialog.getDialog().setCanceledOnTouchOutside(false);
+			});
+		}
+		else { //IllegalStateException is thrown when a Dialog is shown in an inactive Activity.
+			bunStrs.add(new BunStr(arguments, new String[]{message, positive, negative}));
+			displayDialog = REQUEST_RECEIVED_OUTSIDE_MAIN;
+		}
 	}
 	/**@see MainActivity#requestConfirm(Bundle, String, String, String).
 	 * The Dialog class's default text will be used for the buttons.*/
@@ -660,7 +691,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	/**Informs that the opponent requested the {@code action} and lets the user choose whether to allow it or not.
 	 * If the requested {@code action} is {@link IoThread#REQUEST_RESTART}, displays the changed rules.
-	 * @param action The action the opponent requested.*/
+	 * @param action The action the opponent requested.
+	 * @param details Currently used to show changed rules(int[]) to the user.*/
 	@Override public <T> void requestToUser(byte action, T details) {
 		int actionStringID;
 		switch(action) {

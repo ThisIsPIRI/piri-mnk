@@ -8,9 +8,8 @@ import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class PiriMnkAiTest {
-	private PiriMnkAi ai;
-	@Test public void test1() throws Exception {
-		ai = new PiriMnkAi();
+	@Test public void test1() {
+		PiriMnkAi ai = new PiriMnkAi();
 		MnkGame game = new MnkGame();
 		game.setSize(11, 11);
 		game.winStreak = 5;

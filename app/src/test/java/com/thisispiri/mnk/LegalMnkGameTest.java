@@ -8,9 +8,8 @@ import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class LegalMnkGameTest {
-	private LegalMnkGame game;
-	@Test public void test1() throws Exception {
-		game = new LegalMnkGame();
+	@Test public void test1() {
+		LegalMnkGame game = new LegalMnkGame();
 		game.setSize(16, 16);
 		//Test if it rejects Shapes that aren't the next Shape
 		assertFalse(game.place(5, 5, Shape.O));

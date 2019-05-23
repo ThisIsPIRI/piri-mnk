@@ -113,7 +113,7 @@ public class Board extends View {
 		symbolType = ox;
 		lineType = line;
 	}
-	/**Assigns an {@link MnkGame} to be used in the object. Call this every time {@link MnkGame#horSize} or {@link MnkGame#verSize} is changed since it caches the values.*/
+	/**Assigns an {@link MnkGame} to be used in the object. Call this every time the board size is changed since it caches the values.*/
 	public void setGame(MnkGame g) {
 		game = g;
 		horSize = game.getHorSize();

@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class MnkGameTest {
-	@Test public void test1() throws Exception {
+	@Test public void test1() {
 		MnkGame game = new MnkGame();
 		game.setSize(11, 19);
 		//Test if it returns its size correctly
