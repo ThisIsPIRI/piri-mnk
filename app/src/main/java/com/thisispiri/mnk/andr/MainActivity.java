@@ -12,8 +12,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.widget.SwitchCompat;
@@ -58,6 +56,7 @@ import com.thisispiri.util.TimedGameManager;
 import static com.thisispiri.mnk.IoThread.*;
 import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
 import static com.thisispiri.util.AndroidUtilsKt.showToast;
+import static com.thisispiri.util.AndroidUtilsKt.getPermission;
 
 //TODO: Decouple more things from Android and Bluetooth
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
@@ -269,27 +268,16 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					showToast(MainActivity.this, R.string.sgfLimit);
 					return;
 				}
-				if(getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
+				if(getPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
 					saveGame(null);
 				break;
 			case R.id.load:
-				if(android.os.Build.VERSION.SDK_INT < 19 || getPermission(Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale)) //Reading permission is not enforced under API 19
+				//Reading permission is not enforced under API 19
+				if(android.os.Build.VERSION.SDK_INT < 19 || getPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale))
 					loadGame(null);
 				break;
 			}
 		}
-	}
-	/**Sees if the {@code permission} is granted to the {@code Context} and, if it isn't, requests that it be.
-	 * @return if the permission was already granted at the time of call.*/
-	private boolean getPermission(String permission, int requestCode, int rationaleId) {
-		if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) { //if writing permission hasn't been granted
-			if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-				showToast(this, rationaleId);
-			}
-			ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
-			return false;
-		}
-		else return true;
 	}
 
 	//SECTION: Game handling
@@ -589,8 +577,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					hiddenClick(radioLocal);
 					showToast(MainActivity.this, R.string.noBluetoothSupport);
 				}
-				else if(!getPermission(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) { //if location permission hasn't been granted
-					break;
+				//If location permission isn't granted
+				else if(!getPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) {
+					break; //onRequestPermissionsResult() will check radioLocal if the request is denied.
 				}
 				else if(!adapter.isEnabled()) {
 					startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);

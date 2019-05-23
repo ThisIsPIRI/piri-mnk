@@ -1,6 +1,7 @@
 package com.thisispiri.util
 
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
@@ -8,6 +9,8 @@ import androidx.annotation.StringRes
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.IOException
 
@@ -69,4 +72,22 @@ fun bundleWith(vararg these: String): Bundle {
 		result.putString(these[i - 1], these[i])
 	}
 	return result
+}
+
+/**Sees if the `permission` is granted to the `Activity` and, if it isn't, requests that it be.
+ * Override `onRequestPermissionsResult` in the `Activity` to be notified if the request was granted.
+ * @param activity The `Activity` that should have the permission.
+ * @param permission The permission to check for/request.
+ * @param requestCode The request code to use in case the permission isn't granted.
+ * @param rationaleId The Android resource ID of the rationale string.
+ * @return Whether the permission was already granted at the time of call.*/
+fun getPermission(activity: Activity, permission: String, requestCode: Int, rationaleId: Int): Boolean {
+	if(ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+		if(ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+			showToast(activity, rationaleId)
+		}
+		ActivityCompat.requestPermissions(activity, arrayOf(permission), requestCode)
+		return false
+	}
+	else return true
 }
