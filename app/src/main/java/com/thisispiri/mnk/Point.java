@@ -2,7 +2,7 @@ package com.thisispiri.mnk;
 
 import java.util.Locale;
 
-public class Point {
+public class Point { //TODO: DRY this into a library
 	public int x, y;
 	public Point(Point p) {
 		this.x = p.x;

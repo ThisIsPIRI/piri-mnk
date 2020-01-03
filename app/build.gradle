@@ -8,8 +8,8 @@ android {
         applicationId "com.thisispiri.mnk"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 28
-        versionName "1.11.0"
+        versionCode 29
+        versionName "1.11.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -33,7 +33,7 @@ dependencies {
 	implementation project(':piricomponents-release')
 	implementation project(':piripreferences-release')
 	implementation project(':piridialogs-release')
-	implementation 'androidx.appcompat:appcompat:1.0.2'
+	implementation 'androidx.appcompat:appcompat:1.1.0'
 	//implementation 'androidx.preference:preference:1.0.0'
 	implementation fileTree(include: ['*.jar'], dir: 'libs')
 	androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {

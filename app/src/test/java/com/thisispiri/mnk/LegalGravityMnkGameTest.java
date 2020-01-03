@@ -1,12 +1,9 @@
 package com.thisispiri.mnk;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 import static org.junit.Assert.*;
 
-@RunWith(RobolectricTestRunner.class)
 public class LegalGravityMnkGameTest {
 	@Test public void testPlaying() {
 		GravityMnkGame game = new LegalGravityMnkGame();
