@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.thisispiri.common.Point;
 import com.thisispiri.dialogs.ChecksDialogFragment;
 import com.thisispiri.dialogs.DecisionDialogFragment;
 import com.thisispiri.dialogs.DialogListener;
@@ -49,7 +50,6 @@ import com.thisispiri.mnk.MnkGame;
 import com.thisispiri.mnk.MnkManager;
 import com.thisispiri.mnk.MnkSaveLoader;
 import com.thisispiri.mnk.PiriMnkAi;
-import com.thisispiri.mnk.Point;
 import com.thisispiri.mnk.R;
 import com.thisispiri.util.AndroidUtilsKt;
 import com.thisispiri.util.GameTimer;

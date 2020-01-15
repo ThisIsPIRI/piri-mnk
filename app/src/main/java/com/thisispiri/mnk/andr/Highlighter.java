@@ -7,7 +7,7 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.thisispiri.mnk.Point;
+import com.thisispiri.common.Point;
 
 /**Highlights rectangular cells within a grid by overlaying a color over them. It is assumed that the {@code Highlighter} itself is a square.*/
 public class Highlighter extends View {

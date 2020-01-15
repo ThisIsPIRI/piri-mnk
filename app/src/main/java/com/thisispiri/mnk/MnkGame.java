@@ -1,5 +1,7 @@
 package com.thisispiri.mnk;
 
+import com.thisispiri.common.Point;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;

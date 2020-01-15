@@ -1,5 +1,7 @@
 package com.thisispiri.mnk;
 
+import com.thisispiri.common.Point;
+
 import java.util.LinkedList;
 import java.util.Locale;
 

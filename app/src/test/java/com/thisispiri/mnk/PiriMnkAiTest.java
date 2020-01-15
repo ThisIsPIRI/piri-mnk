@@ -2,6 +2,8 @@ package com.thisispiri.mnk;
 
 import org.junit.Test;
 
+import com.thisispiri.common.Point;
+
 import static org.junit.Assert.*;
 
 public class PiriMnkAiTest {

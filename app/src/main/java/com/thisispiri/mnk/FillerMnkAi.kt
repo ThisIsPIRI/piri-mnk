@@ -1,5 +1,7 @@
 package com.thisispiri.mnk
 
+import com.thisispiri.common.Point
+
 open class FillerMnkAi: MnkAi {
 	/**Returns a Point for the first empty cell it finds while traversing the board in row-major order.
 	 * Returns `null` if no cell is empty.*/
