@@ -46,7 +46,7 @@ open class EmacsGomokuAi: MnkAi {
 	private fun checkTuples(mode: Mode, values: Array<Array<Int>>) {
 		val po = Point(if(mode == Mode.RESLASH) game.horSize - 1 else 0, 0)
 		while(game.inBoundary(po.y, po.x)) {
-			val count: Array<Int> = arrayOf(0, 0) //count[0] == ownCount, count[1] == enemCount. TODO: use separate variables?
+			val count: Array<Int> = arrayOf(0, 0) //count[0] == ownCount, count[1] == enemCount.
 			val tuple: Queue<Shape> = ArrayDeque()
 			val pi = Point(po)
 			while(game.inBoundary(pi.y, pi.x)) {

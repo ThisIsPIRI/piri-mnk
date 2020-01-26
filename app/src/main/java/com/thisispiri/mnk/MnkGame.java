@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Stack;
 
 /**A representation of an MNK game.*/
-public class MnkGame {
+public class MnkGame { //TODO: Support renju
 	/**The state of the board, on which lie the {@link Shape}s of the game.*/
 	public Shape[][] array;
 	/**The array of shapes to be placed rotationally in a normal game.*/

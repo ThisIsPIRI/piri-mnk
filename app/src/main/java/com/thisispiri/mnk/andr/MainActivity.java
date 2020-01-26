@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
 	private final static int REQUEST_RECEIVED_OUTSIDE_MAIN = 416;
 	private final static String DECISION_TAG = "decision", EDITTEXT_TAG = "file", BLUETOOTH_TAG = "bluetooth", CHECKS_TAG = "checks";
-	private final static String DIRECTORY_NAME = "PIRI MNK", FILE_EXTENSION = ".sgf";
+	private final static String DIRECTORY_NAME = "PIRI/MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
 	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriMnkAi(), new EmacsGomokuAi()};
@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		requestConfirm(arguments, message, null, null);
 	}
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
-	private void showEditTextDialog(final String message, final String hint) {
+	private void showEditTextDialog(final String message, final String hint) { //TODO: Move to PIRI Dialogs
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
 		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), EDITTEXT_TAG));
 		fragment.show(getSupportFragmentManager(), EDITTEXT_TAG, message, hint);
@@ -629,7 +629,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	@Override public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 		if(requestCode == BLUETOOTH_ENABLE_CODE) {
 			if(resultCode == RESULT_OK)
-				displayDialog = BLUETOOTH_ENABLE_CODE; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will call it indirectly by calling showBluetoothDialog()
+				//IllegalStateException is thrown if we call DialogFragment.show() here(https://stackoverflow.com/q/33264031).
+				//saveGame() calls show(), so we call that in onResumeFragments()
+				displayDialog = BLUETOOTH_ENABLE_CODE;
 			else {
 				hiddenClick(radioLocal);
 				showToast(this, R.string.enableBluetooth);
@@ -741,7 +743,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					startActivityForResult(enableBtIntent, BLUETOOTH_ENABLE_CODE);
 					return;
 				}
-				displayDialog = requestCode; //IllegalStateException is thrown if we call DialogFragment.show() directly. onResumeFragments() will indirectly call it by calling saveGame() or loadGame()
+				//IllegalStateException is thrown if we call DialogFragment.show() here(https://stackoverflow.com/q/33264031).
+				//saveGame() calls show(), so we call that in onResumeFragments()
+				displayDialog = requestCode;
 			}
 			else if(requestCode == LOCATION_REQUEST_CODE)
 				hiddenClick(radioLocal);
@@ -756,31 +760,27 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	 * @param fileName If null, shows a {@code Dialog} prompting the user to input the file name. If not, saves the game.*/
 	private void saveGame(final String fileName) {
 		if(fileName == null) showEditTextDialog(getString(R.string.save), getString(R.string.fileNameHint));
-		else {
-			try {
-				saveLoader.save(game, getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, true));
-			}
-			catch (IOException e) {
-				showToast(this, R.string.couldntCreateFile);
-			}
+		else try {
+			saveLoader.save(game, getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, true));
+		}
+		catch (IOException e) {
+			showToast(this, R.string.couldntCreateFile);
 		}
 	}
 	/**Loads the game.
 	 * @param fileName If null, shows a {@code Dialog} prompting the user to input the file name. If not, loads the game.*/
 	private void loadGame(final String fileName) {
 		if(fileName == null) showEditTextDialog(getString(R.string.load), getString(R.string.fileNameHint));
-		else {
-			try {
-				MnkGame loaded = saveLoader.load(getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, false), game.winStreak);
-				initialize(); //Initialize after loading the game so that if loading fails, the previous game doesn't get initialized
-				game = new LegalMnkGame(loaded);
-				board.setGame(game);
-				board.invalidate();
-				highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);
-			}
-			catch (IOException e) {
-				showToast(this, R.string.couldntFindFile);
-			}
+		else try {
+			MnkGame loaded = saveLoader.load(getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, false), game.winStreak);
+			initialize(); //Initialize after loading the game so that if loading fails, the previous game doesn't get initialized
+			game = new LegalMnkGame(loaded);
+			board.setGame(game);
+			board.invalidate();
+			highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);
+		}
+		catch (IOException e) {
+			showToast(this, R.string.couldntFindFile);
 		}
 	}
 
@@ -798,7 +798,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		@Override synchronized public void run() {
 			while(!gameEnd) {
 				aiTurn(false);
-				//If it doesn't wait until the UI thread finishes and keep calling aiTurn, most of board.invalidate() calls will be ignored and the result will be shown at once when the game's end, breaking animation.
+				//If it doesn't wait until the UI thread finishes and keeps calling aiTurn, most of board.invalidate()
+				//calls will be ignored and the result will be shown at once when the game ends, breaking animation.
 				try { wait(); }
 				catch(InterruptedException e) { break; }
 			}
