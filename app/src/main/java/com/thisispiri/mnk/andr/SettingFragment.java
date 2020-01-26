@@ -8,7 +8,7 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.thisispiri.mnk.R;
-import com.thisispiri.util.AndroidUtilsKt;
+import com.thisispiri.common.andr.AndrUtil;
 
 import java.util.List;
 
@@ -34,14 +34,14 @@ public class SettingFragment extends PreferenceFragment {
 		findPreference("graphicsPreset").setOnPreferenceChangeListener(presetSetter(graphicKeys, graphicPresets, sharedPref));
 		findPreference("aiType").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
 			if(newVal.equals("2") && sharedPref.getInt("winStreak", 5) > 8) {
-				AndroidUtilsKt.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);
+				AndrUtil.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);
 				return false;
 			}
 			return true;
 		});
 		findPreference("winStreak").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
 			if(((Integer) newVal) > 8 && sharedPref.getString("aiType", "1").equals("2")) {
-				AndroidUtilsKt.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);
+				AndrUtil.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);
 				return false;
 			}
 			return true;

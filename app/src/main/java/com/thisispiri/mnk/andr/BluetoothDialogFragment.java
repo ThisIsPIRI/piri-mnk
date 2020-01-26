@@ -25,7 +25,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import com.thisispiri.dialogs.ListenerDialogFragment;
 import com.thisispiri.mnk.R;
-import com.thisispiri.util.AndroidUtilsKt;
+import com.thisispiri.common.andr.AndrUtil;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -140,7 +140,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 				}
 				catch (IOException e) {
 					Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() failed");
-					AndroidUtilsKt.showToast(getActivity(), R.string.ioError);
+					AndrUtil.showToast(getActivity(), R.string.ioError);
 					progressBar.setVisibility(View.GONE);
 				}
 			}
@@ -169,7 +169,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 							}
 							catch (IOException e) {
 								Log.e("PIRIMNK", "socket.connect() failed");
-								AndroidUtilsKt.showToast(getActivity(), R.string.ioError);
+								AndrUtil.showToast(getActivity(), R.string.ioError);
 								giveSocket(null, false);
 							}
 							finally {
@@ -181,7 +181,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 				}
 				catch (IOException e) {
 					Log.e("PIRIMNK", "device.createRfcommSocketToServiceRecord() failed");
-					AndroidUtilsKt.showToast(getActivity(), R.string.ioError);
+					AndrUtil.showToast(getActivity(), R.string.ioError);
 					progressBar.setVisibility(View.GONE);
 				}
 			}

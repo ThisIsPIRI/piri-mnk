@@ -51,15 +51,15 @@ import com.thisispiri.mnk.MnkManager;
 import com.thisispiri.mnk.MnkSaveLoader;
 import com.thisispiri.mnk.PiriMnkAi;
 import com.thisispiri.mnk.R;
-import com.thisispiri.util.AndroidUtilsKt;
+import com.thisispiri.common.andr.AndrUtil;
 import com.thisispiri.util.GameTimer;
 import com.thisispiri.util.TimedGameManager;
 
 import static com.thisispiri.mnk.IoThread.*;
-import static com.thisispiri.util.AndroidUtilsKt.bundleWith;
-import static com.thisispiri.util.AndroidUtilsKt.getFile;
-import static com.thisispiri.util.AndroidUtilsKt.getPermission;
-import static com.thisispiri.util.AndroidUtilsKt.showToast;
+import static com.thisispiri.common.andr.AndrUtil.bundleWith;
+import static com.thisispiri.common.andr.AndrUtil.getFile;
+import static com.thisispiri.common.andr.AndrUtil.getPermission;
+import static com.thisispiri.common.andr.AndrUtil.showToast;
 
 //TODO: Decouple more things from Android and Bluetooth
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
@@ -599,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	//SECTION: Communication
 	/**Clicks the {@code RadioButton} without alerting {@code rLis}.*/
 	private void hiddenClick(RadioButton button) {
-		AndroidUtilsKt.hiddenClick(rGroup, button, rLis, true);
+		AndrUtil.hiddenClick(rGroup, button, rLis, true);
 	}
 	/**Listens for changes in the playing mode(local or Bluetooth)*/
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
