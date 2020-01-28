@@ -49,7 +49,7 @@ import com.thisispiri.mnk.MnkAiDecision;
 import com.thisispiri.mnk.MnkGame;
 import com.thisispiri.mnk.MnkManager;
 import com.thisispiri.mnk.MnkSaveLoader;
-import com.thisispiri.mnk.PiriMnkAi;
+import com.thisispiri.mnk.PiriValueAi;
 import com.thisispiri.mnk.PiriValue01Ai;
 import com.thisispiri.mnk.R;
 import com.thisispiri.common.andr.AndrUtil;
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static String DIRECTORY_NAME = "PIRI/MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
-	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriValue01Ai(), new PiriMnkAi(), new EmacsGomokuAi()};
+	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriValue01Ai(), new PiriValueAi(), new EmacsGomokuAi()};
 	private final static Board.Symbol[] availableSymbols = {Board.Symbol.XS_AND_OS, Board.Symbol.GO_STONES};
 	private final static Board.Line[] availableLines = {Board.Line.LINES_ENCLOSING_SYMBOLS, Board.Line.LINES_UNDER_SYMBOLS, Board.Line.DIAGONAL_ENCLOSING_SYMBOLS};
 	private final static int[] restartOptions = {R.string.playFirst, R.string.sendChangedRules};

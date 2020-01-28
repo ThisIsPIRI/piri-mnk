@@ -6,9 +6,9 @@ import com.thisispiri.common.Point;
 
 import static org.junit.Assert.*;
 
-public class PiriMnkAiTest {
+public class PiriValueAiTest {
 	@Test public void test1() {
-		PiriMnkAi ai = new PiriMnkAi();
+		PiriValueAi ai = new PiriValueAi();
 		MnkGame game = new MnkGame();
 		game.setSize(11, 11);
 		game.winStreak = 5;
