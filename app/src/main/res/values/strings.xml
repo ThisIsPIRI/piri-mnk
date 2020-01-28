@@ -58,7 +58,7 @@
 	<string name="credits">Credits</string>
 	<string name="couldntFindFile">Couldn\'t find the file.</string>
 	<string name="couldntCreateFile">Couldn\'t create/overwrite the file.</string>
-	<string name="moveWasInvalid">The opponent\'s move was invalid. He might be using an outdated or modified version of the game.</string>
+	<string name="moveWasInvalid">The opponent\'s move was invalid. His app may be outdated.</string>
 	<string name="couldntGetStream">Couldn\'t get streams from the socket.</string>
 	<string name="problemWhileClosing">A problem occurred while closing the socket.</string>
 	<string name="failedToReceive">Failed to receive data from the opponent.</string>

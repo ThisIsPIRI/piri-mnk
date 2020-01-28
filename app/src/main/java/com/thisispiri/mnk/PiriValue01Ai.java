@@ -7,8 +7,8 @@ import java.util.LinkedList;
 /**This is the oldest surviving version of PIRI Value AI, with some refactoring to make it work on the current version of PIRI MNK.*/
 public class PiriValue01Ai implements MnkAi {
 	private class Pair<LEFT, RIGHT> {
-		LEFT first;
-		RIGHT second;
+		final LEFT first;
+		final RIGHT second;
 		Pair(LEFT l, RIGHT r) {
 			this.first = l;
 			this.second = r;
