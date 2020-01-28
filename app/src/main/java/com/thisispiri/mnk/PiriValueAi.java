@@ -38,7 +38,7 @@ public class PiriValueAi implements MnkAi {
 	private MnkAiDecision play(final MnkGame game, final boolean justify) {
 		this.game = game;
 		valueLength = Math.max(game.getHorSize(), game.getVerSize()) * STREAK_SCALE;
-		//valueLength = (game.winStreak + 1) * STREAK_SCALE; Better for performances on larger boards, but causes crashes
+		//valueLength = (game.winStreak + 1) * STREAK_SCALE; Better for performance on larger boards, but causes crashes
 		CellValue bestValue = new CellValue(valueLength); //the list of lines that a cell can block and has highest value
 		LinkedList<Point> list = new LinkedList<>(); //list of cells to consider.
 		String[][] values = null;

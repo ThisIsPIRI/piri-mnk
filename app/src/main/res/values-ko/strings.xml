@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="app_name">피리 오목</string>
 	<string name="backgroundColor">바탕빛</string>
 	<string name="boardSize">판 크기</string>
 	<string name="changeSide">편 바꾸기</string>

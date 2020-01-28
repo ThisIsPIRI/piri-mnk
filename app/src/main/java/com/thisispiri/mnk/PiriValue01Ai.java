@@ -3,6 +3,7 @@ package com.thisispiri.mnk;
 import com.thisispiri.common.Point;
 
 import java.util.LinkedList;
+import java.util.Locale;
 
 /**This is the oldest surviving version of PIRI Value AI, with some refactoring to make it work on the current version of PIRI MNK.*/
 public class PiriValue01Ai implements MnkAi {
@@ -15,14 +16,20 @@ public class PiriValue01Ai implements MnkAi {
 		}
 	}
 	private MnkGame game;
-	/* has AI play a turn.
-		* determine every cell's importance and place a stone on the cell with highest importance.
-		* cells that can block a line of a higher number always have higher importance than cells that can block many lines of a lower number.
-		* if two cells can block lines of a same number, the cell that can block more lines has higher importance.
-		* if a line can't be a line of maxStreak cells(because it's blocked by wall or the other symbol), ignore it.
-		* cells that can end game(by granting the player win) have infinite importance(represented as 9999999)
+	/** has AI play a turn.
+	  * determine every cell's importance and place a stone on the cell with highest importance.
+	  * cells that can block a line of a higher number always have higher importance than cells that can block many lines of a lower number.
+	  * if two cells can block lines of a same number, the cell that can block more lines has higher importance.
+	  * if a line can't be a line of maxStreak cells(because it's blocked by wall or the other symbol), ignore it.
+	  * cells that can end game(by granting the player win) have infinite importance(represented as 9999999)
 	*/
-	public MnkAiDecision playTurnJustify(final MnkGame game) { //the parameter will be true if executed inside a thread.
+	@Override public MnkAiDecision playTurnJustify(final MnkGame game) {
+		return play(game, true);
+	}
+	@Override public Point playTurn(final MnkGame game) {
+		return play(game, false).coord;
+	}
+	private MnkAiDecision play(final MnkGame game, final boolean justify) { //the parameter will be true if executed inside a thread.
 		this.game = game;
 		int maxStreak = 0, maxLine = 0; //maximum streak appeared until now in the evaluation loop, maximum number of lines of maxStreak cells that can be blocked by a cell
 		Pair<Integer, Integer> temp;
@@ -48,12 +55,11 @@ public class PiriValue01Ai implements MnkAi {
 					else if(temp.second == maxLine) //if a cell that can block maxLine lines of maxStreak, add it to list.
 						list.addLast(new Point(j, i));
 				}
+				if(justify)
+					justification[i][j] = String.format(Locale.US, "%d,%d", temp.first, temp.second);
 			}
 		}
 		return new MnkAiDecision(new Point(list.get(0).x, list.get(0).y), justification);
-	}
-	public Point playTurn(final MnkGame game) {
-		return playTurnJustify(game).coord;
 	}
 
 	//first : maximum length of lines the cell can block. second : the value(how many lines of [first] cells it can block) of the cell.

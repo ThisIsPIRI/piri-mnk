@@ -3,7 +3,7 @@ package com.thisispiri.mnk.andr;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-public class DebugBoard extends Board {
+public class DebugBoard extends Board { //TODO support stone numbering
 	private final Paint textPaint = new Paint();
 	private String[][] aiInternals;
 	public DebugBoard(android.content.Context context, android.util.AttributeSet attr)  {
