@@ -9,6 +9,7 @@
 	</string-array>
 	<string-array translatable="false" name="aiTypesIds">
 		<item>@string/filler</item>
+		<item>@string/piriValue01</item>
 		<item>@string/piriValue</item>
 		<item>@string/emacsGomoku</item>
 	</string-array>

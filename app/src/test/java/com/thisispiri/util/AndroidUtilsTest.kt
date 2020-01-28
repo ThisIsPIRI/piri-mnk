@@ -1,5 +1,6 @@
 package com.thisispiri.util
 
+import com.thisispiri.common.andr.AndrUtil.bundleWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

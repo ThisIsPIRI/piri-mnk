@@ -52,7 +52,7 @@
 		android:title="@string/aiType"
 		android:entries="@array/aiTypesIds"
 		android:entryValues="@array/listValues"
-		android:defaultValue="1"/>
+		android:defaultValue="2"/>
 	<PreferenceCategory
 		android:key="graphicsCategory"
 		android:title="@string/graphics">

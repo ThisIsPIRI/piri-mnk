@@ -71,6 +71,7 @@
 	<string name="tictactoe">틱택토</string>
 	<string name="go">바둑</string>
 	<string name="filler">Filler(너무 쉬움)</string>
+	<string name="piriValue01">PIRI Value 0.1(쉬움)</string>
 	<string name="piriValue">PIRI Value(중간)</string>
 	<string name="aiType">AI 종류</string>
 	<string name="emacsGomoku">Emacs-style(어려움)</string>
