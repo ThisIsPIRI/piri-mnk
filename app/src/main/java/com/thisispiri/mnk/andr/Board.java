@@ -18,7 +18,7 @@ public class Board extends View {
 	}
 	private final Paint background, line, o, x;
 	protected int horUnit, verUnit, horSize, verSize;
-	private int sideLength;
+	protected int sideLength;
 	protected Symbol symbolType;
 	protected Line lineType;
 	protected MnkGame game;
