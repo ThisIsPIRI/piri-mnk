@@ -186,20 +186,20 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		if(!onBluetooth)
 			readRules(pref);
 		cacheChangedRules(pref);
-		//graphics. TODO: pass functions as symbol type?
-		int backColor;
-		Board.Symbol symbolType;
-		Board.Line lineType;
-		backColor = pref.getInt("backgroundColor", 0xFFFFFFFF);
 		ai = availableAis[Integer.parseInt(pref.getString("aiType", "2"))];
-		symbolType = availableSymbols[Integer.parseInt(pref.getString("symbols", "0"))];
-		lineType = availableLines[Integer.parseInt(pref.getString("lineType", "0"))];
+		//graphics. TODO: pass functions as symbol type?
+		Board.Symbol symbolType = availableSymbols[Integer.parseInt(pref.getString("symbols", "0"))];
+		Board.Line lineType = availableLines[Integer.parseInt(pref.getString("lineType", "0"))];
+		int backColor = pref.getInt("backgroundColor", 0xFFFFFFFF);
 		parentView.setBackgroundColor(backColor);
 		board.setGame(game);
 		board.setSideLength(screenX);
 		board.setAiInternals(null);
-		board.updateValues(backColor, pref.getInt("lineColor", 0xFF000000), pref.getInt("oColor", 0xFFFF0000), pref.getInt("xColor", 0xFF0000FF), symbolType, lineType);
-		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX, pref.getInt("highlightColor", 0x7F000000), pref.getInt("highlightDuration", 120), pref.getInt("highlightHowMany", 3));
+		board.showOrder = true;
+		board.updateValues(backColor, pref.getInt("lineColor", 0xFF000000), pref.getInt("oColor", 0xFFFF0000),
+				pref.getInt("xColor", 0xFF0000FF), symbolType, lineType);
+		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX, pref.getInt("highlightColor", 0x7F000000),
+				pref.getInt("highlightDuration", 120), pref.getInt("highlightHowMany", 3));
 		enableHighlight = pref.getBoolean("enableHighlight", true);
 		showAiInternals = pref.getBoolean("showAiInternals", false);
 	}

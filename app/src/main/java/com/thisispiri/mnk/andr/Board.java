@@ -16,7 +16,7 @@ public class Board extends View {
 	public enum Line {
 		LINES_ENCLOSING_SYMBOLS, LINES_UNDER_SYMBOLS, DIAGONAL_ENCLOSING_SYMBOLS
 	}
-	private final Paint background, line, o, x;
+	protected final Paint background, line, oPaint, xPaint;
 	protected int horUnit, verUnit, horSize, verSize;
 	protected int sideLength;
 	protected Symbol symbolType;
@@ -25,7 +25,7 @@ public class Board extends View {
 	private final RectF ovalData = new RectF();
 	public Board(android.content.Context context, android.util.AttributeSet attr)  {
 		super(context, attr);
-		background = new Paint(); line = new Paint(); o = new Paint(); x = new Paint();
+		background = new Paint(); line = new Paint(); oPaint = new Paint(); xPaint = new Paint();
 	}
 	@Override protected void onDraw(Canvas canvas) {
 		//draw background
@@ -74,31 +74,31 @@ public class Board extends View {
 			}
 		}
 		//draw Os and Xs
-		o.setStrokeWidth(5);
-		x.setStrokeWidth(5);
+		oPaint.setStrokeWidth(5);
+		xPaint.setStrokeWidth(5);
 		if(symbolType == Symbol.XS_AND_OS) {
-			o.setStyle(Paint.Style.STROKE);
-			x.setStyle(Paint.Style.STROKE);
+			oPaint.setStyle(Paint.Style.STROKE);
+			xPaint.setStyle(Paint.Style.STROKE);
 		}
 		else if(symbolType == Symbol.GO_STONES) {
-			o.setStyle(Paint.Style.FILL);
-			x.setStyle(Paint.Style.FILL);
+			oPaint.setStyle(Paint.Style.FILL);
+			xPaint.setStyle(Paint.Style.FILL);
 		}
 		//loop through the array
 		for (int i = 0; i < verSize; i++) {
 			for (int j = 0; j < horSize; j++) {
 				if(game.array[i][j] == Shape.O) { //draw O
 					ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
-					canvas.drawOval(ovalData, o);
+					canvas.drawOval(ovalData, oPaint);
 				}
 				else if(game.array[i][j] == Shape.X) { //draw X
 					if(symbolType == Symbol.XS_AND_OS) {
-						canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, x);
-						canvas.drawLine((j + 1) * horUnit, i * verUnit, j * horUnit, (i + 1) * verUnit, x);
+						canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, xPaint);
+						canvas.drawLine((j + 1) * horUnit, i * verUnit, j * horUnit, (i + 1) * verUnit, xPaint);
 					}
 					else {
 						ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
-						canvas.drawOval(ovalData, x);
+						canvas.drawOval(ovalData, xPaint);
 					}
 				}
 			}
@@ -108,8 +108,8 @@ public class Board extends View {
 		background.setColor(bgColor);
 		this.line.setColor(lineColor);
 		//this.line.setStrokeWidth(lineWidth);
-		o.setColor(oColor);
-		x.setColor(xColor);
+		oPaint.setColor(oColor);
+		xPaint.setColor(xColor);
 		symbolType = ox;
 		lineType = line;
 	}

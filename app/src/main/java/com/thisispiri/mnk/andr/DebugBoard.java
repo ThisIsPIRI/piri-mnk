@@ -3,15 +3,25 @@ package com.thisispiri.mnk.andr;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+import androidx.annotation.ColorInt;
+
 import com.thisispiri.mnk.MnkGame;
 import com.thisispiri.mnk.Move;
+
+import static android.graphics.Color.alpha;
+import static android.graphics.Color.argb;
+import static android.graphics.Color.blue;
+import static android.graphics.Color.green;
+import static android.graphics.Color.red;
 
 /**Board, but with support for printing the order of moves and values of each cell.*/
 public class DebugBoard extends Board {
 	private final Paint aiPaint = new Paint();
 	private final Paint[] orderPaints = {new Paint(), new Paint()};
 	private String[][] aiInternals;
-	/**Set to true to enable printing the turn in which each stone was placed.*/
+	/**Set to true to enable printing the turn in which each stone was placed.
+	 * By default, the color of the text is complementary to the stone's color.
+	 * This shouldn't be used with {@link Symbol#XS_AND_OS}.*/
 	public boolean showOrder = false;
 	private Move[] dummyArray = new Move[0];
 	public DebugBoard(android.content.Context context, android.util.AttributeSet attr)  {
@@ -37,16 +47,22 @@ public class DebugBoard extends Board {
 			}
 		}
 	}
+	/**Manually change the turn numbers' colors. This will persist until the next {@link DebugBoard#updateValues}.
+	 * @param colors ARGB ColorInt vararg. First one for the first player and second one for the second. Do not pass more than two.*/
+	public void setOrderColors(int... colors) {
+		for(int i = 0; i < orderPaints.length; i++) {
+			orderPaints[i].setColor(colors[i]);
+		}
+	}
 	/**The Strings will be drawn on lower left corner of their respective cells if {@code internals}' size matches that of the game's array.
 	 * Pass null to disable it.*/
 	public void setAiInternals(String[][] internals) {
 		this.aiInternals = internals;
 	}
-	/**Change the turn numbers' colors. Only 2 ints should be passed for now.*/
-	public void setOrderColors(int... colors) {
-		for(int i = 0; i < orderPaints.length; i++) {
-			orderPaints[i].setColor(colors[i]);
-		}
+	@Override public void updateValues(int bgColor, int lineColor, int oColor, int xColor, Symbol ox, Line line) {
+		super.updateValues(bgColor, lineColor, oColor, xColor, ox, line);
+		orderPaints[0].setColor(invertColor(xPaint.getColor()));
+		orderPaints[1].setColor(invertColor(oPaint.getColor()));
 	}
 	@Override public void setGame(MnkGame game) {
 		super.setGame(game);
@@ -59,5 +75,8 @@ public class DebugBoard extends Board {
 		for(Paint p : orderPaints) {
 			p.setTextSize(sideLength / horSize / 2);
 		}
+	}
+	private int invertColor(@ColorInt int color) {
+		return argb(alpha(color), 0xFF - red(color), 0xFF - green(color), 0xFF - blue(color));
 	}
 }
