@@ -17,6 +17,7 @@
 		<item>@string/none_preset</item>
 		<item>@string/tictactoe</item>
 		<item>@string/go</item>
+		<item>@string/fourInRow</item>
 	</string-array>
 	<string-array translatable="false" name="symbolsIds">
 		<item>@string/xsAndOs</item>
