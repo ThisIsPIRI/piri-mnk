@@ -3,7 +3,7 @@
 	<string name="app_name">피리 오목</string>
 	<string name="backgroundColor">바탕빛</string>
 	<string name="boardSize">판 크기</string>
-	<string name="changeSide">편 바꾸기</string>
+	<string name="changeSide">넘겨주기</string>
 	<string name="draw">무승부</string>
 	<string name="lineColor">줄 빛깔</string>
 	<string name="oColor">둘째 사람 빛깔</string>
@@ -33,8 +33,8 @@
 	<string name="locationRationale">블루투스 장치를 찾으려면 이 권한이 있어야 합니다.</string>
 	<string name="clientIdentifierHint">방제(상대와 같아야 함)</string>
 	<string name="serverIdentifierHint">방제(상대와 같아야 함)</string>
-	<string name="local">로컬</string>
-	<string name="bluetooth">블루투스</string>
+	<string name="local">한 대로</string>
+	<string name="bluetooth">두 대로</string>
 	<string name="requestRejected">요청이 거부되었습니다.</string>
 	<string name="requested">상대가 %s을(를) 요청했습니다.</string>
 	<string name="symbols">돌 모양</string>
@@ -71,9 +71,9 @@
 	<string name="myIndex">우리는</string>
 	<string name="tictactoe">틱택토</string>
 	<string name="go">바둑</string>
-	<string name="filler">Filler(너무 쉬움)</string>
+	<string name="filler">채우미(너무 쉬움)</string>
 	<string name="piriValue01">피리값 0.1(쉬움)</string>
-	<string name="piriValue">피리값 Value(가운데)</string>
+	<string name="piriValue">피리값(가운데)</string>
 	<string name="aiType">AI 종류</string>
 	<string name="emacsGomoku">에막스식(어려움)</string>
 	<string name="showAiInternals">AI의 생각 보이기</string>

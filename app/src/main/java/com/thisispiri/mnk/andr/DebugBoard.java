@@ -67,13 +67,13 @@ public class DebugBoard extends Board {
 	@Override public void setGame(MnkGame game) {
 		super.setGame(game);
 		for(Paint p : orderPaints) {
-			p.setTextSize(sideLength / horSize / 2);
+			p.setTextSize(sideLength / Math.max(horSize, verSize) / 2);
 		}
 	}
 	@Override public void setSideLength(int length) {
 		super.setSideLength(length);
 		for(Paint p : orderPaints) {
-			p.setTextSize(sideLength / horSize / 2);
+			p.setTextSize(sideLength / Math.max(horSize, verSize) / 2);
 		}
 	}
 	private int invertColor(@ColorInt int color) {

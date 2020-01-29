@@ -8,7 +8,8 @@ import android.view.View;
 import com.thisispiri.mnk.MnkGame;
 import com.thisispiri.mnk.Shape;
 
-/**Draws a rectangular board of {@link Shape}s on its area.*/
+/**Draws a board of {@link Shape}s on its area.
+ * While the board may be rectangular in cells, the {@code View} itself must be square in pixels.*/
 public class Board extends View {
 	public enum Symbol {
 		XS_AND_OS, GO_STONES

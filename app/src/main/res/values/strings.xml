@@ -3,7 +3,7 @@
 	<string name="settings">Settings</string>
 	<string name="restart">Restart</string>
 	<string name="draw">Draw</string>
-	<string name="changeSide">Change side</string>
+	<string name="changeSide">Yield</string>
 	<string name="boardSize">Board size</string>
 	<string name="backgroundColor">Background color</string>
 	<string name="lineColor">Line color</string>
@@ -76,7 +76,7 @@
 	<string name="aiType">AI type</string>
 	<string name="emacsGomoku">Emacs-style(hard)</string>
 	<string name="showAiInternals">Show AI internals</string>
-	<string name="emacsLengthWarning">Using Emacs-style with a winning length longer than 8 leads to crashes.</string>
+	<string name="emacsLengthWarning">Emacs-style cannot be used with a winning length longer than 8.</string>
 	<string name="gomoku1515">15x15 Gomoku</string>
 	<string name="gomoku1919">19x19 Gomoku</string>
 	<string name="restartRequest">Request a restart</string>
