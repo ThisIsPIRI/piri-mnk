@@ -33,14 +33,14 @@ public class SettingFragment extends PreferenceFragment {
 		//TODO: Make the changes show up immediately without reentering SettingActivity(seems to be a problem with ListPreference)
 		findPreference("graphicsPreset").setOnPreferenceChangeListener(presetSetter(graphicKeys, graphicPresets, sharedPref));
 		findPreference("aiType").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
-			if(newVal.equals("2") && sharedPref.getInt("winStreak", 5) > 8) {
+			if(newVal.equals("3") && sharedPref.getInt("winStreak", 5) > 8) {
 				AndrUtil.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);
 				return false;
 			}
 			return true;
 		});
 		findPreference("winStreak").setOnPreferenceChangeListener((Preference pref, Object newVal) -> {
-			if(((Integer) newVal) > 8 && sharedPref.getString("aiType", "1").equals("2")) {
+			if(((Integer) newVal) > 8 && sharedPref.getString("aiType", "2").equals("3")) {
 				AndrUtil.showToast(getActivity(), R.string.emacsLengthWarning, Toast.LENGTH_LONG);
 				return false;
 			}
