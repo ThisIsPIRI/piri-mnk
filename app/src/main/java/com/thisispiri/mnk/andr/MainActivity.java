@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		board.setGame(game);
 		board.setSideLength(screenX);
 		board.setAiInternals(null);
-		board.showOrder = true;
+		board.showOrder = pref.getBoolean("showHistory", false);
 		board.updateValues(backColor, pref.getInt("lineColor", 0xFF000000), pref.getInt("oColor", 0xFFFF0000),
 				pref.getInt("xColor", 0xFF0000FF), symbolType, lineType);
 		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX, pref.getInt("highlightColor", 0x7F000000),

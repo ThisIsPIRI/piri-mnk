@@ -92,4 +92,6 @@
 	<string name="exactOnly">Exact lines only</string>
 	<string name="onlyCountExact">Only count lines of exact length as win</string>
 	<string name="exactSummary">Discounts 6-lines in gomoku and such.</string>
+	<string name="helpers">Helpers</string>
+	<string name="showHistoryHint">Use with go stones symbol</string>
 </resources>

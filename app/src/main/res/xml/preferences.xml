@@ -54,20 +54,12 @@
 		android:entryValues="@array/listValues"
 		android:defaultValue="2"/>
 	<PreferenceCategory
-		android:key="graphicsCategory"
-		android:title="@string/graphics">
-		<ListPreference
-			android:key="graphicsPreset"
-			android:title="@string/preset"
-			android:entries="@array/graphicPresetIds"
-			android:entryValues="@array/listValues"
-			android:defaultValue="0"/>
-		<ListPreference
-			android:key="symbols"
-			android:title="@string/symbols"
-			android:entries="@array/symbolsIds"
-			android:entryValues="@array/listValues"
-			android:defaultValue="0"/>
+		android:title="@string/helpers">
+		<CheckBoxPreference
+			android:key="showHistory"
+			android:title="Show stone history"
+			android:defaultValue="false"
+			android:summary="@string/showHistoryHint"/>
 		<CheckBoxPreference
 			android:key="enableHighlight"
 			android:title="@string/enableHighlighting"
@@ -81,6 +73,21 @@
 			custom:secondDefault="@integer/defaultHighlightHowMany"
 			custom:imposeScreenLimit="false"
 			android:title="@string/highlightSettings"/>
+	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="@string/graphics">
+		<ListPreference
+			android:key="graphicsPreset"
+			android:title="@string/preset"
+			android:entries="@array/graphicPresetIds"
+			android:entryValues="@array/listValues"
+			android:defaultValue="0"/>
+		<ListPreference
+			android:key="symbols"
+			android:title="@string/symbols"
+			android:entries="@array/symbolsIds"
+			android:entryValues="@array/listValues"
+			android:defaultValue="0"/>
 		<ListPreference
 			android:key="lineType"
 			android:title="@string/lineType"

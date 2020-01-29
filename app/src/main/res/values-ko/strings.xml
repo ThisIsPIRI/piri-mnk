@@ -93,4 +93,6 @@
 	<string name="onlyCountExact">정확한 길이의 줄만 인정</string>
 	<string name="exactOnly">정확한 길이만</string>
 	<string name="exactSummary">예) 오목에서 육목을 만들면 인정x</string>
+	<string name="showHistoryHint">돌 모양을 바둑돌로 바꾸고 쓰세요</string>
+	<string name="helpers">도우미</string>
 </resources>
