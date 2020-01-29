@@ -95,4 +95,5 @@
 	<string name="exactSummary">예) 오목에서 육목을 만들면 인정x</string>
 	<string name="showHistoryHint">돌 모양을 바둑돌로 바꾸고 쓰세요</string>
 	<string name="helpers">도우미</string>
+	<string name="showOrder">돌 순서 보이기</string>
 </resources>

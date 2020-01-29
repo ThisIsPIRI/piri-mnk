@@ -24,14 +24,14 @@ public class DebugBoard extends Board {
 	 * This shouldn't be used with {@link Symbol#XS_AND_OS}.*/
 	public boolean showOrder = false;
 	private Move[] dummyArray = new Move[0];
-	public DebugBoard(android.content.Context context, android.util.AttributeSet attr)  {
+	public DebugBoard(final android.content.Context context, final android.util.AttributeSet attr)  {
 		super(context, attr);
 		aiPaint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 9);
 		for(Paint p : orderPaints) {
 			p.setTextAlign(Paint.Align.CENTER);
 		}
 	}
-	@Override protected void onDraw(Canvas canvas) {
+	@Override protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
 		if(showOrder) {
 			Move[] moves = game.history.toArray(dummyArray);
@@ -49,34 +49,34 @@ public class DebugBoard extends Board {
 	}
 	/**Manually change the turn numbers' colors. This will persist until the next {@link DebugBoard#updateValues}.
 	 * @param colors ARGB ColorInt vararg. First one for the first player and second one for the second. Do not pass more than two.*/
-	public void setOrderColors(int... colors) {
+	public void setOrderColors(final int... colors) {
 		for(int i = 0; i < orderPaints.length; i++) {
 			orderPaints[i].setColor(colors[i]);
 		}
 	}
 	/**The Strings will be drawn on lower left corner of their respective cells if {@code internals}' size matches that of the game's array.
 	 * Pass null to disable it.*/
-	public void setAiInternals(String[][] internals) {
+	public void setAiInternals(final String[][] internals) {
 		this.aiInternals = internals;
 	}
-	@Override public void updateValues(int bgColor, int lineColor, int oColor, int xColor, Symbol ox, Line line) {
+	@Override public void updateValues(final int bgColor, final int lineColor, final int oColor, final int xColor, final Symbol ox, final Line line) {
 		super.updateValues(bgColor, lineColor, oColor, xColor, ox, line);
 		orderPaints[0].setColor(invertColor(xPaint.getColor()));
 		orderPaints[1].setColor(invertColor(oPaint.getColor()));
 	}
-	@Override public void setGame(MnkGame game) {
+	@Override public void setGame(final MnkGame game) {
 		super.setGame(game);
 		for(Paint p : orderPaints) {
 			p.setTextSize(sideLength / Math.max(horSize, verSize) / 2);
 		}
 	}
-	@Override public void setSideLength(int length) {
+	@Override public void setSideLength(final int length) {
 		super.setSideLength(length);
 		for(Paint p : orderPaints) {
 			p.setTextSize(sideLength / Math.max(horSize, verSize) / 2);
 		}
 	}
-	private int invertColor(@ColorInt int color) {
+	private int invertColor(final @ColorInt int color) {
 		return argb(alpha(color), 0xFF - red(color), 0xFF - green(color), 0xFF - blue(color));
 	}
 }

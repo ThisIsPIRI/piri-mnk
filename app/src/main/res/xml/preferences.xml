@@ -57,7 +57,7 @@
 		android:title="@string/helpers">
 		<CheckBoxPreference
 			android:key="showHistory"
-			android:title="Show stone history"
+			android:title="@string/showOrder"
 			android:defaultValue="false"
 			android:summary="@string/showHistoryHint"/>
 		<CheckBoxPreference

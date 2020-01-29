@@ -24,11 +24,11 @@ public class Board extends View {
 	protected Line lineType;
 	protected MnkGame game;
 	private final RectF ovalData = new RectF();
-	public Board(android.content.Context context, android.util.AttributeSet attr)  {
+	public Board(final android.content.Context context, final android.util.AttributeSet attr)  {
 		super(context, attr);
 		background = new Paint(); line = new Paint(); oPaint = new Paint(); xPaint = new Paint();
 	}
-	@Override protected void onDraw(Canvas canvas) {
+	@Override protected void onDraw(final Canvas canvas) {
 		//draw background
 		canvas.drawRect(0, 0, sideLength, sideLength, background);
 		//draw lines
@@ -105,7 +105,7 @@ public class Board extends View {
 			}
 		}
 	}
-	public void updateValues(int bgColor, int lineColor, int oColor, int xColor, Symbol ox, Line line) {
+	public void updateValues(final int bgColor, final int lineColor, final int oColor, final int xColor, final Symbol ox, final Line line) {
 		background.setColor(bgColor);
 		this.line.setColor(lineColor);
 		//this.line.setStrokeWidth(lineWidth);
@@ -115,14 +115,14 @@ public class Board extends View {
 		lineType = line;
 	}
 	/**Assigns an {@link MnkGame} to be used in the object. Call this every time the board size is changed since it caches the values.*/
-	public void setGame(MnkGame g) {
+	public void setGame(final MnkGame g) {
 		game = g;
 		horSize = game.getHorSize();
 		verSize = game.getVerSize();
 		horUnit = sideLength / horSize;
 		verUnit = sideLength / verSize;
 	}
-	public void setSideLength(int length) {
+	public void setSideLength(final int length) {
 		sideLength = length;
 		horUnit = length / horSize;
 		verUnit = length / verSize;

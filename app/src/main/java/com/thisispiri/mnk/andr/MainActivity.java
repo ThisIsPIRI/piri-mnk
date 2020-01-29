@@ -357,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 		return null;
 	}
-	private void aiTurn(boolean highlight) {
+	private void aiTurn(final boolean highlight) {
 		MnkAiDecision decision = ai.playTurnJustify(game);
 		if(showAiInternals)
 			board.setAiInternals(decision.values);
@@ -404,8 +404,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 		return true;
 	}
-	@Override public void updateRemaining(long time) {
-		winText.setText(String.format(Locale.getDefault(), "%02d : %02d : %03d", TimeUnit.MILLISECONDS.toMinutes(time), TimeUnit.MILLISECONDS.toSeconds(time) % 60, time % 1000));
+	@Override public void updateRemaining(final long time) {
+		winText.setText(String.format(Locale.getDefault(), "%02d : %02d : %03d",
+				TimeUnit.MILLISECONDS.toMinutes(time), TimeUnit.MILLISECONDS.toSeconds(time) % 60, time % 1000));
 	}
 	@Override public void timerFinished() {
 		if(!enableTimeLimit) return;
@@ -416,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		else
 			limitTimer.start();
 	}
-	@Override public void togglePlaying(boolean allow) {
+	@Override public void togglePlaying(final boolean allow) {
 		preventPlaying = !allow;
 		if(preventPlaying) winText.setText(R.string.waitDelay);
 	}
@@ -467,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Shows a {@code DecisionDialogFragment} asking the user to confirm something.
 	 * Adds {@link MainActivity#DECISION_TAG} to the arguments as tagInBundle.
 	 * The positive and negative buttons will read {@code positive} and {@code negative}, respectively.*/
-	private void requestConfirm(Bundle arguments, String message, String positive, String negative) {
+	private void requestConfirm(final Bundle arguments, final String message, final String positive, final String negative) {
 		if(activityRunning) {
 			arguments.putString(getString(R.string.i_tagInBundle), DECISION_TAG);
 			DecisionDialogFragment decisionDialog = new DecisionDialogFragment();
@@ -486,7 +487,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	/**@see MainActivity#requestConfirm(Bundle, String, String, String).
 	 * The Dialog class's default text will be used for the buttons.*/
-	private void requestConfirm(Bundle arguments, String message) {
+	private void requestConfirm(final Bundle arguments, final String message) {
 		requestConfirm(arguments, message, null, null);
 	}
 	/**Shows an {@code EditTextDialogFragment} with the supplied tag, message and hint.*/
@@ -501,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), BLUETOOTH_TAG));
 		fragment.show(getSupportFragmentManager(), BLUETOOTH_TAG, getString(R.string.app_name));
 	}
-	private void showChecksDialog(String message, int[] questions) {
+	private void showChecksDialog(final String message, final int[] questions) {
 		ChecksDialogFragment checks = new ChecksDialogFragment();
 		checks.setArguments(bundleWith(getString(R.string.i_tagInBundle), CHECKS_TAG));
 		checks.show(getSupportFragmentManager(), CHECKS_TAG, message, questions);
@@ -599,7 +600,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 
 	//SECTION: Communication
 	/**Clicks the {@code RadioButton} without alerting {@code rLis}.*/
-	private void hiddenClick(RadioButton button) {
+	private void hiddenClick(final RadioButton button) {
 		AndrUtil.hiddenClick(rGroup, button, rLis, true);
 	}
 	/**Listens for changes in the playing mode(local or Bluetooth)*/
@@ -652,7 +653,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Sets up the time limit if {@code limit} is greater than 0. Disables it otherwise.
 	 * Cancels the timer if the limit was changed from the last value.
 	 * @param limit If greater than 0, time limit is enabled and set to it. Otherwise, time limit is disabled.*/
-	@Override public void setTimeLimit(int limit) {
+	@Override public void setTimeLimit(final int limit) {
 		enableTimeLimit = limit > 0;
 		timeLimit = limit;
 		if(timeLimit != previousTimeLimit) {
@@ -677,7 +678,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 	/**Stops Bluetooth communications but doesn't set radioLocal to true.
 	 * @param informOpponent If true, informs the opponent that we terminated the connection.*/
-	private void stopBluetooth(boolean informOpponent) {
+	private void stopBluetooth(final boolean informOpponent) {
 		try {
 			if(bluetoothThread != null) {
 				if(informOpponent) bluetoothThread.write(new byte[]{ORDER_HEADER, ORDER_CANCEL_CONNECTION});
@@ -690,14 +691,14 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			showToast(this, R.string.problemWhileClosing);
 		}
 	}
-	@Override public void requestToUser(byte action) {
+	@Override public void requestToUser(final byte action) {
 		requestToUser(action, null);
 	}
 	/**Informs that the opponent requested the {@code action} and lets the user choose whether to allow it or not.
 	 * If the requested {@code action} is {@link IoThread#REQUEST_RESTART}, displays the changed rules.
 	 * @param action The action the opponent requested.
 	 * @param details Currently used to show changed rules(int[]) to the user.*/
-	@Override public <T> void requestToUser(byte action, T details) {
+	@Override public <T> void requestToUser(final byte action, final T details) {
 		int actionStringID;
 		switch(action) {
 		case REQUEST_RESTART: actionStringID = R.string.restart; break;
@@ -714,7 +715,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 		requestConfirm(bundle, shownString);
 	}
-	private String stringifyRules(int[] rules) {
+	private String stringifyRules(final int[] rules) {
 		StringBuilder builder = new StringBuilder();
 		final String[] names = {getString(R.string.horSize), getString(R.string.verSize), getString(R.string.winCondition),
 				getString(R.string.timeLimit), getString(R.string.gravity), getString(R.string.exactOnly), getString(R.string.myIndex)};
@@ -788,7 +789,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	//SECTION: Fun
 	private static class FillHandler extends Handler{
 		final WeakReference<MainActivity> activity;
-		FillHandler(MainActivity a) {activity = new WeakReference<>(a);}
+		FillHandler(final MainActivity a) {activity = new WeakReference<>(a);}
 		@Override public void handleMessage(final Message m) {
 			if(m.getData().getString("result") != null) activity.get().winText.setText(m.getData().getString("result"));
 			activity.get().board.invalidate();
