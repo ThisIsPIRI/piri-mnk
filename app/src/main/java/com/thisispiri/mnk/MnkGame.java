@@ -92,9 +92,9 @@ public class MnkGame { //TODO: Support renju
 	 * To put simply, nextIndex = (nextIndex + steps) % {@link MnkGame#shapes}.length
 	 * @param steps The number to add to the turn.*/
 	public void changeShape(final int steps) {
-		nextIndex = Math.abs((nextIndex + steps) % shapes.length);
+		nextIndex = getNextIndexAt(steps);
 	}
-	/**Returns {@link MnkGame#nextIndex} at ((current turn) + steps))th turn, without actually changing the result of {@link MnkGame#getNextIndex()}.
+	/**Returns {@link MnkGame#nextIndex} at ((current turn) + steps)th turn, without actually changing the result of {@link MnkGame#getNextIndex()}.
 	 * @param steps The number to add to the turn.
 	 * @return The next shape at the turn.*/
 	public int getNextIndexAt(final int steps) {
@@ -105,9 +105,8 @@ public class MnkGame { //TODO: Support renju
 	 * @param ver The vertical length of the board in the number of tiles.
 	 * @return Whether the game was initialized(because of a change in the board size) or not.*/
 	public boolean setSize(final int hor, final int ver) {
-		int previousHor = horSize, previousVer = verSize;
-		horSize = hor; verSize = ver;
-		if(previousHor != horSize || previousVer != verSize) {
+		if(horSize != hor || verSize != ver) {
+			horSize = hor; verSize = ver;
 			array = new Shape[verSize][horSize];
 			initialize();
 			return true;

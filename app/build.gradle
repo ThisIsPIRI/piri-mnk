@@ -2,22 +2,22 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
-    defaultConfig {
-        applicationId "com.thisispiri.mnk"
-        minSdkVersion 14
-        targetSdkVersion 28
-        versionCode 35
-        versionName "1.14.1"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+	compileSdkVersion 28
+	buildToolsVersion '28.0.3'
+	defaultConfig {
+		applicationId "com.thisispiri.mnk"
+		minSdkVersion 14
+		targetSdkVersion 28
+		versionCode 35
+		versionName "1.14.1"
+		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+	}
+	buildTypes {
+		release {
+			minifyEnabled true
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+		}
+	}
 	testOptions {
 		unitTests {
 			includeAndroidResources = true
@@ -33,7 +33,7 @@ dependencies {
 	implementation project(':piricomponents-release')
 	implementation project(':piripreferences-release')
 	implementation project(':piridialogs-release')
-	implementation 'androidx.appcompat:appcompat:1.1.0'
+	implementation 'androidx.appcompat:appcompat:1.2.0'
 	//implementation 'androidx.preference:preference:1.0.0'
 	implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
 	androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
@@ -44,8 +44,8 @@ dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 repositories {
-    maven {
-        url "https://maven.google.com"
-    }
+	maven {
+		url "https://maven.google.com"
+	}
 	mavenCentral()
 }

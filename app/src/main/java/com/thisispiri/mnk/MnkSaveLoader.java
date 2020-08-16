@@ -26,7 +26,7 @@ public class MnkSaveLoader {
 			if(move.placed == Shape.X) outputWriter.write(";B["); //first player(black)
 			else outputWriter.write(";W["); //second player(white)
 			char xChar = (char)(move.coord.x + 'a'), yChar = (char)(move.coord.y + 'a'); //start at lowercase a
-			//after using all 26 lowercase letters, move to uppercase alphabets
+			//after using all 26 lowercase letters, move to uppercase letters
 			if(move.coord.x > 'z') xChar += 'A' - 'z' - 1; //equals subtracting 58.
 			if(move.coord.y > 'z') yChar += 'A' - 'z' - 1;
 			outputWriter.write(new String(new char[]{xChar, yChar, ']'}));

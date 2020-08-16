@@ -7,7 +7,7 @@ public class GravityMnkGame extends MnkGame {
 	public GravityMnkGame(final MnkGame original){super(original);}
 	/**Returns the largest y that keeps (x, y) within boundary and empty.*/
 	public int getFallenY(final int x, int y) {
-		for(;isEmpty(x, y + 1);y++);
+		while(isEmpty(x, y + 1)) y++;
 		return y;
 	}
 	@Override public boolean place(final int x, final int y, final Shape toPlace) {
