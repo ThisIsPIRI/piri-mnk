@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-	compileSdkVersion 28
+	compileSdkVersion 29
 	buildToolsVersion '28.0.3'
 	defaultConfig {
 		applicationId "com.thisispiri.mnk"
 		minSdkVersion 14
-		targetSdkVersion 28
-		versionCode 36
+		targetSdkVersion 29
+		versionCode 37
 		versionName "1.14.2"
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 	}
@@ -26,6 +26,10 @@ android {
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
+	}
+	dependenciesInfo {
+		includeInApk = false
+		includeInBundle = false
 	}
 }
 

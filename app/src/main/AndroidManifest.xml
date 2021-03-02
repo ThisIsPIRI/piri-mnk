@@ -15,6 +15,7 @@
 		android:label="@string/app_name"
 		android:supportsRtl="true"
 		android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+		android:requestLegacyExternalStorage="true"
 		tools:ignore="GoogleAppIndexingWarning">
 		<activity
 			android:name="com.thisispiri.mnk.andr.MainActivity"
