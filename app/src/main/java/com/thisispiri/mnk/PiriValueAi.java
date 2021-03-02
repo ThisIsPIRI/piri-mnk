@@ -7,7 +7,7 @@ import java.util.Locale;
 
 /**An implementation of {@link MnkAi} that evaluates values of every cell on the board by rudimentary means.*/
 public class PiriValueAi implements MnkAi {
-	private class CellValue {
+	private static class CellValue {
 		final int[] enemyLines, ownLines; //enemyLines(that the cell can block with the cell) and ownLines(that can be extended to the cell)
 		CellValue(int length) {
 			enemyLines = new int[length];

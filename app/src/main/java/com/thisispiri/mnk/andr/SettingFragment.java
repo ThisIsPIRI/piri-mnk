@@ -49,7 +49,7 @@ public class SettingFragment extends PreferenceFragment {
 			return true;
 		});
 	}
-	private Preference.OnPreferenceChangeListener presetSetter(final String[] keys, final List<? extends List> presets, final SharedPreferences sharedPref) {
+	private Preference.OnPreferenceChangeListener presetSetter(final String[] keys, final List<? extends List<?>> presets, final SharedPreferences sharedPref) {
 		return (Preference pref, Object newVal) -> {
 			int value = Integer.parseInt((String) newVal);
 			if(value != 0) {

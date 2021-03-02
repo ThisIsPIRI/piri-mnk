@@ -255,45 +255,42 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Listens for clicks on various buttons.*/
 	private class ButtonListener implements View.OnClickListener {
 		public void onClick(final View v) {
-			switch(v.getId()) {
-			case R.id.restart:
+			int clickedId = v.getId();
+			if(clickedId == R.id.restart) {
 				if(onBluetooth) {
 					showChecksDialog(getString(R.string.restartRequest), restartOptions);
 				}
 				else initialize();
-				break;
-			case R.id.buttonAI:
+			}
+			else if(clickedId == R.id.buttonAI) {
 				if(!gameEnd) {
 					if(useAI.isChecked()) aiTurn(true);
 					else game.changeShape(1);
 				}
-				break;
-			case R.id.buttonSettings:
+			}
+			else if(clickedId == R.id.buttonSettings) {
 				fillThread.interrupt();
 				startActivity(new Intent(MainActivity.this, SettingActivity.class));
-				break;
-			case R.id.fill:
+			}
+			else if(clickedId == R.id.fill) {
 				fillThread.interrupt();
 				fillThread = new FillThread();
 				fillThread.start();
-				break;
-			case R.id.revert:
+			}
+			else if(clickedId == R.id.revert) {
 				if(onBluetooth) bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_REVERT});
 				else revertLast();
-				break;
-			case R.id.save:
-				if(game.getHorSize() > MnkSaveLoader.SGF_MAX || game.getVerSize() > MnkSaveLoader.SGF_MAX) {
+			}
+			else if(clickedId == R.id.save) {
+				if(game.getHorSize() > MnkSaveLoader.SGF_MAX || game.getVerSize() > MnkSaveLoader.SGF_MAX)
 					showToast(MainActivity.this, R.string.sgfLimit);
-					return;
-				}
-				if(getPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
+				else if(getPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, SAVE_REQUEST_CODE, R.string.saveRationale))
 					saveGame(null);
-				break;
-			case R.id.load:
+			}
+			else if(clickedId == R.id.load) {
 				//Reading permission is not enforced under API 19
 				if(android.os.Build.VERSION.SDK_INT < 19 || getPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE, LOAD_REQUEST_CODE, R.string.loadRationale))
 					loadGame(null);
-				break;
 			}
 		}
 	}
@@ -440,7 +437,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 
 	//SECTION: Dialogs
-	private class BunStr {
+	private static class BunStr {
 		private BunStr(Bundle b, String[] s) {bun = b; strs = s;}
 		private final Bundle bun;
 		private final String[] strs;
@@ -606,24 +603,22 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Listens for changes in the playing mode(local or Bluetooth)*/
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
-			switch(id) {
-			case R.id.radioLocal:
+			if(id == R.id.radioLocal) {
 				requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_localConfirm)), getString(R.string.termConnection));
-				break;
-			case R.id.radioBluetooth:
+			}
+			else if(id == R.id.radioBluetooth) {
 				if(adapter == null) {
 					hiddenClick(radioLocal);
 					showToast(MainActivity.this, R.string.noBluetoothSupport);
 				}
-				//If location permission isn't granted
-				else if(!getPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) {
-					break; //onRequestPermissionsResult() will check radioLocal if the request is denied.
+				else if(getPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) {
+					//We already have location permission
+					if(!adapter.isEnabled()) {
+						startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
+					}
+					else showBluetoothDialog();
 				}
-				else if(!adapter.isEnabled()) {
-					startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
-				}
-				else showBluetoothDialog();
-				break;
+				//If not, getPermission will request it; onRequestPermissionsResult() will handle things from there.
 			}
 		}
 	}
@@ -741,8 +736,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		if(grantResults.length > 0) {
 			if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				if(requestCode == LOCATION_REQUEST_CODE && !adapter.isEnabled()) {
-					Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-					startActivityForResult(enableBtIntent, BLUETOOTH_ENABLE_CODE);
+					startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
 					return;
 				}
 				//IllegalStateException is thrown if we call DialogFragment.show() here(https://stackoverflow.com/q/33264031).
@@ -753,7 +747,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				hiddenClick(radioLocal);
 		}
 	}
-	@Override @SuppressWarnings("ConstantConditions") public void informUser(final Info of) {
+	@Override public void informUser(final Info of) {
 		showToast(this, ioMessages.get(of));
 	}
 

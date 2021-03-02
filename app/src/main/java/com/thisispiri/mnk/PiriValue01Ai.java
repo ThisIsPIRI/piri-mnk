@@ -7,7 +7,7 @@ import java.util.Locale;
 
 /**This is the oldest surviving version of PIRI Value AI, with some refactoring to make it work on the current version of PIRI MNK.*/
 public class PiriValue01Ai implements MnkAi {
-	private class Pair<LEFT, RIGHT> {
+	private static class Pair<LEFT, RIGHT> {
 		final LEFT first;
 		final RIGHT second;
 		Pair(LEFT l, RIGHT r) {

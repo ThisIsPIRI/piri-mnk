@@ -83,14 +83,13 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(RadioGroup group, int id) {
 			if(runningThread != null) runningThread.interrupt();
-			switch(group.getCheckedRadioButtonId()) {
-			case R.id.dialogRadioServer:
+			final int checkedRadioButtonId = group.getCheckedRadioButtonId();
+			if(checkedRadioButtonId == R.id.dialogRadioServer) {
 				uuidEditText.setHint(R.string.serverIdentifierHint);
 				adapter.cancelDiscovery();
-				break;
-			case R.id.dialogRadioClient:
+			}
+			else if(checkedRadioButtonId == R.id.dialogRadioClient) {
 				uuidEditText.setHint(R.string.clientIdentifierHint);
-				break;
 			}
 			progressBar.setVisibility(View.GONE);
 		}
