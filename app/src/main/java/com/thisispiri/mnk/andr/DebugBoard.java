@@ -23,7 +23,8 @@ public class DebugBoard extends Board {
 	 * By default, the color of the text is complementary to the stone's color.
 	 * This shouldn't be used with {@link Symbol#XS_AND_OS}.*/
 	public boolean showOrder = false;
-	private Move[] dummyArray = new Move[0];
+	/**Only here for calling Stack.toArray(T[]).*/
+	private final static Move[] dummyArray = new Move[0];
 	public DebugBoard(final android.content.Context context, final android.util.AttributeSet attr)  {
 		super(context, attr);
 		aiPaint.setTextSize(getResources().getDisplayMetrics().scaledDensity * 9);

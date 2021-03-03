@@ -1,6 +1,5 @@
 package com.thisispiri.mnk.andr;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -56,7 +55,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	@Override @NonNull public Dialog onCreateDialog(final Bundle savedInstanceState) {
 		super.onCreateDialog(savedInstanceState);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		@SuppressLint("InflateParams") View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_bluetooth, null);
+		View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_bluetooth, null);
 		builder.setView(view);
 		builder.setMessage(R.string.multiplayerOnBluetooth);
 		builder.setNegativeButton(R.string.cancel, (dialog, id) -> giveSocket(null, false)); //return to local if the user cancels connection
@@ -125,7 +124,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 			public void run() {
 				try {
 					BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord(serviceName, uuid);
-					while (!radioClient.isChecked()) {
+					while(!radioClient.isChecked()) {
 						socket = serverSocket.accept();
 						if (socket != null) {
 							giveSocket(socket, true);
@@ -137,7 +136,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 					}
 					serverSocket.close();
 				}
-				catch (IOException e) {
+				catch(IOException e) {
 					Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() failed");
 					AndrUtil.showToast(getActivity(), R.string.ioError);
 					progressBar.setVisibility(View.GONE);
@@ -178,7 +177,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 					};
 					runningThread.start();
 				}
-				catch (IOException e) {
+				catch(IOException e) {
 					Log.e("PIRIMNK", "device.createRfcommSocketToServiceRecord() failed");
 					AndrUtil.showToast(getActivity(), R.string.ioError);
 					progressBar.setVisibility(View.GONE);
