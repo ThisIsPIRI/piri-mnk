@@ -611,7 +611,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					hiddenClick(radioLocal);
 					showToast(MainActivity.this, R.string.noBluetoothSupport);
 				}
-				else if(getPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) {
+				else if(getPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, LOCATION_REQUEST_CODE, R.string.locationRationale)) {
 					//We already have location permission
 					if(!adapter.isEnabled()) {
 						startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE);
