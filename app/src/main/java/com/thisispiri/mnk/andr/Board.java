@@ -20,17 +20,17 @@ public class Board extends View {
 		LINES_ENCLOSING_SYMBOLS, LINES_UNDER_SYMBOLS, DIAGONAL_ENCLOSING_SYMBOLS;
 		public final static Line[] VALUES = Line.values();
 	}
-	protected final Paint background, line, oPaint, xPaint;
-	protected final Path xPath = new Path(), oPath = new Path();
+	protected final Paint background = new Paint(), line = new Paint();
+	protected final Paint[] playerPaints = {new Paint(), new Paint()};
+	protected final Path[] playerPaths = {new Path(), new Path()};
 	protected int horUnit, verUnit, horSize, verSize;
 	protected int sideLength;
-	protected Symbol symbolType;
+	protected final Symbol[] symbols = new Symbol[2];
 	protected Line lineType;
 	protected MnkGame game;
 	private final RectF ovalData = new RectF();
 	public Board(final android.content.Context context, final android.util.AttributeSet attr)  {
 		super(context, attr);
-		background = new Paint(); line = new Paint(); oPaint = new Paint(); xPaint = new Paint();
 	}
 	@Override protected void onDraw(final Canvas canvas) {
 		//draw background
@@ -38,12 +38,16 @@ public class Board extends View {
 		//draw lines
 		final int halfHor = horUnit / 2, halfVer = verUnit / 2; //manual common subexpression elimination
 		if(lineType == Line.LINES_ENCLOSING_SYMBOLS) {
-			for (int i = 1; i < horSize; i++) canvas.drawLine(horUnit * i, 0, horUnit * i, sideLength, line); //vertical lines
-			for (int i = 1; i < verSize; i++) canvas.drawLine(0, verUnit * i, sideLength, verUnit * i, line); //horizontal lines
+			for (int i = 1; i < horSize; i++)
+				canvas.drawLine(horUnit * i, 0, horUnit * i, sideLength, line); //vertical lines
+			for (int i = 1; i < verSize; i++)
+				canvas.drawLine(0, verUnit * i, sideLength, verUnit * i, line); //horizontal lines
 		}
 		else if(lineType == Line.LINES_UNDER_SYMBOLS) {
-			for (int i = 0; i < horSize; i++) canvas.drawLine(horUnit * i + halfHor, 0, horUnit * i + halfHor , sideLength, line); //vertical lines
-			for (int i = 0; i < verSize; i++) canvas.drawLine(0, verUnit * i + halfVer, sideLength, verUnit * i + halfVer, line); //horizontal lines
+			for (int i = 0; i < horSize; i++)
+				canvas.drawLine(horUnit * i + halfHor, 0, horUnit * i + halfHor , sideLength, line); //vertical lines
+			for (int i = 0; i < verSize; i++)
+				canvas.drawLine(0, verUnit * i + halfVer, sideLength, verUnit * i + halfVer, line); //horizontal lines
 		}
 		else if(lineType == Line.DIAGONAL_ENCLOSING_SYMBOLS) {
 			for(int i = 0;i < horSize + verSize;i++) {
@@ -73,79 +77,65 @@ public class Board extends View {
 					endX2 = sideLength;
 					endY2 = verUnit * (verSize - (i - horSize)) - halfVer;
 				}
-				canvas.drawLine(startX1, startY1, endX1, endY1, line);// / shape
-				canvas.drawLine(startX2, startY2, endX2, endY2, line);// \ shape
+				canvas.drawLine(startX1, startY1, endX1, endY1, line); // / shape
+				canvas.drawLine(startX2, startY2, endX2, endY2, line); // \ shape
 				//line.setColor(line.getColor() + 6000); //interesting, especially with thicker lines
 			}
 		}
 		//draw Os and Xs
-		oPaint.setStrokeWidth(5);
-		xPaint.setStrokeWidth(5);
-		if(symbolType == Symbol.XS_AND_OS) {
-			oPaint.setStyle(Paint.Style.STROKE);
-			xPaint.setStyle(Paint.Style.STROKE);
+		for(int i = 0;i < playerPaints.length;i++) {
+			playerPaints[i].setStrokeWidth(5);
+			if(symbols[i] == Symbol.XS_AND_OS)
+				playerPaints[i].setStyle(Paint.Style.STROKE);
+			else
+				playerPaints[i].setStyle(Paint.Style.FILL);
+			playerPaths[i].reset();
 		}
-		else if(symbolType == Symbol.GO_STONES || symbolType == Symbol.RECTANGLES || symbolType == Symbol.DIAMONDS) {
-			oPaint.setStyle(Paint.Style.FILL);
-			xPaint.setStyle(Paint.Style.FILL);
-		}
-		xPath.reset();
-		oPath.reset();
 		//loop through the array
-		for (int i = 0; i < verSize; i++) {
-			for (int j = 0; j < horSize; j++) {
-				if(game.array[i][j] == Shape.O) { //draw O
-					if(symbolType == Symbol.RECTANGLES) {
-						canvas.drawRect(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, oPaint);
-					}
-					else if(symbolType == Symbol.DIAMONDS) {
-						oPath.moveTo((j + 0.5f) * horUnit, i * verUnit);
-						oPath.lineTo((j + 1) * horUnit, (i + 0.5f) * verUnit);
-						oPath.lineTo((j + 0.5f) * horUnit, (i + 1) * verUnit);
-						oPath.lineTo(j * horUnit, (i + 0.5f) * verUnit);
-						oPath.lineTo((j + 0.5f) * horUnit, i * verUnit);
-						oPath.close();
-					}
-					else {
+		for(int i = 0; i < verSize; i++) {
+			for(int j = 0; j < horSize; j++) {
+				if(game.array[i][j] != game.empty) {
+					final int shapeval = game.array[i][j].value;
+					switch(symbols[shapeval]) {
+					case XS_AND_OS:
+						if(game.array[i][j] == Shape.X) {
+							canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, playerPaints[shapeval]);
+							canvas.drawLine((j + 1) * horUnit, i * verUnit, j * horUnit, (i + 1) * verUnit, playerPaints[shapeval]);
+							break;
+						}
+						//XS_AND_OS is the same as GO_STONES for Shape.O, so let it pass through.
+					case GO_STONES:
 						ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
-						canvas.drawOval(ovalData, oPaint);
-					}
-				}
-				else if(game.array[i][j] == Shape.X) { //draw X
-					if(symbolType == Symbol.XS_AND_OS) {
-						canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, xPaint);
-						canvas.drawLine((j + 1) * horUnit, i * verUnit, j * horUnit, (i + 1) * verUnit, xPaint);
-					}
-					else if(symbolType == Symbol.GO_STONES) {
-						ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
-						canvas.drawOval(ovalData, xPaint);
-					}
-					else if(symbolType == Symbol.RECTANGLES) {
-						canvas.drawRect(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, xPaint);
-					}
-					else if(symbolType == Symbol.DIAMONDS) {
-						xPath.moveTo((j + 0.5f) * horUnit, i * verUnit);
-						xPath.lineTo((j + 1) * horUnit, (i + 0.5f) * verUnit);
-						xPath.lineTo((j + 0.5f) * horUnit, (i + 1) * verUnit);
-						xPath.lineTo(j * horUnit, (i + 0.5f) * verUnit);
-						xPath.lineTo((j + 0.5f) * horUnit, i * verUnit);
-						xPath.close();
+						canvas.drawOval(ovalData, playerPaints[shapeval]);
+						break;
+					case RECTANGLES:
+						canvas.drawRect(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, playerPaints[shapeval]);
+						break;
+					case DIAMONDS:
+						playerPaths[shapeval].moveTo((j + 0.5f) * horUnit, i * verUnit);
+						playerPaths[shapeval].lineTo((j + 1) * horUnit, (i + 0.5f) * verUnit);
+						playerPaths[shapeval].lineTo((j + 0.5f) * horUnit, (i + 1) * verUnit);
+						playerPaths[shapeval].lineTo(j * horUnit, (i + 0.5f) * verUnit);
+						playerPaths[shapeval].lineTo((j + 0.5f) * horUnit, i * verUnit);
+						playerPaths[shapeval].close();
+						break;
 					}
 				}
 			}
 		}
-		if(symbolType == Symbol.DIAMONDS) {
-			canvas.drawPath(xPath, xPaint);
-			canvas.drawPath(oPath, oPaint);
+		for(int i = 0;i < playerPaths.length;i++) {
+			if(!playerPaths[i].isEmpty())
+				canvas.drawPath(playerPaths[i], playerPaints[i]);
 		}
 	}
-	public void updateValues(final int bgColor, final int lineColor, final int oColor, final int xColor, final Symbol ox, final Line line) {
+	public void updateValues(final int bgColor, final int lineColor, final int[] playerColors, final Symbol[] symbols, final Line line) {
 		background.setColor(bgColor);
 		this.line.setColor(lineColor);
 		//this.line.setStrokeWidth(lineWidth);
-		oPaint.setColor(oColor);
-		xPaint.setColor(xColor);
-		symbolType = ox;
+		for(int i = 0;i < playerPaints.length;i++) {
+			playerPaints[i].setColor(playerColors[i]);
+			this.symbols[i] = symbols[i];
+		}
 		lineType = line;
 	}
 	/**Assigns an {@link MnkGame} to be used in the object. Call this every time the board size is changed since it caches the values.*/

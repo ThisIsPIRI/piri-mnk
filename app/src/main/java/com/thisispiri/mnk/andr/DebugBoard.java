@@ -60,10 +60,11 @@ public class DebugBoard extends Board {
 	public void setAiInternals(final String[][] internals) {
 		this.aiInternals = internals;
 	}
-	@Override public void updateValues(final int bgColor, final int lineColor, final int oColor, final int xColor, final Symbol ox, final Line line) {
-		super.updateValues(bgColor, lineColor, oColor, xColor, ox, line);
-		orderPaints[0].setColor(invertColor(xPaint.getColor()));
-		orderPaints[1].setColor(invertColor(oPaint.getColor()));
+	@Override public void updateValues(final int bgColor, final int lineColor, final int[] playerColors, final Symbol[] symbols, final Line line) {
+		super.updateValues(bgColor, lineColor, playerColors, symbols, line);
+		for(int i = 0;i < playerPaints.length;i++) {
+			orderPaints[i].setColor(invertColor(playerPaints[i].getColor()));
+		}
 	}
 	@Override public void setGame(final MnkGame game) {
 		super.setGame(game);
