@@ -12,10 +12,12 @@ import com.thisispiri.mnk.Shape;
  * While the board may be rectangular in cells, the {@code View} itself must be square in pixels.*/
 public class Board extends View {
 	public enum Symbol {
-		XS_AND_OS, GO_STONES
+		XS_AND_OS, GO_STONES, RECTANGLES;
+		public final static Symbol[] VALUES = Symbol.values();
 	}
 	public enum Line {
-		LINES_ENCLOSING_SYMBOLS, LINES_UNDER_SYMBOLS, DIAGONAL_ENCLOSING_SYMBOLS
+		LINES_ENCLOSING_SYMBOLS, LINES_UNDER_SYMBOLS, DIAGONAL_ENCLOSING_SYMBOLS;
+		public final static Line[] VALUES = Line.values();
 	}
 	protected final Paint background, line, oPaint, xPaint;
 	protected int horUnit, verUnit, horSize, verSize;
@@ -81,7 +83,7 @@ public class Board extends View {
 			oPaint.setStyle(Paint.Style.STROKE);
 			xPaint.setStyle(Paint.Style.STROKE);
 		}
-		else if(symbolType == Symbol.GO_STONES) {
+		else if(symbolType == Symbol.GO_STONES || symbolType == Symbol.RECTANGLES) {
 			oPaint.setStyle(Paint.Style.FILL);
 			xPaint.setStyle(Paint.Style.FILL);
 		}
@@ -89,17 +91,25 @@ public class Board extends View {
 		for (int i = 0; i < verSize; i++) {
 			for (int j = 0; j < horSize; j++) {
 				if(game.array[i][j] == Shape.O) { //draw O
-					ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
-					canvas.drawOval(ovalData, oPaint);
+					if(symbolType == Symbol.RECTANGLES) {
+						canvas.drawRect(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, oPaint);
+					}
+					else {
+						ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
+						canvas.drawOval(ovalData, oPaint);
+					}
 				}
 				else if(game.array[i][j] == Shape.X) { //draw X
 					if(symbolType == Symbol.XS_AND_OS) {
 						canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, xPaint);
 						canvas.drawLine((j + 1) * horUnit, i * verUnit, j * horUnit, (i + 1) * verUnit, xPaint);
 					}
-					else {
+					else if(symbolType == Symbol.GO_STONES) {
 						ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
 						canvas.drawOval(ovalData, xPaint);
+					}
+					else if(symbolType == Symbol.RECTANGLES) {
+						canvas.drawRect(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, xPaint);
 					}
 				}
 			}

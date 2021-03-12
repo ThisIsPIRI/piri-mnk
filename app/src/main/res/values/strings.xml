@@ -22,6 +22,7 @@
 	<string name="fileNameHint">Enter the filename</string>
 	<string name="xsAndOs">Xs and Os</string>
 	<string name="goStones">Go stones</string>
+	<string name="rectangles">Rectangles</string>
 	<string name="winAnnouncement">th player won</string>
 	<string name="ioError">An IO error occurred.</string>
 	<string name="asTheServer">Play first</string>

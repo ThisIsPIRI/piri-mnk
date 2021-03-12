@@ -22,6 +22,7 @@
 	<string-array translatable="false" name="symbolsIds">
 		<item>@string/xsAndOs</item>
 		<item>@string/goStones</item>
+		<item>@string/rectangles</item>
 	</string-array>
 	<string-array translatable="false" name="linesIds">
 		<item>@string/linesEnclosingSymbols</item>

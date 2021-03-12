@@ -125,8 +125,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
 	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriValue01Ai(), new PiriValueAi(), new EmacsGomokuAi()};
-	private final static Board.Symbol[] availableSymbols = {Board.Symbol.XS_AND_OS, Board.Symbol.GO_STONES};
-	private final static Board.Line[] availableLines = {Board.Line.LINES_ENCLOSING_SYMBOLS, Board.Line.LINES_UNDER_SYMBOLS, Board.Line.DIAGONAL_ENCLOSING_SYMBOLS};
 	private final static int[] restartOptions = {R.string.playFirst, R.string.sendChangedRules};
 
 	static {
@@ -188,8 +186,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		cacheChangedRules(pref);
 		ai = availableAis[Integer.parseInt(pref.getString("aiType", "2"))];
 		//graphics. TODO: pass functions as symbol type?
-		Board.Symbol symbolType = availableSymbols[Integer.parseInt(pref.getString("symbols", "0"))];
-		Board.Line lineType = availableLines[Integer.parseInt(pref.getString("lineType", "0"))];
+		Board.Symbol symbolType = Board.Symbol.VALUES[Integer.parseInt(pref.getString("symbols", "0"))];
+		Board.Line lineType = Board.Line.VALUES[Integer.parseInt(pref.getString("lineType", "0"))];
 		int backColor = pref.getInt("backgroundColor", 0xFFFFFFFF);
 		parentView.setBackgroundColor(backColor);
 		board.setGame(game);
