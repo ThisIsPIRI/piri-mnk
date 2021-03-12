@@ -46,6 +46,13 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
 				<RadioButton
+					android:id="@+id/radioLan"
+					android:textAppearance="@style/TextShadow"
+					android:textSize="@dimen/upperButtonTextSize"
+					android:text="@string/lan"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content" />
+				<RadioButton
 					android:id="@+id/radioBluetooth"
 					android:textAppearance="@style/TextShadow"
 					android:textSize="@dimen/upperButtonTextSize"

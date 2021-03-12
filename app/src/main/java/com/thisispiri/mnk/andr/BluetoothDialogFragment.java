@@ -122,19 +122,16 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 		if(runningThread != null) runningThread.interrupt();
 		runningThread = new Thread() {
 			public void run() {
-				try {
-					BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord(serviceName, uuid);
+				try(BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord(serviceName, uuid)) {
 					while(!radioClient.isChecked()) {
 						socket = serverSocket.accept();
 						if (socket != null) {
 							giveSocket(socket, true);
-							serverSocket.close();
 							dismiss();
 							break;
 						}
 						if(interrupted()) break;
 					}
-					serverSocket.close();
 				}
 				catch(IOException e) {
 					Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() failed");

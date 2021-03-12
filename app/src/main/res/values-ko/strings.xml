@@ -37,7 +37,8 @@
 	<string name="clientIdentifierHint">방 이름(맞은편과 같아야 함)</string>
 	<string name="serverIdentifierHint">방 이름(맞은편과 같아야 함)</string>
 	<string name="local">한 대로</string>
-	<string name="bluetooth">두 대로</string>
+	<string name="bluetooth">블루투스</string>
+	<string name="lan">울안(LAN)</string>
 	<string name="requestRejected">요청이 거부되었습니다.</string>
 	<string name="requested">맞은편이 %s을(를) 요청했습니다.</string>
 	<string name="firstSymbols">첫째 사람 돌 생김새</string>

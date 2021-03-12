@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.Socket;
 import java.util.Collections;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ import com.thisispiri.dialogs.ChecksDialogFragment;
 import com.thisispiri.dialogs.DecisionDialogFragment;
 import com.thisispiri.dialogs.DialogListener;
 import com.thisispiri.dialogs.EditTextDialogFragment;
+import com.thisispiri.dialogs.IpConnectDialogFragment;
 import com.thisispiri.mnk.EmacsGomokuAi;
 import com.thisispiri.mnk.FillerMnkAi;
 import com.thisispiri.mnk.IoThread;
@@ -73,23 +75,26 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private TextView winText;
 	private SwitchCompat useAI;
 	private View parentView;
-	private RadioButton radioLocal, radioBluetooth; //onCheckedChanged() may be called more than once if we use RadioGroup.check(). Do not replace this with radioPlayers.
+	private RadioButton radioLocal, radioLan, radioBluetooth; //onCheckedChanged() may be called more than once if we use RadioGroup.check(). Do not replace this with radioPlayers.
 	private RadioGroup rGroup;
 	private final ButtonListener bLis = new ButtonListener();
 	private final RadioListener rLis = new RadioListener();
 	/**The {@code Thread} used to asynchronously fill all cells when the "fill all" button is pressed.*/
 	private FillThread fillThread;
 	/**The {@code Thread} used to communicate with another client via Bluetooth.*/
-	private IoThread bluetoothThread;
+	private IoThread connecThread;
 	/**The {@code Handler} used to handle invalidation requests from {@link MainActivity#fillThread}.*/
 	private final Handler fillHandler = new FillHandler(this);
 	/**The {@code CountDownTimer} for implementing the time limit.*/
 	private GameTimer limitTimer = new GameTimer(this, -1); //The first instance is replaced in setTimeLimit()
 	private final MnkSaveLoader saveLoader = new MnkSaveLoader();
 	private final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-	private BluetoothSocket socket;
+	//I'd have one Closeable here, but casting Socket to Closeable requires API 19
+	private BluetoothSocket blueSocket = null;
+	private Socket lanSocket = null;
 	private boolean gameEnd = false;
-	private boolean onBluetooth = false;
+	/**Whether the app's connected to another device via LAN or Bluetooth.*/
+	private boolean connected = false;
 	/**Indicates if the game's in a latency offset. See the doc of GameTimer for details about it.*/
 	private boolean preventPlaying = false;
 	private boolean enableHighlight;
@@ -120,7 +125,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final List<BunStr> bunStrs = new LinkedList<>();
 	private final static int SAVE_REQUEST_CODE = 412, LOAD_REQUEST_CODE = 413, LOCATION_REQUEST_CODE = 414, BLUETOOTH_ENABLE_CODE = 415;
 	private final static int REQUEST_RECEIVED_OUTSIDE_MAIN = 416;
-	private final static String DECISION_TAG = "decision", EDITTEXT_TAG = "file", BLUETOOTH_TAG = "bluetooth", CHECKS_TAG = "checks";
+	private final static int TCP_PORT = 20417;
+	private final static String DECISION_TAG = "decision", EDITTEXT_TAG = "file", LAN_TAG = "lan", BLUETOOTH_TAG = "bluetooth", CHECKS_TAG = "checks";
 	private final static String DIRECTORY_NAME = "PIRI/MNK", FILE_EXTENSION = ".sgf";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
@@ -181,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void readData() {
 		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		//rules
-		if(!onBluetooth)
+		if(!connected)
 			readRules(pref);
 		cacheChangedRules(pref);
 		ai = availableAis[Integer.parseInt(pref.getString("aiType", "2"))];
@@ -232,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		winText = findViewById(R.id.winText);
 		useAI = findViewById(R.id.useAI);
 		radioLocal = findViewById(R.id.radioLocal);
+		radioLan = findViewById(R.id.radioLan);
 		radioBluetooth = findViewById(R.id.radioBluetooth);
 		parentView = findViewById(R.id.mainLayout);
 		findViewById(R.id.restart).setOnClickListener(bLis);
@@ -256,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		public void onClick(final View v) {
 			int clickedId = v.getId();
 			if(clickedId == R.id.restart) {
-				if(onBluetooth) {
+				if(connected) {
 					showChecksDialog(getString(R.string.restartRequest), restartOptions);
 				}
 				else initialize();
@@ -277,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				fillThread.start();
 			}
 			else if(clickedId == R.id.revert) {
-				if(onBluetooth) bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_REVERT});
+				if(connected) connecThread.write(new byte[]{REQUEST_HEADER, REQUEST_REVERT});
 				else revertLast();
 			}
 			else if(clickedId == R.id.save) {
@@ -372,9 +379,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		//Check the legality of the move. Don't check for preventPlaying here; see GameTimer and BoardListener for details.
 		if(!game.place(x, y)) return false; //Do nothing if the move was invalid.
 		y = game.history.peek().coord.y; //y may change in a GravityMnkGame.
-		if(onBluetooth) {
+		if(connected) {
 			//TODO: don't rely on the Looper to determine if it's the user or the opponent playing
-			if(Looper.myLooper() == Looper.getMainLooper()) bluetoothThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
+			if(Looper.myLooper() == Looper.getMainLooper()) connecThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
 			//If it's the user's turn, refuse to end the turn for the opponent.
 			//Compare myIndex to nextIndexAt(-1) since the game.place() call above has changed nextIndex by 1.
 			else if(game.getNextIndexAt(-1) == myIndex) {
@@ -424,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			/*This user(using this device) shouldn't be allowed to play while in latency offset, in both single and multiplayer; it would be cheating.
 			* However, if a user plays with little time remaining, and the move gets to the other, receiving device AFTER the offset started in it,
 			* it must accept the move, since the move was valid in the sending device. That's why we only check for preventPlaying in here and not in endTurn().*/
-			if(e.getActionMasked() == MotionEvent.ACTION_UP && !gameEnd && (game.getNextIndex() == myIndex || !onBluetooth) && !preventPlaying) {
+			if(e.getActionMasked() == MotionEvent.ACTION_UP && !gameEnd && (game.getNextIndex() == myIndex || !connected) && !preventPlaying) {
 				int x = (int)(e.getX() / screenX * game.getHorSize()), y = (int)(e.getY() / screenX * game.getVerSize()); //determine which cell the user touched
 				//Let the AI play only if the user's move was valid and placed correctly, the game hasn't ended after the move and AI is enabled
 				if(endTurn(x, y, false) && !gameEnd && useAI.isChecked())
@@ -492,6 +499,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), EDITTEXT_TAG));
 		fragment.show(getSupportFragmentManager(), EDITTEXT_TAG, message, hint);
 	}
+	private void showLanDialog() {
+		IpConnectDialogFragment fragment = new IpConnectDialogFragment(TCP_PORT);
+		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), LAN_TAG));
+		fragment.show(getSupportFragmentManager(), LAN_TAG);
+	}
 	/**Opens a {@link BluetoothDialogFragment}.*/
 	private void showBluetoothDialog() {
 		BluetoothDialogFragment fragment = new BluetoothDialogFragment();
@@ -519,7 +531,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		case DECISION_TAG:
 			boolean wasRequest = arguments.getBoolean(getString(R.string.i_wasRequest));
 			if(wasRequest) {
-				if(!onBluetooth) break; //The opponent might cancel connection after sending a request.
+				if(!connected) break; //The opponent might cancel connection after sending a request.
 				byte request = arguments.getByte(getString(R.string.i_action));
 				if((Boolean) result) {
 					switch (request) {
@@ -533,22 +545,24 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						break;
 					}
 					if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
-						bluetoothThread.write(4 + RULE_SIZE * 4, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
+						connecThread.write(4 + RULE_SIZE * 4, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
 					else
-						bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
+						connecThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 				}
-				else bluetoothThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
+				else connecThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
 			}
 			else {
 				final String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
 				if(decisionKey == null) break;
 				if(decisionKey.equals(getString(R.string.i_localConfirm))) {
 					if((Boolean) result) {
-						stopBluetooth(true);
+						stopConnection(true);
 						configureUI(false);
 					}
-					else
+					//TODO: This will break if/when we support API >=19 only and store one Closeable instead of blueSocket and lanSocket.
+					else if(blueSocket != null)
 						hiddenClick(radioBluetooth);
+					else hiddenClick(radioLan);
 				}
 			}
 			break;
@@ -559,24 +573,32 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				else if(message.equals(getString(R.string.load))) loadGame((String) result);
 			}
 			break;
-		case BLUETOOTH_TAG:
+		case BLUETOOTH_TAG: case LAN_TAG:
 			if(result == null)
 				runOnUiThread(() -> hiddenClick(radioLocal)); //connection failed or canceled
 			else {
-				this.socket = (BluetoothSocket) result;
-				runOnUiThread(() -> configureUI(true));
 				try {
-					bluetoothThread = new IoThread(this, socket.getInputStream(), socket.getOutputStream());
-					bluetoothThread.start();
+					if(tag.equals(BLUETOOTH_TAG)) {
+						blueSocket = (BluetoothSocket) result;
+						connecThread = new IoThread(this, blueSocket.getInputStream(), blueSocket.getOutputStream());
+					}
+					else {
+						lanSocket = (Socket) result;
+						connecThread = new IoThread(this, lanSocket.getInputStream(), lanSocket.getOutputStream());
+					}
 				}
 				catch (IOException e) {
 					showToast(this, R.string.couldntGetStream);
-					radioLocal.setChecked(true);
+					runOnUiThread(() -> hiddenClick(radioLocal));
+					closeSockets();
+					break;
 				}
+				connecThread.start();
+				runOnUiThread(() -> configureUI(true));
 				initialize();
-				if(arguments.getBoolean(getString(R.string.i_isServer))) {
+				if(arguments.getBoolean(getString(R.string.i_isServer)) || arguments.getBoolean(getString(R.string.piri_dialogs_isServer))) {
 					myIndex = 0;
-					bluetoothThread.write(2 + RULE_SIZE * 4, ORDER_HEADER, ORDER_INITIALIZE, getRules());
+					connecThread.write(2 + RULE_SIZE * 4, ORDER_HEADER, ORDER_INITIALIZE, getRules());
 				}
 			}
 			break;
@@ -585,25 +607,28 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			if(result == null) break;
 			final int newMyIndex = boolArrayResult[0] ? 0 : 1;
 			if((ruleDiffersFromPreference && boolArrayResult[1]) || myIndex != newMyIndex) { //Request to restart AND change the rules.
-				bluetoothThread.write(3 + RULE_SIZE * 4, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED,
+				connecThread.write(3 + RULE_SIZE * 4, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED,
 						boolArrayResult[1] ? preferenceRules : getPureRules(), newMyIndex);
 			}
 			else
-				bluetoothThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+				connecThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
 			break;
 		}
 	}
 
 	//SECTION: Communication
-	/**Clicks the {@code RadioButton} without alerting {@code rLis}.*/
+	/**Clicks the {@code RadioButton} without alerting {@link MainActivity#rLis}.*/
 	private void hiddenClick(final RadioButton button) {
 		AndrUtil.hiddenClick(rGroup, button, rLis, true);
 	}
-	/**Listens for changes in the playing mode(local or Bluetooth)*/
+	/**Listens for changes in the playing mode(local, LAN or Bluetooth)*/
 	private class RadioListener implements RadioGroup.OnCheckedChangeListener {
 		@Override public void onCheckedChanged(final RadioGroup group, final int id) {
 			if(id == R.id.radioLocal) {
 				requestConfirm(bundleWith(getString(R.string.i_nonreqAction), getString(R.string.i_localConfirm)), getString(R.string.termConnection));
+			}
+			else if(id == R.id.radioLan) {
+				showLanDialog();
 			}
 			else if(id == R.id.radioBluetooth) {
 				if(adapter == null) {
@@ -635,14 +660,22 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 		else super.onActivityResult(requestCode, resultCode, data); //to have BluetoothDialogFragment.onActivityResult() called
 	}
-	/**Configures the UI for Bluetooth or local play.*/
-	private void configureUI(final boolean toBluetooth) {
-		onBluetooth = toBluetooth; //TODO: move this to somewhere else
-		useAI.setChecked(!toBluetooth);
-		useAI.setEnabled(!toBluetooth);
-		buttonFill.setEnabled(!toBluetooth);
-		buttonAI.setEnabled(!toBluetooth);
-		buttonLoad.setEnabled(!toBluetooth);
+	/**Configures the UI for connected or local play.*/
+	private void configureUI(final boolean toConnected) {
+		connected = toConnected; //TODO: move this to somewhere else
+		useAI.setChecked(!toConnected);
+		useAI.setEnabled(!toConnected);
+		buttonFill.setEnabled(!toConnected);
+		buttonAI.setEnabled(!toConnected);
+		buttonLoad.setEnabled(!toConnected);
+		if(!toConnected) {
+			radioLan.setEnabled(true);
+			radioBluetooth.setEnabled(true);
+		}
+		else if(radioBluetooth.isChecked())
+			radioLan.setEnabled(false);
+		else
+			radioBluetooth.setEnabled(false);
 	}
 	/**Sets up the time limit if {@code limit} is greater than 0. Disables it otherwise.
 	 * Cancels the timer if the limit was changed from the last value.
@@ -658,30 +691,35 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		}
 	}
 	@Override public void onDestroy() {
-		stopBluetooth(true);
+		stopConnection(true);
 		if(limitTimer != null) limitTimer.cancel();
 		super.onDestroy();
 	}
 	/**{@inheritDoc} Informs the user of the cancellation.*/
 	@Override public void cancelConnection() {
-		stopBluetooth(false);
+		stopConnection(false);
 		runOnUiThread(() -> {
 			configureUI(false);
 			hiddenClick(radioLocal);
 			showToast(MainActivity.this, R.string.connectionTerminated);});
 	}
-	/**Stops Bluetooth communications but doesn't set radioLocal to true.
+	/**Stops communications but doesn't set radioLocal to true.
 	 * @param informOpponent If true, informs the opponent that we terminated the connection.*/
-	private void stopBluetooth(final boolean informOpponent) {
-		try {
-			if(bluetoothThread != null) {
-				if(informOpponent) bluetoothThread.write(new byte[]{ORDER_HEADER, ORDER_CANCEL_CONNECTION});
-				bluetoothThread.interrupt();
-				bluetoothThread = null;
-			}
-			if(socket != null) socket.close();
+	private void stopConnection(final boolean informOpponent) {
+		if(connecThread != null) {
+			if(informOpponent) connecThread.write(new byte[]{ORDER_HEADER, ORDER_CANCEL_CONNECTION});
+			connecThread.interrupt();
+			connecThread = null;
 		}
-		catch(IOException e) {
+		closeSockets();
+	}
+	private void closeSockets() {
+		try {
+			if(blueSocket != null) blueSocket.close();
+			if(lanSocket != null) lanSocket.close();
+			blueSocket = null; lanSocket = null;
+		}
+		catch(IOException closeException) {
 			showToast(this, R.string.problemWhileClosing);
 		}
 	}
@@ -780,7 +818,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	}
 
 	//SECTION: Fun
-	private static class FillHandler extends Handler{
+	private static class FillHandler extends Handler {
 		final WeakReference<MainActivity> activity;
 		FillHandler(final MainActivity a) {activity = new WeakReference<>(a);}
 		@Override public void handleMessage(final Message m) {
