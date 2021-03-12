@@ -58,8 +58,7 @@
 		<CheckBoxPreference
 			android:key="showHistory"
 			android:title="@string/showOrder"
-			android:defaultValue="false"
-			android:summary="@string/showHistoryHint"/>
+			android:defaultValue="false"/>
 		<CheckBoxPreference
 			android:key="enableHighlight"
 			android:title="@string/enableHighlighting"
@@ -81,19 +80,19 @@
 			android:title="@string/preset"
 			android:entries="@array/graphicPresetIds"
 			android:entryValues="@array/listValues"
-			android:defaultValue="0"/>
+			android:defaultValue="2"/>
 		<ListPreference
 			android:key="symbols"
 			android:title="@string/symbols"
 			android:entries="@array/symbolsIds"
 			android:entryValues="@array/listValues"
-			android:defaultValue="0"/>
+			android:defaultValue="1"/>
 		<ListPreference
 			android:key="lineType"
 			android:title="@string/lineType"
 			android:entries="@array/linesIds"
 			android:entryValues="@array/listValues"
-			android:defaultValue="0"/>
+			android:defaultValue="1"/>
 		<com.thisispiri.preferences.ArgbPreference
 			android:key="highlightColor"
 			android:title="@string/highlightColor"

@@ -94,7 +94,6 @@
 	<string name="onlyCountExact">똑같은 길이의 줄로만 이김</string>
 	<string name="exactOnly">똑같은 길이만</string>
 	<string name="exactSummary">(보기: 오목에서 육목을 만들어도 이기지 못함)</string>
-	<string name="showHistoryHint">돌 생김새를 바둑돌로 바꾸고 쓰세요</string>
 	<string name="helpers">도우미</string>
 	<string name="showOrder">돌 순서 보이기</string>
 </resources>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<integer name="defaultBackground">0xFFFFFFFF</integer>
+	<integer name="defaultBackground">0xFFB69B4C</integer>
 	<integer name="defaultLine">0xFF000000</integer>
-	<integer name="defaultO">0xFFFF0000</integer>
-	<integer name="defaultX">0xFF0000FF</integer>
+	<integer name="defaultO">0xFFFFFFFF</integer>
+	<integer name="defaultX">0xFF000000</integer>
 	<integer name="defaultHighlight">0x7F000000</integer>
 	<integer name="defaultWinStreak">5</integer>
 	<integer name="defaultHorSize">15</integer>
