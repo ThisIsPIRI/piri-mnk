@@ -21,10 +21,10 @@ public class SettingFragment extends PreferenceFragment {
 			asList(19, 19, 5, false), asList(7, 6, 4, true));
 	private static final String[] ruleKeys = {"horSize", "verSize", "winStreak", "enableGravity"};
 	private static final List<List<?>> graphicPresets = asList(emptyList(),
-			asList("0", "0", 0xFF000000, 0xFFFFFFFF, 0xFF0000FF, 0xFFFF0000),
-			asList("1", "1", 0xFF000000, 0xFFB69B4C, 0xFF000000, 0xFFFFFFFF),
-			asList("1", "2", 0xFFEEEEFF, 0xFF0000EE, 0xFFEEEE00, 0xFFEE0000));
-	private static final String[] graphicKeys = {"symbols", "lineType", "lineColor", "backgroundColor", "xColor", "oColor"};
+			asList("0", "1", "0", 0xFF000000, 0xFFFFFFFF, 0xFF0000FF, 0xFFFF0000),
+			asList("2", "2", "1", 0xFF000000, 0xFFB69B4C, 0xFF000000, 0xFFFFFFFF),
+			asList("2", "2", "2", 0xFFEEEEFF, 0xFF0000EE, 0xFFEEEE00, 0xFFEE0000));
+	private static final String[] graphicKeys = {"firstSymbols", "secondSymbols", "lineType", "lineColor", "backgroundColor", "xColor", "oColor"};
 	@Override public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);

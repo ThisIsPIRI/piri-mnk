@@ -13,7 +13,7 @@ import com.thisispiri.mnk.Shape;
  * While the board may be rectangular in cells, the {@code View} itself must be square in pixels.*/
 public class Board extends View {
 	public enum Symbol {
-		XS_AND_OS, GO_STONES, RECTANGLES, DIAMONDS;
+		XS, OS, GO_STONES, RECTANGLES, DIAMONDS;
 		public final static Symbol[] VALUES = Symbol.values();
 	}
 	public enum Line {
@@ -85,7 +85,7 @@ public class Board extends View {
 		//draw Os and Xs
 		for(int i = 0;i < playerPaints.length;i++) {
 			playerPaints[i].setStrokeWidth(5);
-			if(symbols[i] == Symbol.XS_AND_OS)
+			if(symbols[i] == Symbol.XS || symbols[i] == Symbol.OS)
 				playerPaints[i].setStyle(Paint.Style.STROKE);
 			else
 				playerPaints[i].setStyle(Paint.Style.FILL);
@@ -97,13 +97,11 @@ public class Board extends View {
 				if(game.array[i][j] != game.empty) {
 					final int shapeval = game.array[i][j].value;
 					switch(symbols[shapeval]) {
-					case XS_AND_OS:
-						if(game.array[i][j] == Shape.X) {
-							canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, playerPaints[shapeval]);
-							canvas.drawLine((j + 1) * horUnit, i * verUnit, j * horUnit, (i + 1) * verUnit, playerPaints[shapeval]);
-							break;
-						}
-						//XS_AND_OS is the same as GO_STONES for Shape.O, so let it pass through.
+					case XS:
+						canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, playerPaints[shapeval]);
+						canvas.drawLine((j + 1) * horUnit, i * verUnit, j * horUnit, (i + 1) * verUnit, playerPaints[shapeval]);
+						break;
+					case OS:
 					case GO_STONES:
 						ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
 						canvas.drawOval(ovalData, playerPaints[shapeval]);

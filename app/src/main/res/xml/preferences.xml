@@ -82,11 +82,17 @@
 			android:entryValues="@array/listValues"
 			android:defaultValue="2"/>
 		<ListPreference
-			android:key="symbols"
-			android:title="@string/symbols"
+			android:key="firstSymbols"
+			android:title="@string/firstSymbols"
 			android:entries="@array/symbolsIds"
 			android:entryValues="@array/listValues"
-			android:defaultValue="1"/>
+			android:defaultValue="2"/>
+		<ListPreference
+			android:key="secondSymbols"
+			android:title="@string/secondSymbols"
+			android:entries="@array/symbolsIds"
+			android:entryValues="@array/listValues"
+			android:defaultValue="2"/>
 		<ListPreference
 			android:key="lineType"
 			android:title="@string/lineType"

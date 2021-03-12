@@ -6,8 +6,8 @@ import java.util.ArrayDeque
 import java.util.Queue
 
 open class EmacsGomokuAi: MnkAi {
-	enum class Mode(val value: Int) {
-		HOR(0), VER(1), SLASH(2), RESLASH(3);
+	enum class Mode {
+		HOR, VER, SLASH, RESLASH;
 		fun perpendicular(): Mode {
 			return when(this) {
 				HOR -> VER
@@ -81,12 +81,12 @@ open class EmacsGomokuAi: MnkAi {
 		}
 	}
 	private fun forward(p: Point, mode: Mode) {
-		p.y += yP[mode.value]
-		p.x += xP[mode.value]
+		p.y += yP[mode.ordinal]
+		p.x += xP[mode.ordinal]
 	}
 	private fun backward(p: Point, mode: Mode) {
-		p.y -= yP[mode.value]
-		p.x -= xP[mode.value]
+		p.y -= yP[mode.ordinal]
+		p.x -= xP[mode.ordinal]
 	}
 	private fun forBackward(from: Point, mode: Mode, n: Int, action: (Int, Int) -> Unit) {
 		val p = Point(from)

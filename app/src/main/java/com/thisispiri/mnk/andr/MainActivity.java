@@ -186,7 +186,8 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		cacheChangedRules(pref);
 		ai = availableAis[Integer.parseInt(pref.getString("aiType", "2"))];
 		//graphics. TODO: pass functions as symbol type?
-		Board.Symbol symbolType = Board.Symbol.VALUES[Integer.parseInt(pref.getString("symbols", "1"))];
+		Board.Symbol firstSymbol = Board.Symbol.VALUES[Integer.parseInt(pref.getString("firstSymbols", "2"))];
+		Board.Symbol secondSymbol = Board.Symbol.VALUES[Integer.parseInt(pref.getString("secondSymbols", "2"))];
 		Board.Line lineType = Board.Line.VALUES[Integer.parseInt(pref.getString("lineType", "1"))];
 		int backColor = pref.getInt("backgroundColor", 0xFFB69B4C);
 		parentView.setBackgroundColor(backColor);
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		board.setAiInternals(null);
 		board.showOrder = pref.getBoolean("showHistory", false);
 		board.updateValues(backColor, pref.getInt("lineColor", 0xFF000000),
-				new int[]{pref.getInt("xColor", 0xFF000000), pref.getInt("oColor", 0xFFFFFFFF)}, new Board.Symbol[]{symbolType, symbolType}, lineType);
+				new int[]{pref.getInt("xColor", 0xFF000000), pref.getInt("oColor", 0xFFFFFFFF)}, new Board.Symbol[]{firstSymbol, secondSymbol}, lineType);
 		highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX, pref.getInt("highlightColor", 0x7F000000),
 				pref.getInt("highlightDuration", 120), pref.getInt("highlightHowMany", 3));
 		enableHighlight = pref.getBoolean("enableHighlight", true);

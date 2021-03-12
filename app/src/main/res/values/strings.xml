@@ -20,7 +20,8 @@
 	<string name="saveRationale">The permission is needed to save games on files.</string>
 	<string name="loadRationale">The permission is needed to load games from files.</string>
 	<string name="fileNameHint">Enter the filename</string>
-	<string name="xsAndOs">Xs and Os</string>
+	<string name="xStones">Xs</string>
+	<string name="oStones">Os</string>
 	<string name="goStones">Go stones</string>
 	<string name="rectangles">Rectangles</string>
 	<string name="diamonds">Diamonds</string>
@@ -37,7 +38,8 @@
 	<string name="locationRationale">The permission is needed to search for Bluetooth devices.</string>
 	<string name="requestRejected">Your request was rejected.</string>
 	<string name="requested">The opponent requested %s.</string>
-	<string name="symbols">Symbols</string>
+	<string name="firstSymbols">First player\'s symbols</string>
+	<string name="secondSymbols">Second player\'s symbols</string>
 	<string name="horSize">Horizontal size</string>
 	<string name="verSize">Vertical size</string>
 	<string name="sgfLimit">Saving games with a side longer than 52 is currently not supported.</string>

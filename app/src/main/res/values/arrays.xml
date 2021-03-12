@@ -20,7 +20,8 @@
 		<item>@string/fourInRow</item>
 	</string-array>
 	<string-array translatable="false" name="symbolsIds">
-		<item>@string/xsAndOs</item>
+		<item>@string/xStones</item>
+		<item>@string/oStones</item>
 		<item>@string/goStones</item>
 		<item>@string/rectangles</item>
 		<item>@string/diamonds</item>
