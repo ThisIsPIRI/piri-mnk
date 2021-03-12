@@ -2,6 +2,7 @@ package com.thisispiri.mnk.andr;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.view.View;
 
@@ -12,7 +13,7 @@ import com.thisispiri.mnk.Shape;
  * While the board may be rectangular in cells, the {@code View} itself must be square in pixels.*/
 public class Board extends View {
 	public enum Symbol {
-		XS_AND_OS, GO_STONES, RECTANGLES;
+		XS_AND_OS, GO_STONES, RECTANGLES, DIAMONDS;
 		public final static Symbol[] VALUES = Symbol.values();
 	}
 	public enum Line {
@@ -20,6 +21,7 @@ public class Board extends View {
 		public final static Line[] VALUES = Line.values();
 	}
 	protected final Paint background, line, oPaint, xPaint;
+	protected final Path xPath = new Path(), oPath = new Path();
 	protected int horUnit, verUnit, horSize, verSize;
 	protected int sideLength;
 	protected Symbol symbolType;
@@ -83,16 +85,26 @@ public class Board extends View {
 			oPaint.setStyle(Paint.Style.STROKE);
 			xPaint.setStyle(Paint.Style.STROKE);
 		}
-		else if(symbolType == Symbol.GO_STONES || symbolType == Symbol.RECTANGLES) {
+		else if(symbolType == Symbol.GO_STONES || symbolType == Symbol.RECTANGLES || symbolType == Symbol.DIAMONDS) {
 			oPaint.setStyle(Paint.Style.FILL);
 			xPaint.setStyle(Paint.Style.FILL);
 		}
+		xPath.reset();
+		oPath.reset();
 		//loop through the array
 		for (int i = 0; i < verSize; i++) {
 			for (int j = 0; j < horSize; j++) {
 				if(game.array[i][j] == Shape.O) { //draw O
 					if(symbolType == Symbol.RECTANGLES) {
 						canvas.drawRect(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, oPaint);
+					}
+					else if(symbolType == Symbol.DIAMONDS) {
+						oPath.moveTo((j + 0.5f) * horUnit, i * verUnit);
+						oPath.lineTo((j + 1) * horUnit, (i + 0.5f) * verUnit);
+						oPath.lineTo((j + 0.5f) * horUnit, (i + 1) * verUnit);
+						oPath.lineTo(j * horUnit, (i + 0.5f) * verUnit);
+						oPath.lineTo((j + 0.5f) * horUnit, i * verUnit);
+						oPath.close();
 					}
 					else {
 						ovalData.set(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit);
@@ -111,8 +123,20 @@ public class Board extends View {
 					else if(symbolType == Symbol.RECTANGLES) {
 						canvas.drawRect(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, xPaint);
 					}
+					else if(symbolType == Symbol.DIAMONDS) {
+						xPath.moveTo((j + 0.5f) * horUnit, i * verUnit);
+						xPath.lineTo((j + 1) * horUnit, (i + 0.5f) * verUnit);
+						xPath.lineTo((j + 0.5f) * horUnit, (i + 1) * verUnit);
+						xPath.lineTo(j * horUnit, (i + 0.5f) * verUnit);
+						xPath.lineTo((j + 0.5f) * horUnit, i * verUnit);
+						xPath.close();
+					}
 				}
 			}
+		}
+		if(symbolType == Symbol.DIAMONDS) {
+			canvas.drawPath(xPath, xPaint);
+			canvas.drawPath(oPath, oPaint);
 		}
 	}
 	public void updateValues(final int bgColor, final int lineColor, final int oColor, final int xColor, final Symbol ox, final Line line) {
