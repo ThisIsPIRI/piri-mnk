@@ -130,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final static int TCP_PORT = 20417;
 	private final static String DECISION_TAG = "decision", EDITTEXT_TAG = "file", LAN_TAG = "lan", BLUETOOTH_TAG = "bluetooth", CHECKS_TAG = "checks";
 	private final static String DIRECTORY_NAME = "PIRI/MNK", FILE_EXTENSION = ".sgf";
+	private final static String SDP_SERVICE_NAME = "PIRI_MNK";
 	/**The {@code Map} mapping {@link Info}s to IDs of {@code String}s that are displayed when the {@code Activity} receives them from the {@link IoThread}.*/
 	private final static Map<Info, Integer> ioMessages;
 	private final static MnkAi[] availableAis = {new FillerMnkAi(), new PiriValue01Ai(), new PiriValueAi(), new EmacsGomokuAi()};
@@ -511,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void showBluetoothDialog() {
 		BluetoothDialogFragment fragment = new BluetoothDialogFragment();
 		fragment.setArguments(bundleWith(getString(R.string.i_tagInBundle), BLUETOOTH_TAG));
-		fragment.show(getSupportFragmentManager(), BLUETOOTH_TAG, getString(R.string.app_name));
+		fragment.show(getSupportFragmentManager(), BLUETOOTH_TAG, SDP_SERVICE_NAME);
 	}
 	private void showChecksDialog(final String message, final int[] questions) {
 		ChecksDialogFragment checks = new ChecksDialogFragment();

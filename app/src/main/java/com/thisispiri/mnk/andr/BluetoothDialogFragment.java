@@ -96,7 +96,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	private class ConnectButtonListener implements View.OnClickListener {
 		@Override public void onClick(final View v) {
 			if(radioClient.isChecked()) {
-				targetUUID = UUID.nameUUIDFromBytes(uuidEditText.getText().toString().getBytes());
+				targetUUID = UUID.nameUUIDFromBytes((serviceName + uuidEditText.getText().toString()).getBytes());
 				adapter.cancelDiscovery();
 				adapter.startDiscovery();
 				progressBar.setVisibility(View.VISIBLE);
@@ -118,7 +118,7 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	private void openServer() {
 		progressBar.setVisibility(View.VISIBLE);
 		adapter.cancelDiscovery();
-		final UUID uuid = UUID.nameUUIDFromBytes(uuidEditText.getText().toString().getBytes());
+		final UUID uuid = UUID.nameUUIDFromBytes((serviceName + uuidEditText.getText().toString()).getBytes());
 		if(runningThread != null) runningThread.interrupt();
 		runningThread = new Thread() {
 			public void run() {
