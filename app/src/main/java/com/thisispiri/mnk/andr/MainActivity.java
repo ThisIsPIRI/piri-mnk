@@ -55,6 +55,7 @@ import com.thisispiri.mnk.PiriValueAi;
 import com.thisispiri.mnk.PiriValue01Ai;
 import com.thisispiri.mnk.R;
 import com.thisispiri.common.andr.AndrUtil;
+import com.thisispiri.mnk.WriteThread;
 import com.thisispiri.util.GameTimer;
 import com.thisispiri.util.TimedGameManager;
 
@@ -81,8 +82,9 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final RadioListener rLis = new RadioListener();
 	/**The {@code Thread} used to asynchronously fill all cells when the "fill all" button is pressed.*/
 	private FillThread fillThread;
-	/**The {@code Thread} used to communicate with another client via Bluetooth.*/
+	/**The {@code Thread} used to communicate with another client via LAN or Bluetooth.*/
 	private IoThread connecThread;
+	private WriteThread writeThread;
 	/**The {@code Handler} used to handle invalidation requests from {@link MainActivity#fillThread}.*/
 	private final Handler fillHandler = new FillHandler(this);
 	/**The {@code CountDownTimer} for implementing the time limit.*/
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private int gravity;
 	/**1 if matching only lines with exactly winStreak stones. Else 0.*/
 	private int exactOnly;
-	/**Used to tie myTurn to a specific Shape in Bluetooth mode.*/
+	/**Used to tie myTurn to a specific Shape in connected mode.*/
 	private int myIndex = 0;
 	/**The width of the screen, for updating custom {@code View}s.*/
 	private int screenX;
@@ -284,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 				fillThread.start();
 			}
 			else if(clickedId == R.id.revert) {
-				if(connected) connecThread.write(new byte[]{REQUEST_HEADER, REQUEST_REVERT});
+				if(connected) writeThread.write(new byte[]{REQUEST_HEADER, REQUEST_REVERT});
 				else revertLast();
 			}
 			else if(clickedId == R.id.save) {
@@ -381,11 +383,12 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		y = game.history.peek().coord.y; //y may change in a GravityMnkGame.
 		if(connected) {
 			//TODO: don't rely on the Looper to determine if it's the user or the opponent playing
-			if(Looper.myLooper() == Looper.getMainLooper()) connecThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
+			if(Looper.myLooper() == Looper.getMainLooper()) writeThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
 			//If it's the user's turn, refuse to end the turn for the opponent.
 			//Compare myIndex to nextIndexAt(-1) since the game.place() call above has changed nextIndex by 1.
 			else if(game.getNextIndexAt(-1) == myIndex) {
-				game.revertLast(); //Also revert the last move since we already placed the stone above. MainActivity.revertLast() is not needed; we haven't updated the graphics yet.
+				//Also revert the last move since we already placed the stone above. MainActivity.revertLast() is not needed; we haven't updated the graphics yet.
+				game.revertLast();
 				return false;
 			}
 		}
@@ -515,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		checks.setArguments(bundleWith(getString(R.string.i_tagInBundle), CHECKS_TAG));
 		checks.show(getSupportFragmentManager(), CHECKS_TAG, message, questions);
 	}
-	//Responses to requests, myIndex change(when requesting restart), disconnection confirmation, save/load and receiving Bluetooth sockets
+	//Responses to requests, myIndex change(when requesting restart), disconnection confirmation, save/load and receiving Bluetooth/TCP sockets
 	/**Call to return the result of a {@code Dialog} to this {@code Activity}.*/
 	@Override public <T> void giveResult(final T result, final Bundle arguments) {
 		if(arguments == null) {
@@ -545,11 +548,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 						break;
 					}
 					if(arguments.getIntArray(getString(R.string.i_rulesRequestToResultKey)) != null)
-						connecThread.write(4 + RULE_SIZE * 4, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
+						writeThread.write(4 + RULE_SIZE * 4, RESPONSE_HEADER, RESPONSE_PERMIT, request, RULE_CHANGED, getRules());
 					else
-						connecThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
+						writeThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_PERMIT, request});
 				}
-				else connecThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
+				else writeThread.write(new byte[]{RESPONSE_HEADER, RESPONSE_REJECT, request});
 			}
 			else {
 				final String decisionKey = arguments.getString(getString(R.string.i_nonreqAction));
@@ -593,12 +596,14 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 					closeSockets();
 					break;
 				}
+				writeThread = new WriteThread(connecThread);
 				connecThread.start();
+				writeThread.start();
 				runOnUiThread(() -> configureUI(true));
 				initialize();
 				if(arguments.getBoolean(getString(R.string.i_isServer)) || arguments.getBoolean(getString(R.string.piri_dialogs_isServer))) {
 					myIndex = 0;
-					connecThread.write(2 + RULE_SIZE * 4, ORDER_HEADER, ORDER_INITIALIZE, getRules());
+					writeThread.write(2 + RULE_SIZE * 4, ORDER_HEADER, ORDER_INITIALIZE, getRules());
 				}
 			}
 			break;
@@ -607,11 +612,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 			if(result == null) break;
 			final int newMyIndex = boolArrayResult[0] ? 0 : 1;
 			if((ruleDiffersFromPreference && boolArrayResult[1]) || myIndex != newMyIndex) { //Request to restart AND change the rules.
-				connecThread.write(3 + RULE_SIZE * 4, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED,
+				writeThread.write(3 + RULE_SIZE * 4, REQUEST_HEADER, REQUEST_RESTART, RULE_CHANGED,
 						boolArrayResult[1] ? preferenceRules : getPureRules(), newMyIndex);
 			}
 			else
-				connecThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
+				writeThread.write(new byte[]{REQUEST_HEADER, REQUEST_RESTART});
 			break;
 		}
 	}
@@ -707,9 +712,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	 * @param informOpponent If true, informs the opponent that we terminated the connection.*/
 	private void stopConnection(final boolean informOpponent) {
 		if(connecThread != null) {
-			if(informOpponent) connecThread.write(new byte[]{ORDER_HEADER, ORDER_CANCEL_CONNECTION});
+			if(informOpponent) writeThread.write(new byte[]{ORDER_HEADER, ORDER_CANCEL_CONNECTION});
 			connecThread.interrupt();
 			connecThread = null;
+			writeThread.interrupt();
+			writeThread = null;
 		}
 		closeSockets();
 	}
@@ -824,16 +831,21 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		@Override public void handleMessage(final Message m) {
 			if(m.getData().getString("result") != null) activity.get().winText.setText(m.getData().getString("result"));
 			activity.get().board.invalidate();
-			if(!activity.get().gameEnd) synchronized(activity.get().fillThread) {activity.get().fillThread.notify();}
+			if(!activity.get().gameEnd) { synchronized(activity.get().fillThread.syncObject) {
+				activity.get().fillThread.syncObject.notify();
+			}}
 		}
 	}
 	private class FillThread extends Thread {
-		@Override synchronized public void run() {
+		public final Object syncObject = new Object();
+		@Override public void run() {
 			while(!gameEnd) {
 				aiTurn(false);
 				//If it doesn't wait until the UI thread finishes and keeps calling aiTurn, most of board.invalidate()
 				//calls will be ignored and the result will be shown at once when the game ends, breaking animation.
-				try { wait(); }
+				try { synchronized(syncObject) {
+					syncObject.wait();
+				}}
 				catch(InterruptedException e) { break; }
 			}
 		}

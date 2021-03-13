@@ -103,6 +103,9 @@ public class IoThread extends Thread {
 	 * @param data The data to write to the {@code OutputStream}.
 	 * @throws BufferOverflowException If the {@code size} is smaller than the sum of the size of {@code data} in bytes.*/
 	public void write(final int size, final Object... data) throws BufferOverflowException {
+		write(makeBuffer(size, data));
+	}
+	public static byte[] makeBuffer(final int size, final Object... data) throws BufferOverflowException {
 		//TODO: Remove the size argument?
 		ByteBuffer buffer = ByteBuffer.allocate(size);
 		for(Object d : data) {
@@ -116,6 +119,6 @@ public class IoThread extends Thread {
 				for(int i : (int[])d)
 					buffer.putInt(i);
 		}
-		write(buffer.array());
+		return buffer.array();
 	}
 }
