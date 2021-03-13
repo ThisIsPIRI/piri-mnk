@@ -713,12 +713,13 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void stopConnection(final boolean informOpponent) {
 		if(connecThread != null) {
 			if(informOpponent) writeThread.write(new byte[]{ORDER_HEADER, ORDER_CANCEL_CONNECTION});
+			//ORDER_CANCEL_CONNECTION won't get written if we closeSockets() here because writeThread.write() is asynchronous and the socket will close before the actual writing.
+			//Instead, pass closeSockets to writeThread so it can call the method when it's done writing.
+			writeThread.interrupt(this::closeSockets);
+			writeThread = null;
 			connecThread.interrupt();
 			connecThread = null;
-			writeThread.interrupt();
-			writeThread = null;
 		}
-		closeSockets();
 	}
 	private void closeSockets() {
 		try {

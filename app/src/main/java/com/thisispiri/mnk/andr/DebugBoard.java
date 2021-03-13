@@ -20,8 +20,7 @@ public class DebugBoard extends Board {
 	private final Paint[] orderPaints = {new Paint(), new Paint()};
 	private String[][] aiInternals;
 	/**Set to true to enable printing the turn in which each stone was placed.
-	 * By default, the color of the text is complementary to the stone's color.
-	 * This shouldn't be used with {@link Symbol#XS_AND_OS}.*/
+	 * By default, the color of the text is complementary to the stone's color.*/
 	public boolean showOrder = false;
 	/**Only here for calling Stack.toArray(T[]).*/
 	private final static Move[] dummyArray = new Move[0];
