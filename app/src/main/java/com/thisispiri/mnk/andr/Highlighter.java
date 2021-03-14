@@ -11,7 +11,8 @@ import com.thisispiri.common.Point;
 
 /**Highlights rectangular cells within a grid by overlaying a color over them. It is assumed that the {@code Highlighter} itself is a square.*/
 public class Highlighter extends View {
-	private int horUnit, verUnit, depth = 0, duration, howManyTimes;
+	private float horUnit, verUnit;
+	private int depth = 0, duration, howManyTimes;
 	private boolean restart = false;
 	private Point[] toHighlight;
 	/**{@code Paint} object used for highlighting.*/
@@ -63,7 +64,7 @@ public class Highlighter extends View {
 		this.howManyTimes = howManyTimes;
 	}
 	void updateValues(final int horSize, final int verSize, final int sideLength) {
-		horUnit = sideLength / horSize;
-		verUnit = sideLength / verSize;
+		horUnit = (float) sideLength / horSize;
+		verUnit = (float) sideLength / verSize;
 	}
 }

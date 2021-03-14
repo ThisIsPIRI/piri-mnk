@@ -95,8 +95,9 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	}
 	private class ConnectButtonListener implements View.OnClickListener {
 		@Override public void onClick(final View v) {
+			targetUUID = UUID.nameUUIDFromBytes((serviceName + uuidEditText.getText().toString()).getBytes());
 			if(radioClient.isChecked()) {
-				targetUUID = UUID.nameUUIDFromBytes((serviceName + uuidEditText.getText().toString()).getBytes());
+				//TODO: Check if the opponent device is in adapter.getBondedDevices() first
 				adapter.cancelDiscovery();
 				adapter.startDiscovery();
 				progressBar.setVisibility(View.VISIBLE);
@@ -118,28 +119,25 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 	private void openServer() {
 		progressBar.setVisibility(View.VISIBLE);
 		adapter.cancelDiscovery();
-		final UUID uuid = UUID.nameUUIDFromBytes((serviceName + uuidEditText.getText().toString()).getBytes());
 		if(runningThread != null) runningThread.interrupt();
-		runningThread = new Thread() {
-			public void run() {
-				try(BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord(serviceName, uuid)) {
-					while(!radioClient.isChecked()) {
-						socket = serverSocket.accept();
-						if (socket != null) {
-							giveSocket(socket, true);
-							dismiss();
-							break;
-						}
-						if(interrupted()) break;
+		runningThread = new Thread() { public void run() {
+			try(BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord(serviceName, targetUUID)) {
+				while(!radioClient.isChecked()) {
+					socket = serverSocket.accept();
+					if (socket != null) {
+						giveSocket(socket, true);
+						dismiss();
+						break;
 					}
-				}
-				catch(IOException e) {
-					Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() failed");
-					AndrUtil.showToast(getActivity(), R.string.ioError);
-					progressBar.setVisibility(View.GONE);
+					if(interrupted()) break;
 				}
 			}
-		};
+			catch(IOException e) {
+				Log.e("PIRIMNK", "adapter.listen...() or serverSocket.accept() failed");
+				AndrUtil.showToast(getActivity(), R.string.ioError);
+				progressBar.setVisibility(View.GONE);
+			}
+		}};
 		runningThread.start();
 	}
 	class BluetoothReceiver extends BroadcastReceiver {
@@ -156,22 +154,20 @@ public class BluetoothDialogFragment extends ListenerDialogFragment {
 					adapter.cancelDiscovery();
 					socket = device.createRfcommSocketToServiceRecord(targetUUID);
 					if(runningThread != null) runningThread.interrupt();
-					runningThread = new Thread() {
-						public void run() {
-							try {
-								socket.connect();
-								giveSocket(socket, false);
-							}
-							catch (IOException e) {
-								Log.e("PIRIMNK", "socket.connect() failed");
-								AndrUtil.showToast(getActivity(), R.string.ioError);
-								giveSocket(null, false);
-							}
-							finally {
-								dismiss();
-							}
+					runningThread = new Thread() { public void run() {
+						try {
+							socket.connect();
+							giveSocket(socket, false);
 						}
-					};
+						catch (IOException e) {
+							Log.e("PIRIMNK", "socket.connect() failed");
+							AndrUtil.showToast(getActivity(), R.string.ioError);
+							giveSocket(null, false);
+						}
+						finally {
+							dismiss();
+						}
+					}};
 					runningThread.start();
 				}
 				catch(IOException e) {

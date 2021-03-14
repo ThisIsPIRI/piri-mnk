@@ -8,7 +8,7 @@ public class WriteThread extends Thread {
 	private final Deque<byte[]> buffer = new LinkedList<>();
 	private final IoThread ioThread;
 	public final Object syncObject = new Object();
-	private Runnable runAfterInterrupt;
+	private Runnable runAfterInterrupt = null;
 	public WriteThread(IoThread ioThread) {
 		this.ioThread = ioThread;
 	}
@@ -29,7 +29,8 @@ public class WriteThread extends Thread {
 		//Write all remaining data before exiting.
 		for(byte[] ba : buffer)
 			ioThread.write(ba);
-		runAfterInterrupt.run();
+		if(runAfterInterrupt != null)
+			runAfterInterrupt.run();
 	}
 	/**{@code runAfterInterrupt} will be run after the Thread is interrupted and all remaining data are written.
 	 * If you're writing to a socket's stream and have to write some data right before interrupting this Thread,

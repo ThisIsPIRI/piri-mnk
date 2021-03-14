@@ -23,8 +23,9 @@ public class Board extends View {
 	protected final Paint background = new Paint(), line = new Paint();
 	protected final Paint[] playerPaints = {new Paint(), new Paint()};
 	protected final Path[] playerPaths = {new Path(), new Path()};
-	protected int horUnit, verUnit, horSize, verSize;
-	protected int sideLength;
+	protected float horUnit, verUnit;
+	protected int horSize, verSize;
+	protected float sideLength;
 	protected final Symbol[] symbols = new Symbol[2];
 	protected Line lineType;
 	protected MnkGame game;
@@ -36,7 +37,7 @@ public class Board extends View {
 		//draw background
 		canvas.drawRect(0, 0, sideLength, sideLength, background);
 		//draw lines
-		final int halfHor = horUnit / 2, halfVer = verUnit / 2; //manual common subexpression elimination
+		final float halfHor = horUnit / 2, halfVer = verUnit / 2;
 		if(lineType == Line.LINES_ENCLOSING_SYMBOLS) {
 			for (int i = 1; i < horSize; i++)
 				canvas.drawLine(horUnit * i, 0, horUnit * i, sideLength, line); //vertical lines
@@ -82,7 +83,7 @@ public class Board extends View {
 				//line.setColor(line.getColor() + 6000); //interesting, especially with thicker lines
 			}
 		}
-		//draw Os and Xs
+		//draw symbols
 		for(int i = 0;i < playerPaints.length;i++) {
 			playerPaints[i].setStrokeWidth(5);
 			if(symbols[i] == Symbol.XS || symbols[i] == Symbol.OS)
@@ -91,7 +92,6 @@ public class Board extends View {
 				playerPaints[i].setStyle(Paint.Style.FILL);
 			playerPaths[i].reset();
 		}
-		//loop through the array
 		for(int i = 0; i < verSize; i++) {
 			for(int j = 0; j < horSize; j++) {
 				if(game.array[i][j] != game.empty) {
@@ -146,7 +146,7 @@ public class Board extends View {
 	}
 	public void setSideLength(final int length) {
 		sideLength = length;
-		horUnit = length / horSize;
-		verUnit = length / verSize;
+		horUnit = sideLength / horSize;
+		verUnit = sideLength / verSize;
 	}
 }
