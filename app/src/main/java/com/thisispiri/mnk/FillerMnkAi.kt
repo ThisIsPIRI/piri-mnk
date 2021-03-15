@@ -14,6 +14,9 @@ open class FillerMnkAi: MnkAi {
 		}
 		return null
 	}
+	override fun playTurn(game: MnkGame, justify: Boolean): MnkAiDecision {
+		return if(justify) playTurnJustify(game) else MnkAiDecision(playTurn(game), null)
+	}
 	override fun playTurnJustify(game: MnkGame): MnkAiDecision {
 		return MnkAiDecision(playTurn(game), Array(game.verSize) {Array(game.horSize) {"N/A"}})
 	}

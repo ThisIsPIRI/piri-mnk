@@ -27,12 +27,12 @@ open class EmacsGomokuAi: MnkAi {
 	protected lateinit var myShape: Shape
 
 	override fun playTurn(game: MnkGame): Point? {
-		return play(game, false).coord
+		return playTurn(game, false).coord
 	}
 	override fun playTurnJustify(game: MnkGame): MnkAiDecision {
-		return play(game, true)
+		return playTurn(game, true)
 	}
-	private fun play(game: MnkGame, justify: Boolean): MnkAiDecision {
+	override fun playTurn(game: MnkGame, justify: Boolean): MnkAiDecision {
 		this.game = game
 		myShape = game.shapes[game.nextIndex]
 		val values: Array<Array<Int>> = Array(game.verSize) {Array(game.horSize) {0}}

@@ -65,7 +65,7 @@ import static com.thisispiri.common.andr.AndrUtil.getFile;
 import static com.thisispiri.common.andr.AndrUtil.getPermission;
 import static com.thisispiri.common.andr.AndrUtil.showToast;
 
-//TODO: Decouple more things from Android and Bluetooth
+//TODO: Decouple more things from Android
 /**The main {@code Activity} for PIRI MNK. Handles all interactions between the UI, communications and game logic.*/
 public class MainActivity extends AppCompatActivity implements MnkManager, TimedGameManager, DialogListener {
 	private DebugBoard board;
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		return null;
 	}
 	private void aiTurn(final boolean highlight) {
-		MnkAiDecision decision = ai.playTurnJustify(game);
+		MnkAiDecision decision = ai.playTurn(game, showAiInternals);
 		if(showAiInternals)
 			board.setAiInternals(decision.values);
 		if(!endTurn(decision.coord, highlight))

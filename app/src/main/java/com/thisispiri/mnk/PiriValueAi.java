@@ -22,7 +22,7 @@ public class PiriValueAi implements MnkAi {
 	/**Just an alias.*/
 	private boolean inBoundary(int y, int x) {return game.inBoundary(y, x);}
 	@Override public Point playTurn(final MnkGame game) {
-		return play(game, false).coord;
+		return playTurn(game, false).coord;
 	}
 	/**Has AI play a turn.
 	 * Determines every cell's importance and returns a Point that contains the cell which the AI deemed has highest importance.
@@ -33,9 +33,9 @@ public class PiriValueAi implements MnkAi {
 	 * @param game The game for the AI to play.
 	 * @return The {@code Point} to play on.*/
 	@Override public MnkAiDecision playTurnJustify(final MnkGame game) {
-		return play(game, true);
+		return playTurn(game, true);
 	}
-	private MnkAiDecision play(final MnkGame game, final boolean justify) {
+	@Override public MnkAiDecision playTurn(final MnkGame game, final boolean justify) {
 		this.game = game;
 		valueLength = Math.max(game.getHorSize(), game.getVerSize()) * STREAK_SCALE;
 		//valueLength = (game.winStreak + 1) * STREAK_SCALE; Better for performance on larger boards, but causes crashes
@@ -86,8 +86,7 @@ public class PiriValueAi implements MnkAi {
 				max = maxHolder;
 			}
 		}
-		if(justify) return new MnkAiDecision(good, values);
-		else return new MnkAiDecision(good, null);
+		return new MnkAiDecision(good, values);
 	}
 
 	private int cellSpaces(final int x, final int y) {

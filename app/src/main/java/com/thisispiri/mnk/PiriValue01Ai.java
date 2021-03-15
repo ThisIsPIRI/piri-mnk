@@ -24,17 +24,19 @@ public class PiriValue01Ai implements MnkAi {
 	  * cells that can end game(by granting the player win) have infinite importance(represented as 9999999)
 	*/
 	@Override public MnkAiDecision playTurnJustify(final MnkGame game) {
-		return play(game, true);
+		return playTurn(game, true);
 	}
 	@Override public Point playTurn(final MnkGame game) {
-		return play(game, false).coord;
+		return playTurn(game, false).coord;
 	}
-	private MnkAiDecision play(final MnkGame game, final boolean justify) { //the parameter will be true if executed inside a thread.
+	@Override public MnkAiDecision playTurn(final MnkGame game, final boolean justify) {
 		this.game = game;
 		int maxStreak = 0, maxLine = 0; //maximum streak appeared until now in the evaluation loop, maximum number of lines of maxStreak cells that can be blocked by a cell
 		Pair<Integer, Integer> temp;
 		final LinkedList<Point> list = new LinkedList<>(); //list of cells to consider.
-		final String[][] justification = new String[game.getVerSize()][game.getHorSize()];
+		String[][] justification = null;
+		if(justify)
+			justification = new String[game.getVerSize()][game.getHorSize()];
 		//evaluation loop. checks all cells and evaluates them.
 		for(int i = 0;i < game.getVerSize();i++) {
 			for(int j = 0;j < game.getHorSize();j++) {
