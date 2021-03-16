@@ -25,6 +25,7 @@ public class MnkGame { //TODO: Support renju
 	public int winStreak;
 	/**The index of the {@link Shape} to be placed next in {@link MnkGame#shapes}.*/
 	private int nextIndex = 0;
+	private final static int[] xP = {1, 0, 1, 1}, yP = {0, 1, -1, 1};
 	/**Returns the index of the next {@link Shape} to be placed in {@link MnkGame#shapes}.
 	 * @return The index of the next {@link Shape} to be placed.*/
 	public int getNextIndex() {return nextIndex;}
@@ -50,7 +51,7 @@ public class MnkGame { //TODO: Support renju
 	}
 	/**Places a {@link Shape} at the supplied coordinate. Does not check if the move is illegal(the Shape may be placed on another, already placed, one).
 	 * Changes the result of {@link MnkGame#getNextIndex()}.
-	 * @return {@code true} if a {@link Shape} was successfully placed. {@code false} if it failed to place it(because the coordinate was out of the boundaries).*/
+	 * @return {@code true} if a {@link Shape} was successfully placed. {@code false} if it failed to place it(because the coordinate was out of boundaries).*/
 	public boolean place(final int x, final int y) {
 		if(place(x, y, shapes[nextIndex])) {
 			changeShape(1);
@@ -78,7 +79,7 @@ public class MnkGame { //TODO: Support renju
 		history.clear();
 	}
 	/**Reverts the last {@link Move}, restoring the state of the game before the Move was made including {@link MnkGame#nextIndex}.
-	 * @return If a Move was actually removed. False if the board was empty.*/
+	 * @return Whether a Move was actually removed. False if the board was empty.*/
 	public boolean revertLast() {
 		if(history.size() > 0) {
 			Move m = history.pop();
@@ -86,9 +87,9 @@ public class MnkGame { //TODO: Support renju
 			nextIndex = shapesList.indexOf(m.placed);
 			return true;
 		}
-		return false;
+		else return false;
 	}
-	/**Changes {@link MnkGame#nextIndex} to ((current turn) + steps))th turn's, assuming the game went "normally" and the change side button hasn't been used.
+	/**Changes {@link MnkGame#nextIndex} to ((current turn) + steps))th turn's, assuming the game went "normally" and no player gave up any turns.
 	 * To put simply, nextIndex = (nextIndex + steps) % {@link MnkGame#shapes}.length
 	 * @param steps The number to add to the turn.*/
 	public void changeShape(final int steps) {
@@ -126,7 +127,6 @@ public class MnkGame { //TODO: Support renju
 	 * top right to bottom left if a /-shaped diagonal and bottom right to top left if a \-shaped diagonal.*/
 	public Point[] checkWin(final int x, final int y, final boolean exact) {
 		//TODO: Merge with EmacsGomokuAi's pointer system?
-		final int[] xP = {1, 0, 1, 1}, yP = {0, 1, -1, 1};
 		final Point[] starting = {new Point(0, y), new Point(x, 0),
 				new Point((x + y) - Math.min(x + y, verSize - 1), Math.min(x + y, verSize - 1)),
 				new Point(Math.max(x - y, 0), Math.max(y - x, 0))};
@@ -149,17 +149,17 @@ public class MnkGame { //TODO: Support renju
 		}
 		return null;
 	}
-	private Point getNextPoint(final Point p, final int xP, final int yP) {
-		return new Point(p.x + xP, p.y + yP);
+	private Point getNextPoint(final Point p, final int xPlus, final int yPlus) {
+		return new Point(p.x + xPlus, p.y + yPlus);
 	}
 	/**Returns the {@code Point}s consisting a line.
 	 * @param length The length of the line.
-	 * @param xP The direction the X coordinate progresses in from startX on the line.
-	 * @param yP The direction the Y coordinate progresses in from startY on the line.
+	 * @param xPlus The direction the X coordinate progresses in from startX on the line.
+	 * @param yPlus The direction the Y coordinate progresses in from startY on the line.
 	 * @return The {@code Point}s consisting the line.*/
-	private static Point[] getLinePoints(final int length, int startX, int startY, final int xP, final int yP) {
+	private static Point[] getLinePoints(final int length, int startX, int startY, final int xPlus, final int yPlus) {
 		Point[] arr = new Point[length];
-		for(int i = 0;i < length;startX += xP, startY += yP, i++) {
+		for(int i = 0;i < length;startX += xPlus, startY += yPlus, i++) {
 			arr[i] = new Point(startX, startY);
 		}
 		return arr;

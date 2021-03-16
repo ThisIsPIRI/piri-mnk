@@ -12,11 +12,11 @@ public class MnkSaveLoader {
 	/**The maximum horizontal/vertical size of the board SGF supports.*/
 	public final static int SGF_MAX = 52;
 	/**Saves the {@code MnkGame}. If its horizontal/vertical size do not exceed {@link MnkSaveLoader#SGF_MAX}, uses SGF. Otherwise, uses a simple format called .pirimnk.*/
-	public void save(final MnkGame game, final File file) throws IOException {
+	public static void save(final MnkGame game, final File file) throws IOException {
 		if(game.getHorSize() > SGF_MAX || game.getVerSize() > SGF_MAX) piriSave(game, file);
 		else sgfSave(game, file);
 	}
-	private void sgfSave(final MnkGame game, final File file) throws IOException {
+	private static void sgfSave(final MnkGame game, final File file) throws IOException {
 		OutputStreamWriter outputWriter = new OutputStreamWriter(new FileOutputStream(file));
 		outputWriter.write("(;FF[4]GM[4]SZ["); //FF[4] : use SGF version 4. GM[4] : game type is gomoku+renju(although PIRI MNK doesn't support renju yet). SZ[game.boardSize] : use board of horSize:verSize(rectangle) or horSize(square)
 		if(game.getHorSize() == game.getVerSize()) outputWriter.write(String.valueOf(game.getHorSize())); //writing square boards' size with two numbers is illegal
@@ -34,11 +34,11 @@ public class MnkSaveLoader {
 		outputWriter.write(')'); //mark end of the tree
 		outputWriter.close();
 	}
-	private void piriSave(final MnkGame game, final File file) throws IOException {
+	private static void piriSave(final MnkGame game, final File file) throws IOException {
 		//TODO: implement
 		throw new IOException("incomplete method called");
 	}
-	public MnkGame load(final File file, final int winStreak) throws IOException {
+	public static MnkGame load(final File file, final int winStreak) throws IOException {
 		MnkGame game = new MnkGame();
 		InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
 		int skipper;

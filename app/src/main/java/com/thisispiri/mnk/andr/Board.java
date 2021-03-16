@@ -39,15 +39,15 @@ public class Board extends View {
 		//draw lines
 		final float halfHor = horUnit / 2, halfVer = verUnit / 2;
 		if(lineType == Line.LINES_ENCLOSING_SYMBOLS) {
-			for (int i = 1; i < horSize; i++)
+			for(int i = 1; i < horSize; i++)
 				canvas.drawLine(horUnit * i, 0, horUnit * i, sideLength, line); //vertical lines
-			for (int i = 1; i < verSize; i++)
+			for(int i = 1; i < verSize; i++)
 				canvas.drawLine(0, verUnit * i, sideLength, verUnit * i, line); //horizontal lines
 		}
 		else if(lineType == Line.LINES_UNDER_SYMBOLS) {
-			for (int i = 0; i < horSize; i++)
+			for(int i = 0; i < horSize; i++)
 				canvas.drawLine(horUnit * i + halfHor, 0, horUnit * i + halfHor , sideLength, line); //vertical lines
-			for (int i = 0; i < verSize; i++)
+			for(int i = 0; i < verSize; i++)
 				canvas.drawLine(0, verUnit * i + halfVer, sideLength, verUnit * i + halfVer, line); //horizontal lines
 		}
 		else if(lineType == Line.DIAGONAL_ENCLOSING_SYMBOLS) {

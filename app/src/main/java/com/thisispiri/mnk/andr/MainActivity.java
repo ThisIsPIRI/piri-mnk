@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private final Handler fillHandler = new FillHandler(this);
 	/**The {@code CountDownTimer} for implementing the time limit.*/
 	private GameTimer limitTimer = new GameTimer(this, -1); //The first instance is replaced in setTimeLimit()
-	private final MnkSaveLoader saveLoader = new MnkSaveLoader();
 	private final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 	//I'd have one Closeable here, but casting Socket to Closeable requires API 19
 	private BluetoothSocket blueSocket = null;
@@ -803,7 +802,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void saveGame(final String fileName) {
 		if(fileName == null) showEditTextDialog(getString(R.string.save), getString(R.string.fileNameHint));
 		else try {
-			saveLoader.save(game, getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, true));
+			MnkSaveLoader.save(game, getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, true));
 		}
 		catch (IOException e) {
 			showToast(this, R.string.couldntCreateFile);
@@ -814,7 +813,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void loadGame(final String fileName) {
 		if(fileName == null) showEditTextDialog(getString(R.string.load), getString(R.string.fileNameHint));
 		else try {
-			MnkGame loaded = saveLoader.load(getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, false), game.winStreak);
+			MnkGame loaded = MnkSaveLoader.load(getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, false), game.winStreak);
 			initialize(); //Initialize after loading the game so that if loading fails, the previous game doesn't get initialized
 			game = new LegalMnkGame(loaded);
 			board.setGame(game);
