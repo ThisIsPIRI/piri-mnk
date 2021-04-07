@@ -50,7 +50,7 @@ open class EmacsGomokuAi: MnkAi {
 			val tuple: Queue<Shape> = ArrayDeque()
 			val pi = Point(po)
 			while(game.inBoundary(pi.y, pi.x)) {
-				if(game.array[pi.y][pi.x] != game.empty)
+				if(!game.isEmpty(pi.x, pi.y))
 					count[if(game.array[pi.y][pi.x] == myShape) 0 else 1]++
 				tuple.add(game.array[pi.y][pi.x])
 				if(bigEnough(po, pi, mode)) {
@@ -61,7 +61,7 @@ open class EmacsGomokuAi: MnkAi {
 							values[y][x] += enemValues[count[1]]
 					}
 					val removed: Shape = tuple.remove()
-					if(removed != game.empty)
+					if(!game.isEmpty(removed))
 						count[if(removed == myShape) 0 else 1]--
 				}
 				forward(pi, mode)
@@ -100,7 +100,7 @@ open class EmacsGomokuAi: MnkAi {
 		var maxI: Int = -1; var maxJ: Int = -1
 		for(i in 0 until game.verSize) {
 			for(j in 0 until game.horSize) {
-				if(game.array[i][j] == game.empty && values[i][j] > max) {
+				if(game.isEmpty(j, i) && values[i][j] > max) {
 					max = values[i][j]
 					maxI = i
 					maxJ = j

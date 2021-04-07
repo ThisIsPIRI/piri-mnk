@@ -68,7 +68,7 @@ public class PiriValue01Ai implements MnkAi {
 	private int maxStreak = 0, maxLine = 0, streak = 0;
 
 	private Pair<Integer, Integer> evaluate(final int x, final int y) {
-		if(game.array[y][x] == Shape.O || game.array[y][x] == Shape.X)
+		if(!game.isEmpty(x, y))
 			return new Pair<>(-1, -1); //if the cell is already filled, it has no importance.
 		examineLine(x, y, -1, 0); // - shape
 		examineLine(x, y, 0, -1); // | shape
@@ -82,43 +82,43 @@ public class PiriValue01Ai implements MnkAi {
 		Shape previous = Shape.N;
 		//left, up, left up, left down
 		streak = 0; //in case !game.inBoundary(y + yP, x + xP)
-		if(game.inBoundary(y + yP, x + xP)) if (game.array[y + yP][x + xP] != Shape.N) {
+		if(game.inBoundary(y + yP, x + xP)) if (game.getArray()[y + yP][x + xP] != Shape.N) {
 			streak = 1;
-			previous = game.array[y + yP][x + xP];
+			previous = game.getArray()[y + yP][x + xP];
 			int i, j;
 			for (i = y + yP * 2, j = x + xP * 2; game.inBoundary(i, j); i += yP, j += xP) { //follow the line until it hits the other symbol or blank space.
-				if (game.array[i][j] == Shape.N || game.array[i][j] != previous) break;
+				if (game.isEmpty(j, i) || game.getArray()[i][j] != previous) break;
 				streak++;
 			}
 			blank = spaces(j, i, x, y, xP, yP);
 		}
 		previousStreak = streak;
-		if(streak + blank < game.winStreak) streak = 0; //if the line is impossible to complete, set streak to 0 so the cell won't receive any importance because of it.
+		if(streak + blank < game.getWinStreak()) streak = 0; //if the line is impossible to complete, set streak to 0 so the cell won't receive any importance because of it.
 		checkUpdate();
-		if(game.shapes[game.getNextIndex()] == previous && streak + 1 == game.winStreak) {
+		if(game.getShapes()[game.getNextIndex()] == previous && streak + 1 == game.getWinStreak()) {
 			maxStreak = 9999999;
 			return;
 		}
 		//right, down, right up, right down
 		streak = 0; //in case !game.inBoundary(y - xP, x - xP)
 		blank = 0;
-		if(game.inBoundary(y - yP, x - xP)) if (game.array[y - yP][x - xP] != Shape.N) {
-			if (previous == game.array[y - yP][x - xP])
+		if(game.inBoundary(y - yP, x - xP)) if (game.getArray()[y - yP][x - xP] != Shape.N) {
+			if (previous == game.getArray()[y - yP][x - xP])
 				streak = previousStreak + 1;
 			else {
 				streak = 1;
-				previous = game.array[y - yP][x - xP];
+				previous = game.getArray()[y - yP][x - xP];
 			}
 			int i, j;
 			for(i = y - yP * 2, j = x - xP * 2;game.inBoundary(i, j);i -= yP, j -= xP) { //follow the line until it hits the other symbol or blank space.
-				if (game.array[i][j] == Shape.N || game.array[i][j] != previous) break;
+				if (game.getArray()[i][j] == Shape.N || game.getArray()[i][j] != previous) break;
 				streak++;
 			}
 			blank = spaces(x, y, j, i, xP, yP);
 		}
-		if(streak + blank < game.winStreak) streak = 0; //if the line is impossible to complete, set streak to 0 so the cell won't receive any importance because of it.
+		if(streak + blank < game.getWinStreak()) streak = 0; //if the line is impossible to complete, set streak to 0 so the cell won't receive any importance because of it.
 		checkUpdate();
-		if(game.shapes[game.getNextIndex()] == previous && streak + 1 == game.winStreak) {
+		if(game.getShapes()[game.getNextIndex()] == previous && streak + 1 == game.getWinStreak()) {
 			maxStreak = 9999999;
 		}
 	}
@@ -127,13 +127,13 @@ public class PiriValue01Ai implements MnkAi {
 		int blank = 0;
 		if(game.inBoundary(y1, x1)) {
 			for(;game.inBoundary(y1, x1);y1 += yP, x1 += xP) {
-				if(game.array[y1][x1] != Shape.N) break;
+				if(game.getArray()[y1][x1] != Shape.N) break;
 				blank++;
 			}
 		}
 		if(game.inBoundary(y2, x2)) {
 			for(;game.inBoundary(y2, x2);y2 -= yP, x2 -= xP) {
-				if(game.array[y2][x2] != Shape.N) break;
+				if(game.getArray()[y2][x2] != Shape.N) break;
 				blank++;
 			}
 		}

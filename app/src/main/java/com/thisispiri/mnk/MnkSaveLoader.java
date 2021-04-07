@@ -22,7 +22,7 @@ public class MnkSaveLoader {
 		if(game.getHorSize() == game.getVerSize()) outputWriter.write(String.valueOf(game.getHorSize())); //writing square boards' size with two numbers is illegal
 		else outputWriter.write(game.getHorSize() + ":" + game.getVerSize());
 		outputWriter.write(']');
-		for(Move move : game.history) { //Foreach loops on Stacks are FIFO in Java
+		for(Move move : game.getHistory()) { //Foreach loops on Stacks are FIFO in Java
 			if(move.placed == Shape.X) outputWriter.write(";B["); //first player(black)
 			else outputWriter.write(";W["); //second player(white)
 			char xChar = (char)(move.coord.x + 'a'), yChar = (char)(move.coord.y + 'a'); //start at lowercase a
@@ -39,7 +39,7 @@ public class MnkSaveLoader {
 		throw new IOException("incomplete method called");
 	}
 	public static MnkGame load(final File file, final int winStreak) throws IOException {
-		MnkGame game = new MnkGame();
+		MnkGame game = new BaseMnkGame();
 		InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
 		int skipper;
 		Shape last = Shape.O;
@@ -82,7 +82,7 @@ public class MnkSaveLoader {
 			//Change the game's next Shape to the one next to the last Shape.
 			//Of course, saving it in the file would be more efficient, but SGF probably doesn't support it.
 			int i;
-			for(i = 0;i < game.shapes.length;i++) if(game.shapes[i] == last) break;
+			for(i = 0;i < game.getShapes().length;i++) if(game.getShapes()[i] == last) break;
 			game.changeShape(i + 1); //nextIndex is initialized to 0, so after adding ((index of last) + 1), it will be pointing to the Shape next of last.
 		}
 		else { //PIRIMNK format
@@ -90,7 +90,7 @@ public class MnkSaveLoader {
 			throw new IOException();
 		}
 		inputReader.close();
-		game.winStreak = winStreak;
+		game.setWinStreak(winStreak);
 		return game;
 	}
 }

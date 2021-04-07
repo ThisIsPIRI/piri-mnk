@@ -92,18 +92,18 @@ public class PiriValueAi implements MnkAi {
 	private int cellSpaces(final int x, final int y) {
 		int spaces = 0;
 		int[] xP = {-1, 0, -1, -1}, yP = {0, -1, 1, -1};
-		Shape original = game.array[y][x];
+		Shape original = game.getArray()[y][x];
 		boolean pastTheLine;
 		for (int k = 0; k < 4; k++) {
 			pastTheLine = false;
 			if(inBoundary(y + yP[k], x + xP[k])) {
 				int i, j;
 				for (i = y + yP[k], j = x + xP[k]; inBoundary(i, j); i += yP[k], j += xP[k]) { //follow the line until it hits the other symbol or blank space.
-					if(game.array[i][j] == game.empty) {
+					if(game.isEmpty(j, i)) {
 						spaces++;
 						pastTheLine = true;
 					}
-					else if(game.array[i][j] != original || pastTheLine) break;
+					else if(game.getArray()[i][j] != original || pastTheLine) break;
 				}
 			}
 			//right, down, right up, right down
@@ -111,11 +111,11 @@ public class PiriValueAi implements MnkAi {
 			if(inBoundary(y - yP[k], x - xP[k])) {
 				int i, j;
 				for (i = y - yP[k], j = x - xP[k]; inBoundary(i, j); i -= yP[k], j -= xP[k]) { //follow the line until it hits the other symbol or blank space.
-					if(game.array[i][j] == game.empty) {
+					if(game.isEmpty(j, i)) {
 						spaces++;
 						pastTheLine = true;
 					}
-					else if(game.array[i][j] != original || pastTheLine) break;
+					else if(game.getArray()[i][j] != original || pastTheLine) break;
 				}
 			}
 		}
@@ -124,7 +124,7 @@ public class PiriValueAi implements MnkAi {
 
 	private void evaluate(final int x, final int y) {
 		value = new CellValue(valueLength);
-		if(game.array[y][x] != game.empty) { //if the cell is already filled, it has no importance.
+		if(!game.isEmpty(x, y)) { //if the cell is already filled, it has no importance.
 			value.ownLines[valueLength - 1] = -100;
 			return;
 		}
@@ -143,41 +143,41 @@ public class PiriValueAi implements MnkAi {
 	private void examineLine(final int x, final int y, final int xP, final int yP) {
 		int previousStreak, blank = 0, streak = 0;
 		boolean isOpen = false, isOppositeOpen = false;
-		Shape lineShape = game.empty, firstShape;
+		Shape lineShape = Shape.N, firstShape;
 		//left, up, left up, left down
-		if(inBoundary(y + yP, x + xP) && game.array[y + yP][x + xP] != game.empty) {
+		if(inBoundary(y + yP, x + xP) && !game.isEmpty(x + xP, y + yP)) {
 			streak = 1;
-			lineShape = game.array[y + yP][x + xP];
+			lineShape = game.getArray()[y + yP][x + xP];
 			int i, j;
 			for (i = y + yP * 2, j = x + xP * 2; inBoundary(i, j); i += yP, j += xP) { //follow the line until it hits the other symbol or blank space.
-				if(game.array[i][j] == game.empty) {
+				if(game.isEmpty(j, i)) {
 					isOpen = true;
 					break;
 				}
-				else if(game.array[i][j] != lineShape) break;
+				else if(game.getArray()[i][j] != lineShape) break;
 				streak++;
 			}
 			blank = lineSpaces(j, i, x, y, xP, yP);
 		}
 		previousStreak = streak;
-		if(streak + blank < game.winStreak)
+		if(streak + blank < game.getWinStreak())
 			streak = 0; //if the line is impossible to complete, set streak to 0 so the cell won't receive any importance because of it.
-		if(inBoundary(y - yP, x - xP) && game.array[y - yP][x - xP] == game.empty && lineShape != game.empty)
+		if(inBoundary(y - yP, x - xP) && game.isEmpty(x - xP, y - yP) && !game.isEmpty(lineShape))
 			isOppositeOpen = true;
 		update(streak, blank, lineShape, isOpen, isOppositeOpen);
 		firstShape = lineShape;
 		//right, down, right up, right down
 		streak = blank = 0;
 		boolean isConnected = isOppositeOpen = false;
-		if(inBoundary(y - yP, x - xP) && game.array[y - yP][x - xP] != game.empty) {
-			if(lineShape == game.array[y - yP][x - xP]) {
+		if(inBoundary(y - yP, x - xP) && !game.isEmpty(x - xP, y - yP)) {
+			if(lineShape == game.getArray()[y - yP][x - xP]) {
 				streak = previousStreak + 1;
 				//blockableLines[previousStreak]--; //since we added 1 to blockableLines[previousStreak] before but we found that the line is continuous.
 				isConnected = true;
 			}
 			else {
 				streak = 1;
-				lineShape = game.array[y - yP][x - xP];
+				lineShape = game.getArray()[y - yP][x - xP];
 			}
 			int i, j;
 			for (i = y - yP * 2, j = x - xP * 2; inBoundary(i, j); i -= yP, j -= xP) { //follow the line until it hits the other symbol or blank space.
@@ -186,11 +186,11 @@ public class PiriValueAi implements MnkAi {
 				* 2. first line is connected to second one but not open: second loop only sets isOpen to true if first line isn't connected to second one, so isOpen stays false.
 				* 3. first line is not connected to second one and open: second loop sets isOpen to false at the end if the second line isn't open.
 				* 4. first line is not connected to second one and not open: second loop behaves in the same way first loop does.*/
-				if(game.array[i][j] == game.empty) {
+				if(game.isEmpty(j, i)) {
 					if(!isConnected) isOpen = true;
 					break;
 				}
-				else if(game.array[i][j] != lineShape) {
+				else if(game.getArray()[i][j] != lineShape) {
 					isOpen = false;
 					break;
 				}
@@ -202,9 +202,9 @@ public class PiriValueAi implements MnkAi {
 			else blank = lineSpaces(x, y, j, i, xP, yP);
 		}
 		else isOpen = false;
-		if(streak + blank + (isConnected ? 1 : 0) < game.winStreak) //if the line is separated only by the cell, we need to add 1 to possible blank spaces(since the cell is blank, too)
+		if(streak + blank + (isConnected ? 1 : 0) < game.getWinStreak()) //if the line is separated only by the cell, we need to add 1 to possible blank spaces(since the cell is blank, too)
 			streak = 0; //if the line is impossible to complete, set streak to 0 so the cell won't receive any importance because of it.
-		if(firstShape != lineShape && firstShape == game.empty) {
+		if(firstShape != lineShape && game.isEmpty(firstShape)) {
 			isOppositeOpen = true;
 		}
 		update(streak, blank, lineShape, isOpen, isOppositeOpen || isConnected);
@@ -214,14 +214,14 @@ public class PiriValueAi implements MnkAi {
 	private int lineSpaces(int x1, int y1, int x2, int y2, final int xP, final int yP) {
 		int blank = 0;
 		if(inBoundary(y1, x1)) {
-			for (; inBoundary(y1, x1); y1 += yP, x1 += xP) {
-				if(game.array[y1][x1] != game.empty) break;
+			for (;inBoundary(y1, x1);y1 += yP, x1 += xP) {
+				if(!game.isEmpty(x1, y1)) break;
 				blank++;
 			}
 		}
 		if(inBoundary(y2, x2)) {
-			for (; inBoundary(y2, x2); y2 -= yP, x2 -= xP) {
-				if(game.array[y2][x2] != game.empty) break;
+			for (;inBoundary(y2, x2);y2 -= yP, x2 -= xP) {
+				if(!game.isEmpty(x2, y2)) break;
 				blank++;
 			}
 		}
@@ -230,7 +230,7 @@ public class PiriValueAi implements MnkAi {
 	private void update(int streak, final int blank, final Shape lineShape, final boolean isOpen, final boolean isConnectedOrOppositeOpen) {
 		streak *= STREAK_SCALE;
 		int[] target;
-		if(game.shapes[game.getNextIndex()] == lineShape) target = value.ownLines;
+		if(game.getShapes()[game.getNextIndex()] == lineShape) target = value.ownLines;
 		else target = value.enemyLines;
 		if(isConnectedOrOppositeOpen) streak += OPPOSITE_OPEN_BONUS;
 		if(isOpen) {

@@ -8,7 +8,7 @@ open class FillerMnkAi: MnkAi {
 	override fun playTurn(game: MnkGame): Point? {
 		for((i, r) in game.array.withIndex()) {
 			for((j, c) in r.withIndex()) {
-				if(c == game.empty)
+				if(game.isEmpty(c))
 					return Point(j, i)
 			}
 		}

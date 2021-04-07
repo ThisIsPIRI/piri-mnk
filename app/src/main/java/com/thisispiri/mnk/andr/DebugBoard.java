@@ -34,7 +34,7 @@ public class DebugBoard extends Board {
 	@Override protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
 		if(showOrder) {
-			Move[] moves = game.history.toArray(dummyArray);
+			Move[] moves = game.getHistory().toArray(dummyArray);
 			for(int i = 0;i < moves.length;i++) {
 				canvas.drawText(Integer.toString(i + 1),moves[i].coord.x * horUnit + horUnit / 2,
 						moves[i].coord.y * verUnit + verUnit / 1.5f, orderPaints[moves[i].placed.value]);

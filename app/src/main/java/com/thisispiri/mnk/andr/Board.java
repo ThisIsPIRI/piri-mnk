@@ -94,8 +94,8 @@ public class Board extends View {
 		}
 		for(int i = 0; i < verSize; i++) {
 			for(int j = 0; j < horSize; j++) {
-				if(game.array[i][j] != game.empty) {
-					final int shapeval = game.array[i][j].value;
+				if(!game.isEmpty(j, i)) {
+					final int shapeval = game.getArray()[i][j].value;
 					switch(symbols[shapeval]) {
 					case XS:
 						canvas.drawLine(j * horUnit, i * verUnit, (j + 1) * horUnit, (i + 1) * verUnit, playerPaints[shapeval]);

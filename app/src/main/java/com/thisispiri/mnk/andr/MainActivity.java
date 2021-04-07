@@ -41,10 +41,11 @@ import com.thisispiri.dialogs.DecisionDialogFragment;
 import com.thisispiri.dialogs.DialogListener;
 import com.thisispiri.dialogs.EditTextDialogFragment;
 import com.thisispiri.dialogs.IpConnectDialogFragment;
+import com.thisispiri.mnk.BaseMnkGame;
 import com.thisispiri.mnk.EmacsGomokuAi;
 import com.thisispiri.mnk.FillerMnkAi;
+import com.thisispiri.mnk.GravityMnkGame;
 import com.thisispiri.mnk.IoThread;
-import com.thisispiri.mnk.LegalGravityMnkGame;
 import com.thisispiri.mnk.LegalMnkGame;
 import com.thisispiri.mnk.MnkAi;
 import com.thisispiri.mnk.MnkAiDecision;
@@ -148,19 +149,17 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	//SECTION: Rules, UI and Android API
 	/**{@inheritDoc}*/
 	@Override public int[] getRules() {
-		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, gravity, exactOnly, myIndex};
+		return new int[]{game.getHorSize(), game.getVerSize(), game.getWinStreak(), enableTimeLimit ? timeLimit : -1, gravity, exactOnly, myIndex};
 	}
 	private int[] getPureRules() {
-		return new int[]{game.getHorSize(), game.getVerSize(), game.winStreak, enableTimeLimit ? timeLimit : -1, gravity, exactOnly};
+		return new int[]{game.getHorSize(), game.getVerSize(), game.getWinStreak(), enableTimeLimit ? timeLimit : -1, gravity, exactOnly};
 	}
 	/**{@inheritDoc}*/
 	@Override public void setRulesFrom(int[] array) {
-		if(array[4] != gravity) {
-			gravity = array[4];
-			game = array[4] == 1 ? new LegalGravityMnkGame() : new LegalMnkGame();
-		}
-		game.setSize(array[0], array[1]);
-		game.winStreak = array[2];
+		game = new LegalMnkGame(new BaseMnkGame(array[0], array[1], array[2]));
+		gravity = array[4];
+		if(array[4] == 1)
+			game = new GravityMnkGame(game);
 		setTimeLimit(array[3]);
 		exactOnly = array[5];
 		myIndex = array[MnkManager.RULE_SIZE - 1];
@@ -169,12 +168,11 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Reads the rules from {@code pref}. Also initializes the game if the size has changed.*/
 	private void readRules(final SharedPreferences pref) { //TODO: Move initialization to readData?
 		gravity = pref.getBoolean("enableGravity", false) ? 1 : 0;
-		if(game != null)
-			game = gravity == 1 ? new LegalGravityMnkGame(game) : new LegalMnkGame(game);
-		else
-			game = gravity == 1 ? new LegalGravityMnkGame() : new LegalMnkGame();
+		game = new LegalMnkGame(game == null ? new BaseMnkGame() : new BaseMnkGame(game));
+		if(gravity == 1)
+			game = new GravityMnkGame(game);
 		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //Initialize MainActivity fields too if the game was initialized.
-		game.winStreak = pref.getInt("winStreak", 5);
+		game.setWinStreak(pref.getInt("winStreak", 5));
 		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
 		exactOnly = pref.getBoolean("exactOnly", false) ? 1 : 0;
 	}
@@ -353,10 +351,10 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		if(result != null) { //If someone won the game
 			gameEnd = true;
 			if(enableHighlight) highlighter.highlight(result);
-			if(game.getNextIndex() == 0) return (game.shapes.length) + getResources().getString(R.string.winAnnouncement); //since MnkGame.shapes starts at 0
+			if(game.getNextIndex() == 0) return (game.getShapes().length) + getResources().getString(R.string.winAnnouncement); //since MnkGame.shapes starts at 0
 			else return game.getNextIndex() + getResources().getString(R.string.winAnnouncement);
 		}
-		else if(game.history.size() == game.getHorSize() * game.getVerSize()) { //if the board is full
+		else if(game.getHistory().size() == game.getHorSize() * game.getVerSize()) { //if the board is full
 			gameEnd = true;
 			return getResources().getString(R.string.draw);
 		}
@@ -380,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private boolean endTurn(final int x, int y, final boolean highlight) {
 		//Check the legality of the move. Don't check for preventPlaying here; see GameTimer and BoardListener for details.
 		if(!game.place(x, y)) return false; //Do nothing if the move was invalid.
-		y = game.history.peek().coord.y; //y may change in a GravityMnkGame.
+		y = game.getHistory().peek().coord.y; //y may change in a GravityMnkGame.
 		if(connected) {
 			//TODO: don't rely on the Looper to determine if it's the user or the opponent playing
 			if(Looper.myLooper() == Looper.getMainLooper()) writeThread.write(9, MOVE_HEADER, x, y); //The user played it. Send the coordinates to the opponent.
@@ -813,7 +811,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private void loadGame(final String fileName) {
 		if(fileName == null) showEditTextDialog(getString(R.string.load), getString(R.string.fileNameHint));
 		else try {
-			MnkGame loaded = MnkSaveLoader.load(getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, false), game.winStreak);
+			MnkGame loaded = MnkSaveLoader.load(getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, false), game.getWinStreak());
 			initialize(); //Initialize after loading the game so that if loading fails, the previous game doesn't get initialized
 			game = new LegalMnkGame(loaded);
 			board.setGame(game);
