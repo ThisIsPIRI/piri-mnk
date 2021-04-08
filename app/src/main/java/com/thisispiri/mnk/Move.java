@@ -6,8 +6,9 @@ import com.thisispiri.common.Point;
 public class Move {
 	public final Point coord;
 	public final Shape placed, prev;
-	Move(Point p, Shape placed, Shape previous) {
-		coord = new Point(p);
+	/**@param p The coordinate. Will be assigned directly to {@link Move#coord}, and not copied.*/
+	public Move(Point p, Shape placed, Shape previous) {
+		coord = p;
 		this.placed = placed;
 		prev = previous;
 	}

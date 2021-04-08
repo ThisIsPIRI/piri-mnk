@@ -19,8 +19,8 @@ interface MnkGame {
 	val horSize: Int
 
 	/**Places a [Shape] at the supplied coordinate. Does not check if the move is illegal(the Shape may be placed on top of another, already placed, one).
-	 * Changes [MnkGame.nextIndex].
-	 * @return `true` if a [Shape] was successfully placed. `false` if it failed to place it(for example, because the coordinate was out of boundaries).*/
+	 * Changes [MnkGame.nextIndex] if the placement was successful.
+	 * @return `true` if a [Shape] was successfully placed. `false` if not(for example, because the coordinate was out of boundaries).*/
 	fun place(x: Int, y: Int): Boolean
 	/**Places the shape at the location.
 	 * Does not change [MnkGame.nextIndex].

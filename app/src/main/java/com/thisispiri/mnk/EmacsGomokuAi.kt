@@ -90,7 +90,7 @@ open class EmacsGomokuAi: MnkAi {
 	}
 	private fun forBackward(from: Point, mode: Mode, n: Int, action: (Int, Int) -> Unit) {
 		val p = Point(from)
-		for(i in 1..n) {
+		for(i in 0 until n) {
 			action(p.x, p.y)
 			backward(p, mode)
 		}

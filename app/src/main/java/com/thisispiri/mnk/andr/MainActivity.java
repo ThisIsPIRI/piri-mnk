@@ -154,12 +154,15 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	private int[] getPureRules() {
 		return new int[]{game.getHorSize(), game.getVerSize(), game.getWinStreak(), enableTimeLimit ? timeLimit : -1, gravity, exactOnly};
 	}
+	private void decorateAndSetGame(MnkGame base) {
+		game = new LegalMnkGame(base);
+		if(gravity == 1)
+			game = new GravityMnkGame(game);
+	}
 	/**{@inheritDoc}*/
 	@Override public void setRulesFrom(int[] array) {
-		game = new LegalMnkGame(new BaseMnkGame(array[0], array[1], array[2]));
 		gravity = array[4];
-		if(array[4] == 1)
-			game = new GravityMnkGame(game);
+		decorateAndSetGame(new BaseMnkGame(array[0], array[1], array[2]));
 		setTimeLimit(array[3]);
 		exactOnly = array[5];
 		myIndex = array[MnkManager.RULE_SIZE - 1];
@@ -168,9 +171,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 	/**Reads the rules from {@code pref}. Also initializes the game if the size has changed.*/
 	private void readRules(final SharedPreferences pref) { //TODO: Move initialization to readData?
 		gravity = pref.getBoolean("enableGravity", false) ? 1 : 0;
-		game = new LegalMnkGame(game == null ? new BaseMnkGame() : new BaseMnkGame(game));
-		if(gravity == 1)
-			game = new GravityMnkGame(game);
+		decorateAndSetGame(game == null ? new BaseMnkGame() : new BaseMnkGame(game));
 		if(game.setSize(pref.getInt("horSize", 15), pref.getInt("verSize", 15))) initialize(); //Initialize MainActivity fields too if the game was initialized.
 		game.setWinStreak(pref.getInt("winStreak", 5));
 		setTimeLimit(pref.getBoolean("enableTimeLimit", false) ? pref.getInt("timeLimit", 60000) : -1);
@@ -813,7 +814,7 @@ public class MainActivity extends AppCompatActivity implements MnkManager, Timed
 		else try {
 			MnkGame loaded = MnkSaveLoader.load(getFile(DIRECTORY_NAME, fileName + FILE_EXTENSION, false), game.getWinStreak());
 			initialize(); //Initialize after loading the game so that if loading fails, the previous game doesn't get initialized
-			game = new LegalMnkGame(loaded);
+			decorateAndSetGame(loaded);
 			board.setGame(game);
 			board.invalidate();
 			highlighter.updateValues(game.getHorSize(), game.getVerSize(), screenX);

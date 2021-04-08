@@ -1,7 +1,6 @@
 package com.thisispiri.mnk
 
-/**An [MnkGame] decorator through which you can only play valid moves.
- * This should be the innermost decorator.*/
+/**An [MnkGame] decorator through which you can only play valid moves.*/
 open class LegalMnkGame(private val game: MnkGame): MnkGame by game {
 	/**Places a [Shape] on the position if and only if the tile is empty.
 	 * @return Whether it succeeded in placing a stone.*/

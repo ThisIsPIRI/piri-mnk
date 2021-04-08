@@ -1,6 +1,7 @@
 package com.thisispiri.mnk
 
-/**An [MnkGame] decorator that adds gravity. */
+/**An [MnkGame] decorator that adds gravity.
+ * This, or any other decorator that changes (x,y), should be the outermost decorator.*/
 open class GravityMnkGame(private val game: MnkGame): MnkGame by game {
 	/**Returns the largest y that keeps (x, y) within boundary and empty. */
 	protected fun getFallenY(x: Int, y: Int): Int {

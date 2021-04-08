@@ -29,7 +29,7 @@ public class BaseMnkGame implements MnkGame { //TODO: Support renju
 	@Override public Shape[] getShapes() { return shapes; }
 	@Override public Stack<Move> getHistory() { return history; }
 
-	/**Returns the index of the next {@link Shape} to be placed in {@link MnkGame#shapes}.
+	/**Returns the index of the next {@link Shape} to be placed in {@link MnkGame#getShapes()}.
 	 * @return The index of the next {@link Shape} to be placed.*/
 	@Override public int getNextIndex() {return nextIndex;}
 
@@ -105,7 +105,7 @@ public class BaseMnkGame implements MnkGame { //TODO: Support renju
 		else return false;
 	}
 
-	@Override public Point[] checkWin(final int x, final int y) {return checkWin(x, y, false);}
+	@Override public Point[] checkWin(final int x, final int y) { return checkWin(x, y, false); }
 	/**{@inheritDoc}
 	 * The array will only contain {@link MnkGame#getWinStreak} Points even if the line is longer than that.
 	 * The Points are stored from bottom to top if the line is vertical, right to left if horizontal,
@@ -117,25 +117,23 @@ public class BaseMnkGame implements MnkGame { //TODO: Support renju
 				new Point(Math.max(x - y, 0), Math.max(y - x, 0))};
 		for(int i = 0;i < xP.length;i++) {
 			int streak = 0;
-			Point p = starting[i];
-			while(inBoundary(getNextPoint(p, xP[i], yP[i]))) {
+			Point p = starting[i], n = new Point(p), temp;
+			while(inBoundary(p.y + yP[i], p.x + xP[i])) {
 				streak++;
-				Point n = getNextPoint(p, xP[i], yP[i]);
+				n.x = p.x + xP[i];
+				n.y = p.y + yP[i];
 				if(array[p.y][p.x] != array[n.y][n.x] || isEmpty(p.x, p.y)) {
 					if(streak == winStreak) //Exact matches not including the last cell
 						return getLinePoints(winStreak, p.x, p.y, -xP[i], -yP[i]);
 					streak = 0;
 				}
 				//All non-exact matches and exact matches including the last cell
-				if(streak == winStreak - 1 && (!exact || !inBoundary(getNextPoint(n, xP[i], yP[i]))))
+				if(streak == winStreak - 1 && (!exact || !inBoundary(n.y + yP[i], n.x + xP[i])))
 					return getLinePoints(winStreak, n.x, n.y, -xP[i], -yP[i]);
-				p = n;
+				temp = p; p = n; n = temp;
 			}
 		}
 		return null;
-	}
-	private Point getNextPoint(final Point p, final int xPlus, final int yPlus) {
-		return new Point(p.x + xPlus, p.y + yPlus);
 	}
 	/**Returns the {@code Point}s consisting a line.
 	 * @param length The length of the line.
